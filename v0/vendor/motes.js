@@ -794,5 +794,3 @@ function createMotes(canvas, config = {}) {
 }
 
 export { DEFAULT_OPTIONS, createMotes, defineEffect, listEffects };
-//# sourceMappingURL=index.js.map
-//# sourceMappingURL=index.js.map
