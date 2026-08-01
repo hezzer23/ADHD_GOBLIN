@@ -5,8 +5,8 @@
    Fiecare schimbare are o cauză.
 
    VIGNETTE (update): motes doar pe margini. Dens la periferie, se stinge
-   spre centru (vignette inversat). Centrul e rezervat grafului. Implementat
-   ca mask radial CSS pe canvas-ul motes (transparent-centru → opac-margine).
+   spre centru (vignette inversat). Centrul e rezervat grafului. Desenat pe
+   canvas-ul field (peste motes) — vezi field.js.
 
    TRANZIȚII SMOOTH (update): zero salturi. Toate schimbările de
    contrast/brightness se interpolează (lerp 0.03/frame) spre țintă.
@@ -24,24 +24,6 @@ import { createMotes } from '../../vendor/motes.js';
 import { rgba, COLORS as C } from '../config.js';
 
 const clamp01 = v => Math.max(0, Math.min(1, v));
-
-/* ── VIGNETTE: mask radial, dens la margini → 0 spre centru ──────────
-   Desenat pe un canvas mic pătrat, întins peste viewport (devine eliptic).
-   Unde mask-ul e transparent, motes-ul nu se vede → centrul rămâne curat. */
-function vignetteMask(){
-  const S = 256;
-  const c = document.createElement('canvas'); c.width = c.height = S;
-  const g = c.getContext('2d');
-  const r = S / 2;
-  const grad = g.createRadialGradient(r, r, 0, r, r, r);
-  grad.addColorStop(0,    'rgba(0,0,0,0)');     // centru: ascuns
-  grad.addColorStop(0.42, 'rgba(0,0,0,0)');     // zona grafului: curată
-  grad.addColorStop(0.72, 'rgba(0,0,0,0.5)');   // tranziție
-  grad.addColorStop(1,    'rgba(0,0,0,1)');     // margine: dens
-  g.fillStyle = grad;
-  g.fillRect(0, 0, S, S);
-  return c.toDataURL();
-}
 
 export function mountMotes(canvas){
   let motes = null;
@@ -75,12 +57,8 @@ export function mountMotes(canvas){
   /* createMotes NU pornește singur — randarea începe la start() */
   motes.start();
 
-  /* aplică vignette-ul: motes doar pe margini */
-  const maskUrl = vignetteMask();
-  canvas.style.webkitMaskImage = maskUrl;
-  canvas.style.maskImage = maskUrl;
-  canvas.style.webkitMaskSize = '100% 100%';
-  canvas.style.maskSize = '100% 100%';
+  /* Vignette-ul (motes doar pe margini) e desenat pe canvas-ul field,
+     care e peste motes — vezi field.js. Acolo e garantat vizibil. */
 
   /* ── stările reactive, combinate într-o țintă de contrast/brightness ── */
   const state = {

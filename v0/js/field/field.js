@@ -267,6 +267,23 @@ export function createField(canvas){
     /* TRANSPARENT: nu umple cu negru. Motes-ul de sub e fundalul. */
     cx.clearRect(0,0,W,H);
 
+    /* VIGNETTE (DECISION-motes-reactive.md): motes doar pe margini.
+       Field e peste motes, deci un negru opac în centru le ascunde acolo,
+       iar marginile transparente le lasă să se vadă. Centrul e rezervat
+       grafului. Gradient eliptic (scale pe axe) → uniform pe toate marginile.
+       Desenat primul, ca tot graful să stea peste el. */
+    cx.save();
+    cx.translate(W/2, H/2);
+    cx.scale(W/2, H/2);                       // cerc unitate = elipsa care atinge marginile
+    const vg = cx.createRadialGradient(0,0,0, 0,0,1);
+    vg.addColorStop(0,    'rgba(0,0,0,0.92)'); // centru: curat
+    vg.addColorStop(0.5,  'rgba(0,0,0,0.8)');  // zona grafului
+    vg.addColorStop(0.78, 'rgba(0,0,0,0.25)'); // tranziție
+    vg.addColorStop(1,    'rgba(0,0,0,0)');    // margine: motes vizibil
+    cx.fillStyle = vg;
+    cx.fillRect(-1,-1,2,2);
+    cx.restore();
+
     /* avansează spawn animation (0→1, ~500ms, elastic.out) */
     for (const n of nodes){
       if (n.spawnT < 1) n.spawnT = Math.min(1, n.spawnT + dt / 0.5);
