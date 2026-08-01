@@ -52,25 +52,32 @@ export const PROMPTS = {
     'zero emoji; zero semne de exclamare; zero „treabă bună". Vorbești română, ' +
     'informal, scurt. Nu lauzi: numești evitarea și tot ajuți.',
 
-  /* 1 — extract: braindump → 3-5 noduri */
-  extractSystem:
-    'Ești engine de extracție. Transformi un braindump haotic în 3-5 noduri, ' +
-    'fiecare = o unitate de sens (nevoie, task, îngrijorare, idee). ' +
-    'Tipuri: task | idee | îngrijorare | fapt. Răspunde DOAR JSON valid, fără alt text.',
-  extractUser: (text) =>
-    'Braindump: """' + text + '""" → JSON:\n' +
-    '{"nodes":[{"label":"…","type":"task","detail":"…"}]}\n' +
-    'Constrângeri: maxim 5 noduri. label scurt (2-6 cuvinte). type doar din lista dată.',
-
-  /* 2 — link: noduri noi vs. labeluri vechi */
-  linkUser: (oldLabels, newLabels) =>
-    'Ai noduri existente: ' + JSON.stringify(oldLabels) + '. ' +
-    'Noduri noi: ' + JSON.stringify(newLabels) + '. ' +
-    'Care nod nou se leagă de care nod existent (temă comună)? ' +
-    'În "from" pui LABELUL EXACT al nodului nou (din lista de noduri noi), ' +
-    'în "to" LABELUL EXACT al nodului existent (din lista de noduri existente). ' +
-    'Folosește textul labelului ca atare, NU id-uri. DOAR JSON:\n' +
-    '{"links":[{"from":"<labelul exact al nodului nou>","to":"<labelul exact al nodului existent>"}]}',
+  /* 1 — REASONING PASS (Faza 1): un singur apel care vede TOT graful și
+     decide deodată noduri + legături + grupuri. Înlocuiește vechile
+     extract/link/askTheme — ele ghiceau din fragmente, ăsta gândește. */
+  reasonSystem:
+    'Ești engine de raționament pentru un graf de cunoaștere personală. ' +
+    'Vezi tot graful de până acum și un braindump nou. Decizi DEODATĂ: ' +
+    '(1) ce noduri noi extragi din braindump, (2) cum se leagă ele de ce ' +
+    'există deja, (3) ce grupuri tematice se formează. Răspunde DOAR JSON valid, fără alt text.',
+  reasonUser: (graphCtx, text) =>
+    graphCtx +
+    '\nBraindump nou: """' + text + '"""\n\n' +
+    'Reguli:\n' +
+    '- nodes: 2-5 noduri noi din braindump. label scurt (2-6 cuvinte). ' +
+    'type doar din: task | idee | îngrijorare | fapt. ' +
+    'source = fragmentul EXACT (max 120 caractere) din braindump care a generat nodul.\n' +
+    '- links: leagă fiecare nod nou de nodurile existente relevante (temă comună). ' +
+    'from = labelul EXACT al nodului nou. to = labelul EXACT al nodului existent. ' +
+    'reason = o scurtă explicație în română (max 80 caractere): DE CE se leagă.\n' +
+    '- groups: propune grupuri tematice de minim 3 noduri LIBERE (neclusterizate) ' +
+    'care sunt conectate prin legături. labels = labeluri EXACTE. ' +
+    'theme = numele grupului în limbaj real (2-4 cuvinte, lowercase, română), NU o etichetă generică.\n\n' +
+    'DOAR JSON:\n' +
+    '{"nodes":[{"label":"…","type":"task","source":"…"}],' +
+    '"links":[{"from":"…","to":"…","reason":"…"}],' +
+    '"groups":[{"theme":"…","labels":["…","…","…"]}]}\n' +
+    'Dacă nu se formează niciun grup, groups: [].',
 
   /* 3 — reacție la primul braindump (cu context: ultimele replici + noduri) */
   reactUser: (text, labels, ctx) =>
@@ -85,11 +92,6 @@ export const PROMPTS = {
     'Cluster nou: tema „' + theme + '", ' + labels.length + ' noduri ' +
     '(numele lor: ' + JSON.stringify(labels) + '). ' + countUnresolved + ' sunt task-uri nerezolvate. ' +
     'Răspunde ca goblin: o singură propoziție cinică care semnalează tema + ce e nefăcut. Fără glazing.',
-
-  /* 4b — tema clusterului (nume scurt, 2-4 cuvinte) */
-  themeUser: (labels) =>
-    'Aceste noduri formează un grup cu temă comună: ' + JSON.stringify(labels) + '. ' +
-    'Dă-i un nume scurt de temă (2-4 cuvinte, lowercase, română).',
 };
 
 /* ── contextul vocii (DECISION-goblin-voice.md) ──────────────────────

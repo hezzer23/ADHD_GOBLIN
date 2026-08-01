@@ -11,9 +11,7 @@
 import { createField } from './field/field.js';
 import { mountMotes } from './field/motes.js';
 import { createGoblin } from './goblin/goblin.js';
-import { extract } from './brain/extract.js';
-import { link } from './brain/link.js';
-import { detectCluster } from './brain/cluster.js';
+import { reason } from './brain/reason.js';
 import { emergeCluster } from './field/clusteranim.js';
 import { addDump, addNode, addLink, addClusterEvent, updatePositions, sayGoblin, recentSays, loadGraph } from './graph/store.js';
 import { PROMPTS, COLORS as C, WORLD } from './config.js';
@@ -45,7 +43,9 @@ function overlays(st){
     reticle.style.top  = (p.y - st.hoverNode.r*st.cam.k*1.6 - 12)+'px';
     reticle.style.setProperty('--rc', cssc(st.hoverNode));
     r_name.textContent = st.hoverNode.label;
-    r_sub.textContent  = st.hoverNode.deg + ' legături';
+    r_sub.textContent  = st.hoverNode.source
+      ? '„' + st.hoverNode.source + '"'
+      : st.hoverNode.deg + ' legături';
   } else reticle.classList.remove('on');
 
   if (st.hoverEdge && !st.hoverNode){
@@ -102,13 +102,21 @@ async function onDump(text){
 
   addDump(text).catch(()=>{});
 
-  /* nodurile vechi, înainte de a adăuga altele noi (pentru link) */
-  const oldNodes = field.nodes.map(n => ({ id: n.id, label: n.label }));
+  /* 1. REASONING PASS (Faza 1): un singur apel care vede TOT graful și
+     decide deodată noduri + legături + grupuri validate. */
+  const graphCtx = {
+    nodes: field.nodes.map(n => ({
+      label: n.label, type: n.type, source: n.source || '', cluster: n.cluster ?? -1,
+    })),
+    links: field.edges.map(e => ({ from: e.a.label, to: e.b.label, reason: e.src || '' })),
+    clusters: field.clusters.map(c => ({
+      theme: c.name,
+      labels: field.nodes.filter(n => n.cluster === c.id).map(n => n.label),
+    })),
+  };
+  const res = await reason(graphCtx, text);
 
-  /* 1. extract: LLM → 1-5 noduri (sau eșec curat, fără noduri false) */
-  const { nodes: extracted, ok } = await extract(text);
-
-  if (!ok || !extracted.length){
+  if (!res.ok || !res.nodes.length){
     /* LLM-ul n-a putut extrage nimic real — goblinul o spune, graful rămâne curat */
     motes.setThinking(false);
     speak('n-am înțeles bine grămada asta. mai zi o dată, mai rar.');
@@ -123,8 +131,9 @@ async function onDump(text){
   const srcX = dumpRect.left + dumpRect.width / 2;
   const srcY = dumpRect.top;
 
+  const labelToId = new Map(field.nodes.map(n => [n.label, n.id]));
   const newNodes = [];
-  for (const spec of extracted){
+  for (const spec of res.nodes){
     const pos = nextPos();
     const id = 'n' + Date.now().toString(36) + '_' + nodeSeq;
     const n = field.addNode({
@@ -133,66 +142,59 @@ async function onDump(text){
       conf: 0.75 + Math.random() * 0.2,
       x: pos.x, y: pos.y,
     });
+    n.source = spec.source;   // ce l-a generat (vizibil la hover)
     newNodes.push(n);
+    labelToId.set(spec.label, id);
 
     const dest = field.toS(pos.x, pos.y);
     const tint = n.action ? C.acid : n.worry ? C.rug : C.os;
     field.particles.trail(srcX, srcY, dest.x, dest.y, tint, 10);
     field.particles.burst(dest.x, dest.y, tint, 12);
 
-    addNode({ id, label: spec.label, type: spec.type, detail: spec.detail,
+    addNode({ id, label: spec.label, type: spec.type, source: spec.source,
               x: pos.x, y: pos.y, vx:0, vy:0, created: Date.now(), dumpId: null })
       .catch(()=>{});
   }
 
-  /* 3. LINK: noduri noi → cele vechi (doar de la a 2-a ingestă) */
-  if (oldNodes.length){
-    const links = await link(
-      newNodes.map(n => ({ id: n.id, label: n.label })),
-      oldNodes
-    );
-    for (const l of links){
-      const e = field.addLink({ a: l.from, b: l.to, kind: l.kind, conf: 0.8 });
-      if (e){
-        addLink({ id: 'l_' + l.from + '_' + l.to, from: l.from, to: l.to,
-                  strength: 0.8, ts: Date.now() }).catch(()=>{});
-      }
+  /* 3. legăturile motivate (reason a decis deja care + de ce) */
+  for (const l of res.links){
+    const fromId = labelToId.get(l.from), toId = labelToId.get(l.to);
+    if (!fromId || !toId) continue;
+    const e = field.addLink({ a: fromId, b: toId, kind: l.reason || 'se leagă',
+                              src: l.reason, conf: 0.8 });
+    if (e){
+      addLink({ id: 'l_' + fromId + '_' + toId, from: fromId, to: toId,
+                reason: l.reason, strength: 0.8, ts: Date.now() }).catch(()=>{});
     }
   }
 
-  /* 4. CLUSTER: la fiecare ingestă, dacă nodurile LIBERE (neclusterizate)
-     formează o componentă conexă >= 4, ele se trag împreună + goblinul
-     numește grămada. Fiecare temă nouă = cluster nou (multi-cluster). */
+  /* 4. CLUSTERELE validate (reason a propus, BFS a confirmat că sunt conectate).
+     Fiecare grup validat = cluster nou, separat spațial de cele existente. */
   let clusterFormed = false;
-  if (field.nodes.length >= 4){
-    const detected = await detectCluster(
-      field.nodes.map(n => ({ id: n.id, label: n.label, type: n.type, cluster: n.cluster })),
-      field.edges.map(e => ({ a: e.a.id, b: e.b.id }))
-    );
-    if (detected){
-      const cid = clusterSeq++;
-      const clusterNodes = detected.nodeIds.map(id => field.byId.get(id)).filter(Boolean);
-      emergeCluster(field, clusterNodes, detected.theme, cid);
-      addClusterEvent({ dumpId: null, theme: detected.theme, nodeIds: detected.nodeIds, cid })
+  for (const g of res.groups){
+    const clusterNodes = g.labels.map(lb => field.byId.get(labelToId.get(lb))).filter(Boolean);
+    if (clusterNodes.length < 3) continue;
+    const cid = clusterSeq++;
+    emergeCluster(field, clusterNodes, g.theme, cid);
+    addClusterEvent({ dumpId: null, theme: g.theme,
+                      nodeIds: clusterNodes.map(n => n.id), cid }).catch(()=>{});
+    setTimeout(() => {
+      updatePositions(clusterNodes.map(n => ({ id: n.id, x: n.wx, y: n.wy, cluster: cid })))
         .catch(()=>{});
-      /* persistă pozițiile înghețate + apartenența la cluster după pull */
-      setTimeout(() => {
-        updatePositions(clusterNodes.map(n => ({ id: n.id, x: n.wx, y: n.wy, cluster: cid })))
-          .catch(()=>{});
-      }, 700);
-      clusterFormed = true;
-      /* goblinul reacționează la cluster (Prompt 4) */
-      const cLabels = clusterNodes.map(n => n.label);
+    }, 700);
+    clusterFormed = true;
+    /* goblinul reacționează la (primul) cluster nou */
+    if (g === res.groups[0]){
       const unresolved = clusterNodes.filter(n => n.action).length;
-      const reply = await goblinClusterReply(detected.theme, cLabels, unresolved);
+      const reply = await goblinClusterReply(g.theme, g.labels, unresolved);
       motes.setThinking(false);
       speak(reply);
     }
   }
 
-  /* 5. goblin: replică cinică (LLM sau fallback) — doar dacă nu s-a format cluster */
+  /* 5. goblin: replică (LLM sau fallback) — doar dacă nu s-a format cluster */
   if (!clusterFormed){
-    const labels = extracted.map(n => n.label);
+    const labels = res.nodes.map(n => n.label);
     const reply = await goblinReply(text, labels);
     motes.setThinking(false);         // LLM gata → câmpul coboară
     speak(reply);                     // ecoul → câmpul se stinge puțin
@@ -311,13 +313,14 @@ async function boot(){
   try {
     const { nodes, links, clusterEvents } = await loadGraph();
     for (const n of nodes){
-      field.addNode({
+      const node = field.addNode({
         id: n.id, label: n.label, type: n.type,
         action: n.type === 'task', conf: 0.8,
         cluster: n.cluster ?? -1,
         x: n.x, y: n.y,
         spawn: false,
       });
+      node.source = n.source || '';   // restaurează „ce l-a generat"
       nodeSeq++;
     }
     for (const l of links){
