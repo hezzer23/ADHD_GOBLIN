@@ -267,18 +267,36 @@ export function createField(canvas){
     /* TRANSPARENT: nu umple cu negru. Motes-ul de sub e fundalul. */
     cx.clearRect(0,0,W,H);
 
-    /* VIGNETTE (DECISION-motes-reactive.md): motes doar pe margini.
-       Field e peste motes, deci un negru opac în centru le ascunde acolo,
-       iar marginile transparente le lasă să se vadă. Centrul e rezervat
-       grafului. Gradient eliptic (scale pe axe) → uniform pe toate marginile.
-       Desenat primul, ca tot graful să stea peste el. */
+    /* ZONA DE LINIȘTE GLOBALĂ / VIGNETTE ADAPTIV (DECISION-motes-reactive.md):
+       motes doar pe margini, centrul rezervat grafului. Zona e LOCKED de
+       bounding box-ul nodurilor (world-space), deci urmărește zoom/pan —
+       la zoom in centrul rămâne întunecat, la zoom out se contractă și
+       motes-ul respiră înapoi. Computing trivial: un bbox + un gradient.
+       Field e peste motes, deci negrul opac le ascunde; marginile
+       transparente le lasă. Desenat primul, graful stă peste el. */
+    let zx0, zy0, zx1, zy1;
+    if (nodes.length){
+      zx0=1e9; zy0=1e9; zx1=-1e9; zy1=-1e9;
+      for (const n of nodes){
+        zx0=Math.min(zx0, n.wx - n.r); zy0=Math.min(zy0, n.wy - n.r);
+        zx1=Math.max(zx1, n.wx + n.r); zy1=Math.max(zy1, n.wy + n.r);
+      }
+      const pad = 170;                       // world units, în jurul nodurilor
+      zx0-=pad; zy0-=pad; zx1+=pad; zy1+=pad;
+    } else {
+      /* fără noduri: zonă mică în centrul lumii */
+      zx0=WORLD.w/2-260; zy0=WORLD.h/2-200; zx1=WORLD.w/2+260; zy1=WORLD.h/2+200;
+    }
+    const zc = toS((zx0+zx1)/2, (zy0+zy1)/2);
+    const halfW = Math.max((zx1-zx0)/2 * cam.k, 40);
+    const halfH = Math.max((zy1-zy0)/2 * cam.k, 40);
     cx.save();
-    cx.translate(W/2, H/2);
-    cx.scale(W/2, H/2);                       // cerc unitate = elipsa care atinge marginile
+    cx.translate(zc.x, zc.y);
+    cx.scale(halfW, halfH);                  // cerc unitate → elipsa zonei
     const vg = cx.createRadialGradient(0,0,0, 0,0,1);
-    vg.addColorStop(0,    'rgba(0,0,0,0.92)'); // centru: curat
-    vg.addColorStop(0.5,  'rgba(0,0,0,0.8)');  // zona grafului
-    vg.addColorStop(0.78, 'rgba(0,0,0,0.25)'); // tranziție
+    vg.addColorStop(0,    'rgba(0,0,0,0.96)'); // mijlocul grafului: curat
+    vg.addColorStop(0.55, 'rgba(0,0,0,0.88)'); // acoperă nodurile + zona lor
+    vg.addColorStop(0.85, 'rgba(0,0,0,0.35)'); // tranziție spre câmp
     vg.addColorStop(1,    'rgba(0,0,0,0)');    // margine: motes vizibil
     cx.fillStyle = vg;
     cx.fillRect(-1,-1,2,2);
