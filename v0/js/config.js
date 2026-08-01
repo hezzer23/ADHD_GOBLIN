@@ -17,6 +17,11 @@ export const rgba = (c,a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
 export const WORLD = { w:1500, h:1000 };
 export const PHASES = 4;   // faze de contur per nod (deformare)
 
+/* ── reduced-motion: poartă tot ce e decorativ (breath, morph, shake,
+   particule) sub media query. Motes-ul are propriul respectMotionPreference. */
+export const REDUCED_MOTION = typeof matchMedia !== 'undefined' &&
+  matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 /* ── unelte ────────────────────────────────────────────── */
 export const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
 export function mulberry32(a){

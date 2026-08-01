@@ -14,7 +14,7 @@
    Ziua 1: rulează cu zero noduri. API-ul (addNode/addLink/addCluster/
    firePulse) e gata pentru ziua 2 — pipeline-ul LLM doar îl cheamă.
    ═══════════════════════════════════════════════════════════════════════ */
-import { COLORS as C, rgba, WORLD, PHASES, BAYER, clamp, mulberry32 } from '../config.js';
+import { COLORS as C, rgba, WORLD, PHASES, BAYER, clamp, mulberry32, REDUCED_MOTION } from '../config.js';
 import * as particles from './particles.js';
 
 /* anvelopă convexă (Andrew's monotone chain). Pentru zona de liniște:
@@ -151,8 +151,10 @@ export function createField(canvas){
   const rnd0 = mulberry32(7);
 
   /* parametri de randare (macheta avea un panel; v0 ține valorile fixe,
-     validate. Ziua 5 poate readuce un subset. */
-  const state = { weak:'hover', labels:1, box:1, breath:1, morph:1, halo:1, hops:3 };
+     validate. Ziua 5 poate readuce un subset.) breath/morph se sting sub
+     prefers-reduced-motion — materia rămâne, doar nu mai pulsează/deformează. */
+  const state = { weak:'hover', labels:1, box:1, halo:1, hops:3,
+                  breath: REDUCED_MOTION ? 0 : 1, morph: REDUCED_MOTION ? 0 : 1 };
 
   /* ── API de date (ziua 2: pipeline-ul LLM cheamă astea) ─ */
   function addNode(spec){
@@ -260,6 +262,7 @@ export function createField(canvas){
   /* ── interacțiune ────────────────────────────────────── */
   let hoverNode=null, hoverEdge=null, pulse=null;
   let onNodeClick=null;   // callback(x, y, node) — pt. unda motes la click
+  let postDraw=null;      // callback(cx, dt) — hook pt. straturi externe (motes pulses)
   const mouse = { x:-1e4, y:-1e4 };
   canvas.addEventListener('mousemove', ev => { mouse.x=ev.clientX; mouse.y=ev.clientY; });
   canvas.addEventListener('mouseleave', () => { mouse.x=mouse.y=-1e4; });
@@ -304,7 +307,10 @@ export function createField(canvas){
 
   /* micro screen shake (doar la evenimente mari — cluster emerge) */
   let shakeT = 1, shakeAmp = 0;
-  function triggerShake(amp){ shakeT = 0; shakeAmp = amp || 3; }
+  function triggerShake(amp){
+    if (REDUCED_MOTION) return;   // fără shake sub prefers-reduced-motion
+    shakeT = 0; shakeAmp = amp || 3;
+  }
 
   /* ── randare ─────────────────────────────────────────── */
   let lastT = 0;
@@ -695,6 +701,9 @@ export function createField(canvas){
 
     cx.restore();   // închide translate-ul de shake
 
+    /* hook extern (motes pulses) — în spațiu ecran, după shake */
+    if (postDraw) postDraw(cx, dt);
+
     return {
       hoverNode, hoverEdge, cam,
       hit, drawn, shownLabels,
@@ -710,5 +719,6 @@ export function createField(canvas){
     particles,
     animateTo, setRecede, triggerShake,
     set onNodeClick(fn){ onNodeClick = fn; },
+    set postDraw(fn){ postDraw = fn; },
   };
 }

@@ -27,6 +27,8 @@ const goblin = createGoblin();
 
 /* click pe nod → undă locală în câmp (coord. screen) */
 field.onNodeClick = (x, y) => motes.pulseAt(x, y);
+/* undele motes se desenează pe canvasul field, peste tot (după shake) */
+field.postDraw = (cx, dt) => motes.drawPulses(cx, dt);
 
 /* ── status + overlay-uri DOM ──────────────────────────── */
 const reticle = $('reticle'), edgecard = $('edgecard');
@@ -66,12 +68,16 @@ function frame(t){
   s_l.textContent = st.counts.l;
   s_c.textContent = st.counts.c;
   s_z.textContent = st.cam.k.toFixed(2);
+  /* câmpul se stinge pe măsură ce graful crește — cunoașterea compilată
+     alungă zgomotul. 0 noduri = 0 energie (câmp plin), 12+ = stins. */
+  motes.setEnergy(Math.min(1, st.counts.n / 12));
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
 
 /* ── poziționare deterministă (stivă, nu fizică) ───────── */
 let nodeSeq = 0;
+let clusterSeq = 0;   // id-uri unice de cluster (persistă prin clusterEvents.cid)
 function nextPos(){
   const i = nodeSeq++;
   const ring = Math.floor(i / 6);
@@ -144,22 +150,24 @@ async function onDump(text){
     }
   }
 
-  /* 4. CLUSTER: la a 3-a ingestă, dacă se formează o componentă conexă
-     mare, nodurile se trag împreună + goblinul numește grămada. */
+  /* 4. CLUSTER: la fiecare ingestă, dacă nodurile LIBERE (neclusterizate)
+     formează o componentă conexă >= 4, ele se trag împreună + goblinul
+     numește grămada. Fiecare temă nouă = cluster nou (multi-cluster). */
   let clusterFormed = false;
-  if (field.clusters.length === 0 && field.nodes.length >= 4){
+  if (field.nodes.length >= 4){
     const detected = await detectCluster(
-      field.nodes.map(n => ({ id: n.id, label: n.label, type: n.type })),
+      field.nodes.map(n => ({ id: n.id, label: n.label, type: n.type, cluster: n.cluster })),
       field.edges.map(e => ({ a: e.a.id, b: e.b.id }))
     );
     if (detected){
+      const cid = clusterSeq++;
       const clusterNodes = detected.nodeIds.map(id => field.byId.get(id)).filter(Boolean);
-      emergeCluster(field, clusterNodes, detected.theme, 0);
-      addClusterEvent({ dumpId: null, theme: detected.theme, nodeIds: detected.nodeIds })
+      emergeCluster(field, clusterNodes, detected.theme, cid);
+      addClusterEvent({ dumpId: null, theme: detected.theme, nodeIds: detected.nodeIds, cid })
         .catch(()=>{});
-      /* persistă pozițiile înghețate după ce pull-ul se termină */
+      /* persistă pozițiile înghețate + apartenența la cluster după pull */
       setTimeout(() => {
-        updatePositions(clusterNodes.map(n => ({ id: n.id, x: n.wx, y: n.wy })))
+        updatePositions(clusterNodes.map(n => ({ id: n.id, x: n.wx, y: n.wy, cluster: cid })))
           .catch(()=>{});
       }, 700);
       clusterFormed = true;
@@ -261,14 +269,42 @@ input.addEventListener('input', () => {
   input.style.height = input.scrollHeight + 'px';
 });
 
-/* ── boot: reload persistent + goblin intră în cutie ───── */
+/* ── DEMO: 3 braindump-uri scriptate care arată loop-ul complet ── */
+const DEMO_DUMPS = [
+  'am de plătit factura la curent și chiria, nu știu de unde scot banii luna asta, iar amânat dentistul',
+  'trebuie să termin raportul pentru luni, colegul meu iar a pasat totul pe mine, nu mai am energie seara',
+  'vreau să încep să alerg dimineața dar nu mă trezesc, somnul e varză, stau pe telefon până la 2 noaptea',
+];
+const demoBtn = $('demo');
+let demoRunning = false;
+
+demoBtn.addEventListener('click', async () => {
+  if (demoRunning || busy) return;
+  demoRunning = true;
+  demoBtn.disabled = true;
+  for (const text of DEMO_DUMPS){
+    input.value = text;
+    input.style.height = 'auto';
+    input.style.height = input.scrollHeight + 'px';
+    await new Promise(r => setTimeout(r, 600));   // pauză vizibilă
+    input.value = '';
+    input.style.height = 'auto';
+    await onDump(text);
+    await new Promise(r => setTimeout(r, 900));   // lasă clusterul să se așeze
+  }
+  demoRunning = false;
+  demoBtn.disabled = false;
+});
+
+/* ── boot: reload persistent + reconstrucție clustere + goblin ───── */
 async function boot(){
   try {
-    const { nodes, links } = await loadGraph();
+    const { nodes, links, clusterEvents } = await loadGraph();
     for (const n of nodes){
       field.addNode({
         id: n.id, label: n.label, type: n.type,
         action: n.type === 'task', conf: 0.8,
+        cluster: n.cluster ?? -1,
         x: n.x, y: n.y,
         spawn: false,
       });
@@ -277,6 +313,20 @@ async function boot(){
     for (const l of links){
       field.addLink({ a: l.from, b: l.to, conf: l.strength ?? 0.8, grow: false });
     }
+
+    /* reconstruiește clusterele din clusterEvents (halou + box + etichetă).
+       Apartenența nodurilor (cluster id) e deja pe nod din IndexedDB;
+       aici doar recreăm obiectele-cluster și le populăm. */
+    for (const ev of clusterEvents){
+      const cid = ev.cid ?? 0;
+      const members = (ev.nodeIds || [])
+        .map(id => field.byId.get(id))
+        .filter(n => n && n.cluster === cid);
+      if (!members.length) continue;
+      field.addCluster({ id: cid, name: ev.theme });
+      clusterSeq = Math.max(clusterSeq, cid + 1);
+    }
+    field.recomputeClusters();
   } catch (err) {
     console.warn('[boot] reload fail:', err);
   }

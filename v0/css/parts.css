@@ -56,6 +56,15 @@
 .echo .cur{display:inline-block;width:7px;height:13px;background:var(--rugina);
   vertical-align:-2px;margin-left:3px;animation:blink 1s steps(1) infinite}
 
+/* butonul demo: instrument geometric, discret, colț dreapta-jos al cutiei.
+   Nu concurează cu braindump-ul — e o portiță de intrare pentru testeri. */
+#demo{position:absolute;right:10px;bottom:8px;background:transparent;
+  border:1px solid rgba(230,226,214,.16);color:var(--os-faint);cursor:pointer;
+  font-family:var(--inst);font-size:9px;letter-spacing:.16em;text-transform:uppercase;
+  padding:4px 9px;transition:color .15s,border-color .15s}
+#demo:hover{color:var(--acid);border-color:rgba(201,242,77,.4)}
+#demo:disabled{opacity:.35;cursor:default;color:var(--os-faint);border-color:rgba(230,226,214,.16)}
+
 @media (prefers-reduced-motion: reduce){
   .echo .cur{animation:none}
 }

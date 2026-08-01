@@ -2,12 +2,13 @@
    PARTICLES — fly-in trail + glow burst pe spawn. Object pooling.
    Max 150 ambient + 50/eveniment (BUILD_PLAN §5).
    ═══════════════════════════════════════════════════════════════════════ */
-import { rgba } from '../config.js';
+import { rgba, REDUCED_MOTION } from '../config.js';
 
 const MAX = 200;
 const pool = [];
 
 function spawn(x, y, vx, vy, life, color, size){
+  if (REDUCED_MOTION) return;   // fără particule sub prefers-reduced-motion
   if (pool.length >= MAX) return;
   pool.push({ x, y, vx, vy, life, maxLife: life, color, size });
 }

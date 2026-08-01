@@ -63,7 +63,7 @@ export const sayGoblin = (text, mode='ecou') =>
 
 /* persistă pozițiile înghețate după cluster pull */
 export async function updatePositions(list){
-  /* list: [{ id, x, y }] */
+  /* list: [{ id, x, y, cluster? }] */
   const db = await open();
   return new Promise((res, rej) => {
     const t = db.transaction('nodes', 'readwrite');
@@ -71,7 +71,11 @@ export async function updatePositions(list){
     for (const p of list){
       const g = st.get(p.id);
       g.onsuccess = () => {
-        if (g.result){ g.result.x = p.x; g.result.y = p.y; st.put(g.result); }
+        if (g.result){
+          g.result.x = p.x; g.result.y = p.y;
+          if (p.cluster !== undefined) g.result.cluster = p.cluster;
+          st.put(g.result);
+        }
       };
     }
     t.oncomplete = () => res();
