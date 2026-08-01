@@ -50,6 +50,10 @@ export function createField(canvas){
       for (let k=1;k<=4;k++) v += H1[k]*Math.sin(th*k + PH[k])/k;
       return v*0.19;
     };
+    /* noise organic: modulează densitatea și pragul, ca materia să aibă
+       pete și fibre, nu inele uniforme. Determinist per seed+fază. */
+    const nz = (window.GoblinNoise ? window.GoblinNoise.Noise2D(seed + phase*131) : null);
+    const ns = 0.09;   // frecvența noise-ului în pixeli
     for (let y=0;y<size;y++){
       for (let x=0;x<size;x++){
         const dx=(x-ctr)/R, dy=(y-ctr)/R;
@@ -58,23 +62,30 @@ export function createField(canvas){
         if (d>lim) continue;
         let v = Math.max(0,1-d/lim);
         v = Math.pow(v,.70)*intensity;
+        /* warp organic: noise-ul adâncește/ridică densitatea local */
+        const warp = nz ? nz.fbm(x*ns, y*ns, 3, 0.55) : 0;   // -1..1
+        v *= 1 + warp*0.45;
         v += (rnd()-.5)*.08;
+        /* jitter pe pragul Bayer — sparge tabla de șah la alfa mic */
+        const thr = BAYER[y%4][x%4] + (rnd()-.5)*0.14;
         const i=(y*size+x)*4;
-        if (v > BAYER[y%4][x%4]){
+        if (v > thr){
           img.data[i]=rgb[0]; img.data[i+1]=rgb[1]; img.data[i+2]=rgb[2];
           img.data[i+3]=185+Math.floor(v*70);
         }
       }
     }
     g.putImageData(img,0,0);
+    /* ASCII organic: poziții jitter-ate, nu pe grilă fixă */
     g.font='7px DepartureMono, monospace';
     for (let y=4;y<size;y+=8){
       for (let x=4;x<size;x+=7){
-        const dx=(x-ctr)/R, dy=(y-ctr)/R;
+        const jx = x + (rnd()-.5)*5, jy = y + (rnd()-.5)*5;
+        const dx=(jx-ctr)/R, dy=(jy-ctr)/R;
         const d=Math.sqrt(dx*dx+dy*dy);
-        if (d>.96 || rnd() > (1-d)*.5) continue;
+        if (d>.96 || rnd() > (1-d)*.55) continue;
         g.fillStyle=`rgba(${rgb[0]},${rgb[1]},${rgb[2]},${.3*(1-d)})`;
-        g.fillText(chars[Math.floor((1-d)*8)%chars.length], x, y);
+        g.fillText(chars[Math.floor((1-d)*8)%chars.length], jx, jy);
       }
     }
     return c;
@@ -302,6 +313,25 @@ export function createField(canvas){
       }
       mcx.globalCompositeOperation = 'source-over';
 
+      /* ȚESUT CONECTIV: de-a lungul fiecărei muchii, o bandă groasă cu
+         capete rotunde. Se suprapune cu bulele nodurilor și fuzionează în
+         aceeași zonă neagră organică — nodurile legate devin o singură
+         masă, nu insule separate. Alpha mai mic decât bulele, ca banda
+         să fie mai subțire decât nodurile. */
+      mcx.globalCompositeOperation = 'lighter';
+      for (const e of edges){
+        const a = P.get(e.a.id), b = P.get(e.b.id);
+        const w = Math.max(2, (e.a.r + e.b.r) * 0.5 * cam.k * MS);  // lățime medie
+        mcx.strokeStyle = 'rgba(255,255,255,0.55)';
+        mcx.lineWidth = w;
+        mcx.lineCap = 'round';
+        mcx.beginPath();
+        mcx.moveTo(a.x*MS, a.y*MS);
+        mcx.lineTo(b.x*MS, b.y*MS);
+        mcx.stroke();
+      }
+      mcx.globalCompositeOperation = 'source-over';
+
       /* threshold cu rampă lină: alpha > 55 → negru, margine moale */
       const img = mcx.getImageData(0, 0, mw, mh);
       const d = img.data;
@@ -485,19 +515,6 @@ export function createField(canvas){
         : 1;
       const scale = breath*(hovered?1.13:1)*(1+kick*.18)*spawnScale;
       const R = n.r*3*scale*cam.k;
-
-      /* GLOW: halou moale în culoarea nodului, sub textura dithered.
-         Dă nodului prezență pe câmpul întunecat, fără să adauge o a patra
-         culoare — e doar tint-ul, difuz. */
-      const gr = n.r*2.2*scale*cam.k;
-      if (gr > 2){
-        const gg = cx.createRadialGradient(p.x, p.y, 0, p.x, p.y, gr);
-        gg.addColorStop(0, rgba(n.tint, dim?0.05:0.16));
-        gg.addColorStop(0.6, rgba(n.tint, dim?0.02:0.06));
-        gg.addColorStop(1, rgba(n.tint, 0));
-        cx.fillStyle = gg;
-        cx.beginPath(); cx.arc(p.x, p.y, gr, 0, 6.28); cx.fill();
-      }
 
       /* DEFORMAREA: cursor continuu prin cele patru faze, cu cross-fade */
       const cursor = (t*.001*n.mspd*state.morph + n.ph) % PHASES;
