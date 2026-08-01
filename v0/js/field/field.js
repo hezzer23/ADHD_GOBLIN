@@ -281,11 +281,11 @@ export function createField(canvas){
         zx0=Math.min(zx0, n.wx - n.r); zy0=Math.min(zy0, n.wy - n.r);
         zx1=Math.max(zx1, n.wx + n.r); zy1=Math.max(zy1, n.wy + n.r);
       }
-      const pad = 170;                       // world units, în jurul nodurilor
+      const pad = 280;                       // world units, în jurul nodurilor
       zx0-=pad; zy0-=pad; zx1+=pad; zy1+=pad;
     } else {
       /* fără noduri: zonă mică în centrul lumii */
-      zx0=WORLD.w/2-260; zy0=WORLD.h/2-200; zx1=WORLD.w/2+260; zy1=WORLD.h/2+200;
+      zx0=WORLD.w/2-320; zy0=WORLD.h/2-250; zx1=WORLD.w/2+320; zy1=WORLD.h/2+250;
     }
     const zc = toS((zx0+zx1)/2, (zy0+zy1)/2);
     const halfW = Math.max((zx1-zx0)/2 * cam.k, 40);
@@ -294,9 +294,9 @@ export function createField(canvas){
     cx.translate(zc.x, zc.y);
     cx.scale(halfW, halfH);                  // cerc unitate → elipsa zonei
     const vg = cx.createRadialGradient(0,0,0, 0,0,1);
-    vg.addColorStop(0,    'rgba(0,0,0,0.96)'); // mijlocul grafului: curat
-    vg.addColorStop(0.55, 'rgba(0,0,0,0.88)'); // acoperă nodurile + zona lor
-    vg.addColorStop(0.85, 'rgba(0,0,0,0.35)'); // tranziție spre câmp
+    vg.addColorStop(0,    'rgba(0,0,0,1)');    // mijlocul grafului: negru complet
+    vg.addColorStop(0.62, 'rgba(0,0,0,0.97)'); // zona nodurilor: aproape opac
+    vg.addColorStop(0.85, 'rgba(0,0,0,0.5)');  // tranziție spre câmp
     vg.addColorStop(1,    'rgba(0,0,0,0)');    // margine: motes vizibil
     cx.fillStyle = vg;
     cx.fillRect(-1,-1,2,2);
