@@ -1,17 +1,19 @@
 /* ═══════════════════════════════════════════════════════════════════════
-   MAIN — boot + wiring. Ziua 2.
+   MAIN — boot + wiring. Ziua 3.
 
-   Pipeline: Enter → extract (LLM) → spawn noduri animate → goblin.echo
-   (LLM sau fallback) → persist în IndexedDB.
+   Pipeline: Enter → extract (LLM) → spawn noduri animate → LINK (LLM,
+   noduri noi→vechi) → muchii desenate → goblin.echo (LLM) → persist.
 
+   Motes reactiv (DECISION-motes-reactive.md): câmpul răspunde la stări
+   reale — tastare (crește), LLM (sus), goblin (stins), click (undă).
    Un singur rAF loop: field.draw(t) → overlay-uri DOM → status.
-   Motes-ul e WebGL separat (propriul lui rAF în bibliotecă).
    ═══════════════════════════════════════════════════════════════════════ */
 import { createField } from './field/field.js';
 import { mountMotes } from './field/motes.js';
 import { createGoblin } from './goblin/goblin.js';
 import { extract } from './brain/extract.js';
-import { addDump, addNode, sayGoblin, recentSays, loadGraph } from './graph/store.js';
+import { link } from './brain/link.js';
+import { addDump, addNode, addLink, sayGoblin, recentSays, loadGraph } from './graph/store.js';
 import { PROMPTS, COLORS as C, WORLD } from './config.js';
 import { llmRequest } from './llm/provider.js';
 
@@ -20,6 +22,9 @@ const $ = id => document.getElementById(id);
 const field  = createField($('field'));
 const motes  = mountMotes($('motes'));
 const goblin = createGoblin();
+
+/* click pe nod → undă locală în câmp (coord. screen) */
+field.onNodeClick = (x, y) => motes.pulseAt(x, y);
 
 /* ── status + overlay-uri DOM ──────────────────────────── */
 const reticle = $('reticle'), edgecard = $('edgecard');
@@ -66,7 +71,6 @@ requestAnimationFrame(frame);
 /* ── poziționare deterministă (stivă, nu fizică) ───────── */
 let nodeSeq = 0;
 function nextPos(){
-  /* spirală în jurul centrului, pas fix — memorie spațială */
   const i = nodeSeq++;
   const ring = Math.floor(i / 6);
   const slot = i % 6;
@@ -78,7 +82,7 @@ function nextPos(){
   };
 }
 
-/* ── pipeline: braindump → noduri → goblin → persist ───── */
+/* ── pipeline: braindump → noduri → link → goblin → persist ── */
 const input = $('d-input');
 let busy = false;
 
@@ -86,8 +90,12 @@ async function onDump(text){
   if (busy) return;
   busy = true;
   input.disabled = true;
+  motes.setThinking(true);          // LLM pornește → câmpul sus
 
   addDump(text).catch(()=>{});
+
+  /* nodurile vechi, înainte de a adăuga altele noi (pentru link) */
+  const oldNodes = field.nodes.map(n => ({ id: n.id, label: n.label }));
 
   /* 1. extract: LLM → 3-5 noduri */
   const extracted = await extract(text);
@@ -102,31 +110,44 @@ async function onDump(text){
     const pos = nextPos();
     const id = 'n' + Date.now().toString(36) + '_' + nodeSeq;
     const n = field.addNode({
-      id,
-      label: spec.label,
-      type: spec.type,
+      id, label: spec.label, type: spec.type,
       action: spec.type === 'task',
       conf: 0.75 + Math.random() * 0.2,
       x: pos.x, y: pos.y,
     });
     newNodes.push(n);
 
-    /* trail de la cutie la nod + burst la destinație */
     const dest = field.toS(pos.x, pos.y);
     const tint = n.action ? C.acid : n.worry ? C.rug : C.os;
     field.particles.trail(srcX, srcY, dest.x, dest.y, tint, 10);
     field.particles.burst(dest.x, dest.y, tint, 12);
 
-    /* persist */
     addNode({ id, label: spec.label, type: spec.type, detail: spec.detail,
               x: pos.x, y: pos.y, vx:0, vy:0, created: Date.now(), dumpId: null })
       .catch(()=>{});
   }
 
-  /* 3. goblin: replică cinică (LLM sau fallback) */
+  /* 3. LINK: noduri noi → cele vechi (doar de la a 2-a ingestă) */
+  if (oldNodes.length){
+    const links = await link(
+      newNodes.map(n => ({ id: n.id, label: n.label })),
+      oldNodes
+    );
+    for (const l of links){
+      const e = field.addLink({ a: l.from, b: l.to, kind: l.kind, conf: 0.8 });
+      if (e){
+        addLink({ id: 'l_' + l.from + '_' + l.to, from: l.from, to: l.to,
+                  strength: 0.8, ts: Date.now() }).catch(()=>{});
+      }
+    }
+  }
+
+  /* 4. goblin: replică cinică (LLM sau fallback) */
   const labels = extracted.map(n => n.label);
   const reply = await goblinReply(text, labels);
-  speak(reply);
+
+  motes.setThinking(false);         // LLM gata → câmpul coboară
+  speak(reply);                     // ecoul → câmpul se stinge puțin
 
   busy = false;
   input.disabled = false;
@@ -149,15 +170,7 @@ async function goblinReply(text, labels){
   } catch (err) {
     console.warn('[goblin] LLM fail, fallback:', err.message);
   }
-  /* fallback: on-brand, fără LLM */
-  if (err_is_no_key()) {
-    return 'nu am cheie la creier. `localStorage.setItem("adhd_goblin_groq_key", "gsk_...")` în consolă și mai vorbim.';
-  }
   return fallbackLine(labels);
-}
-
-function err_is_no_key(){
-  return !localStorage.getItem('adhd_goblin_groq_key');
 }
 
 const FALLBACKS = [
@@ -172,13 +185,17 @@ function fallbackLine(labels){
   return fn(labels);
 }
 
-/* spune o replică și-o salvează în goblin_says (context LLM) */
+/* spune o replică + o salvează + stinge câmpul cât e vizibilă */
 function speak(msg){
   goblin.echo(msg);
+  motes.dimForVoice(true);
   sayGoblin(msg, 'ecou').catch(()=>{});
+  /* câmpul își revine după ce ecoul „se așază" */
+  clearTimeout(speak._t);
+  speak._t = setTimeout(() => motes.dimForVoice(false), 2600);
 }
 
-/* ── input wiring ──────────────────────────────────────── */
+/* ── input wiring + motes la tastare ───────────────────── */
 input.addEventListener('keydown', ev => {
   if (ev.key === 'Enter' && !ev.shiftKey){
     ev.preventDefault();
@@ -190,6 +207,7 @@ input.addEventListener('keydown', ev => {
   }
 });
 input.addEventListener('input', () => {
+  motes.setTyping(true);            // câmpul crește cu ritmul tastării
   input.style.height = 'auto';
   input.style.height = input.scrollHeight + 'px';
 });
@@ -197,16 +215,18 @@ input.addEventListener('input', () => {
 /* ── boot: reload persistent + goblin intră în cutie ───── */
 async function boot(){
   try {
-    const { nodes } = await loadGraph();
+    const { nodes, links } = await loadGraph();
     for (const n of nodes){
       field.addNode({
         id: n.id, label: n.label, type: n.type,
-        action: n.type === 'task',
-        conf: 0.8,
+        action: n.type === 'task', conf: 0.8,
         x: n.x, y: n.y,
-        spawn: false,   // fără animație la reload
+        spawn: false,
       });
       nodeSeq++;
+    }
+    for (const l of links){
+      field.addLink({ a: l.from, b: l.to, conf: l.strength ?? 0.8, grow: false });
     }
   } catch (err) {
     console.warn('[boot] reload fail:', err);

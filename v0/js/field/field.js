@@ -150,11 +150,15 @@ export function createField(canvas){
     /* spec: { a, b, kind, conf, age, src } — id-uri de noduri */
     const a = byId.get(spec.a), b = byId.get(spec.b);
     if (!a || !b) return null;
+    const cross = a.cluster !== b.cluster && a.cluster >= 0 && b.cluster >= 0;
     const e = {
       a, b, kind: spec.kind || 'se leagă', conf: spec.conf ?? .8,
       age: spec.age ?? 0, src: spec.src || '',
-      cross: a.cluster !== b.cluster && a.cluster >= 0 && b.cluster >= 0,
-      weak: (spec.conf ?? .8) < .72,
+      cross,
+      /* muchia inter-cluster nu e niciodată „slabă" — legăturile lungi
+         spun ceva nou; un graf care le ascunde păstrează fix ce știai. */
+      weak: !cross && (spec.conf ?? .8) < .72,
+      growT: spec.grow === false ? 1 : 0,   // 0→1 = creștere de la sursă (300ms)
     };
     edges.push(e); a.deg++; b.deg++;
     adj.get(a.id).push(e); adj.get(b.id).push(e);
@@ -219,10 +223,16 @@ export function createField(canvas){
 
   /* ── interacțiune ────────────────────────────────────── */
   let hoverNode=null, hoverEdge=null, pulse=null;
+  let onNodeClick=null;   // callback(x, y, node) — pt. unda motes la click
   const mouse = { x:-1e4, y:-1e4 };
   canvas.addEventListener('mousemove', ev => { mouse.x=ev.clientX; mouse.y=ev.clientY; });
   canvas.addEventListener('mouseleave', () => { mouse.x=mouse.y=-1e4; });
-  canvas.addEventListener('click', () => { if (hoverNode) firePulse(hoverNode); });
+  canvas.addEventListener('click', () => {
+    if (hoverNode){
+      firePulse(hoverNode);
+      if (onNodeClick) onNodeClick(mouse.x, mouse.y, hoverNode);
+    }
+  });
 
   function neighbours(n){
     const s=new Set([n.id]);
@@ -260,6 +270,10 @@ export function createField(canvas){
     /* avansează spawn animation (0→1, ~500ms, elastic.out) */
     for (const n of nodes){
       if (n.spawnT < 1) n.spawnT = Math.min(1, n.spawnT + dt / 0.5);
+    }
+    /* avansează creșterea muchiilor (0→1, 300ms) */
+    for (const e of edges){
+      if (e.growT < 1) e.growT = Math.min(1, e.growT + dt / 0.3);
     }
     particles.update(dt);
 
@@ -316,11 +330,16 @@ export function createField(canvas){
 
       const dx=b.x-a.x, dy=b.y-a.y, L=Math.hypot(dx,dy)||1;
       const ra=e.a.r*cam.k*1.05, rb=e.b.r*cam.k*1.05;
-      const ax=a.x+dx/L*ra, ay=a.y+dy/L*ra, bx=b.x-dx/L*rb, by=b.y-dy/L*rb;
+      const ax=a.x+dx/L*ra, ay=a.y+dy/L*ra;
+      const bxFull=b.x-dx/L*rb, byFull=b.y-dy/L*rb;
+      /* creștere de la sursă la țintă, 300ms, power2.out */
+      const grow = 1 - Math.pow(1 - e.growT, 2);
+      const bx = ax + (bxFull-ax)*grow, by = ay + (byFull-ay)*grow;
       cx.beginPath(); cx.moveTo(ax,ay); cx.lineTo(bx,by); cx.stroke();
       cx.setLineDash([]);
 
-      if (!dim){
+      /* capete + rombul inter-cluster doar când muchia e complet crescută */
+      if (!dim && e.growT > 0.92){
         cx.lineWidth=1;
         [[ax,ay],[bx,by]].forEach(([sx,sy])=>{
           cx.beginPath();
@@ -329,7 +348,7 @@ export function createField(canvas){
           cx.stroke();
         });
         if (e.cross){
-          const mx=(ax+bx)/2, my=(ay+by)/2, s=4.5;
+          const mx=(ax+bxFull)/2, my=(ay+byFull)/2, s=4.5;
           cx.beginPath();
           cx.moveTo(mx,my-s); cx.lineTo(mx+s,my); cx.lineTo(mx,my+s); cx.lineTo(mx-s,my);
           cx.closePath();
@@ -367,6 +386,22 @@ export function createField(canvas){
         cx.beginPath(); cx.arc(px,py,3*decay+1.2,0,6.28);
         cx.fillStyle=rgba(C.acid,.9*decay); cx.fill();
       }
+    }
+
+    /* ZONA DE LINIȘTE (DECISION-motes-reactive.md): cunoașterea compilată
+       alungă zgomotul. Înainte de a desena nodurile, un gradient radial
+       negru (opac centru → transparent margine) șterge motes-ul de sub
+       fiecare nod. Raza = nod.r * 1.7. Mai multe noduri = câmp mai curat. */
+    for (const n of nodes){
+      const p = P.get(n.id);
+      const zr = n.r * 1.7 * cam.k;
+      if (zr < 1) continue;
+      const g = cx.createRadialGradient(p.x, p.y, 0, p.x, p.y, zr);
+      g.addColorStop(0, 'rgba(0,0,0,1)');
+      g.addColorStop(0.5, 'rgba(0,0,0,0.7)');
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      cx.fillStyle = g;
+      cx.beginPath(); cx.arc(p.x, p.y, zr, 0, 6.28); cx.fill();
     }
 
     /* nodurile: materia care se deformează */
@@ -474,5 +509,6 @@ export function createField(canvas){
     nodes, edges, clusters, byId,
     toS, toW,
     particles,
+    set onNodeClick(fn){ onNodeClick = fn; },
   };
 }

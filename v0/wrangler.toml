@@ -1,0 +1,10 @@
+# Cloudflare Pages — ADHD_GOBLIN v0
+# Deploy:  npx wrangler pages deploy . --project-name adhd-goblin
+# Secret:  npx wrangler pages secret put GROQ_KEY   (cheia Groq, server-side)
+#
+# Structura: fișierele statice servite din rădăcina v0/, iar
+# functions/api/groq.js devine endpoint-ul /api/groq (proxy LLM).
+
+name = "adhd-goblin"
+compatibility_date = "2026-08-01"
+pages_build_output_dir = "."
