@@ -1,0 +1,1702 @@
+[
+  {
+    "id": "V01",
+    "title": "Hermes Agent",
+    "maker": "Nous Research",
+    "kind": "visual",
+    "direction": "occult-machine",
+    "tags": [
+      "engraving",
+      "didone",
+      "mono",
+      "modular-grid",
+      "agent"
+    ],
+    "tldr": "Cea mai apropiată referință de ADN: gravuri arhaice tratate ca material tehnic, grid editorial și limbaj de engineering.",
+    "steal": "Tensiunea dintre imagine veche și copy hiper-tehnic; titluri serif mari; etichete monospace; densitate fără carduri SaaS.",
+    "avoid": "Nu copia albastrul electric ca accent general. Pentru ADHD_GOBLIN, culoarea rămâne blocată în noduri.",
+    "source": "https://hermes-agent.nousresearch.com/",
+    "thumb": "hermes",
+    "links": [
+      [
+        "SITE",
+        "https://hermes-agent.nousresearch.com/"
+      ],
+      [
+        "DOCS",
+        "https://hermes-agent.nousresearch.com/docs/"
+      ],
+      [
+        "GITHUB",
+        "https://github.com/NousResearch/hermes-agent"
+      ],
+      [
+        "SKILLS",
+        "https://github.com/nousresearch/hermes-agent/blob/main/website/docs/reference/optional-skills-catalog.md"
+      ]
+    ]
+  },
+  {
+    "id": "V02",
+    "title": "In-browser ASCII Shader Tool",
+    "maker": "Isaac Zara",
+    "kind": "visual",
+    "direction": "dither-material",
+    "tags": [
+      "ascii",
+      "shader",
+      "export",
+      "distortion",
+      "tool"
+    ],
+    "tldr": "WIP de tool vizual care tratează ASCII-ul ca shader, nu ca decor retro. Bun pentru feeling-ul de instrument viu și exportabil.",
+    "steal": "Controale brute, preview instant, transformarea imaginilor în semnal/structură; util pentru stări de braindump și decay.",
+    "avoid": "Nu transforma toate suprafețele în ASCII. Folosește-l ca mod de stare, tranziție sau degradare.",
+    "source": "https://x.com/isaaczara_/status/2033470249597903043",
+    "visual": "ascii",
+    "links": [
+      [
+        "POST / VIDEO",
+        "https://x.com/isaaczara_/status/2033470249597903043"
+      ]
+    ]
+  },
+  {
+    "id": "V03",
+    "title": "ASCII Magic — Dither",
+    "maker": "ASCII Magic",
+    "kind": "visual",
+    "direction": "dither-material",
+    "tags": [
+      "floyd-steinberg",
+      "bayer",
+      "atkinson",
+      "1-bit",
+      "video"
+    ],
+    "tldr": "Laborator practic pentru testat algoritmi de dither, palete reduse, scanlines și exporturi animate direct în browser.",
+    "steal": "Compară Floyd–Steinberg pentru organic, Bayer pentru stabilitate în mișcare și Atkinson pentru text/poster crisp.",
+    "avoid": "Bloom, RGB split și CRT maximalist. Pentru brief: grain + dither + scanlines, fără glow.",
+    "source": "https://www.ascii-magic.com/styles/dither",
+    "visual": "dither-grid",
+    "links": [
+      [
+        "STYLE GUIDE",
+        "https://www.ascii-magic.com/styles/dither"
+      ],
+      [
+        "EDITOR",
+        "https://www.ascii-magic.com/app"
+      ]
+    ]
+  },
+  {
+    "id": "V04",
+    "title": "Polygon",
+    "maker": "Barth Kósi",
+    "kind": "visual",
+    "direction": "data-brutalism",
+    "tags": [
+      "polygon",
+      "webgl",
+      "editorial",
+      "spatial",
+      "experimental"
+    ],
+    "tldr": "Viewer WebGL care randează obiecte 3D (Computer, Plant, Shiba, Crystal sau un .GLB urcat) ca câmpuri de densitate și ASCII. Moduri de randare Standard / Minimal / Matrix, toggle ASCII, invert, export PNG.",
+    "steal": "Modul 'Matrix' e exact tehnica de randare a nodurilor: iei o formă organică 3D și o desenezi ca glyph-uri/densitate, nu ca mesh lucios. Export PNG = pipeline pentru stills (og-image, empty states, chapter art). Upload .GLB = forme de nod custom.",
+    "avoid": "Nu folosi modul Standard (render 3D generic, lucios). Valoarea e în Matrix/Minimal + toggle-ul ASCII și în export.",
+    "source": "https://polygon.barthkosi.com/",
+    "visual": "polygon",
+    "links": [
+      [
+        "PROJECT",
+        "https://polygon.barthkosi.com/"
+      ]
+    ]
+  },
+  {
+    "id": "V05",
+    "title": "Content Architecture",
+    "maker": "Content Architecture",
+    "kind": "visual",
+    "direction": "occult-machine",
+    "tags": [
+      "editorial",
+      "technical-writing",
+      "grid",
+      "mono",
+      "documentation"
+    ],
+    "tldr": "NU e o referință editorială — e un starter kit Next.js + Sanity 'agent-ready'. Valoarea reală: structura de documentație (AGENTS.MD, docs/ hub, llms.txt) și UI-ul de terminal + file-explorer embedat direct în pagina de marketing.",
+    "steal": "Pattern-ul 'servește markdown agentului' (Accept: text/markdown) — knowledge layer-ul poate avea o față pentru oameni și una pentru LLM. Terminalul și file-explorer-ul din pagină arată cum un tool își expune propria structură ca interfață, nu ca screenshot.",
+    "avoid": "Nu-l trata ca model vizual editorial sau ca direcție de design. E un scaffold tehnic; ia doar ideea de documentație-vizibilă și de interfață-terminal.",
+    "source": "https://www.contentarchitecture.dev/",
+    "visual": "editorial",
+    "links": [
+      [
+        "SITE",
+        "https://www.contentarchitecture.dev/"
+      ]
+    ]
+  },
+  {
+    "id": "V16",
+    "title": "Motes — Pulse",
+    "maker": "Lucas Markes",
+    "kind": "visual",
+    "direction": "living-graph",
+    "tags": [
+      "ascii",
+      "pointer-reactive",
+      "procedural",
+      "pulse",
+      "dark-ui"
+    ],
+    "tldr": "Demo-ul complet motes: câmp ASCII pointer-reactiv cu controls reale. Effects: flow (noise domain-warped), waves (benzi sinusoidale), pulse (inele radiale care descresc), plus efecte custom în GLSL. Teza paginii: 'The cursor is an input.'",
+    "steal": "Controls sunt mapașul direct pentru stările app-ului: pointer.radius/force = raza de influență a focusului; field.density = cât de încărcat e braindump-ul; field.persistence = cât de repede se uită (decay); field.speed = energia. Preseturile de look (Void/Terminal/Amber/Paper/Glass) = teme de stare. Orice mișcare a utilizatorului perturbă câmpul.",
+    "avoid": "Nu-l lăsa wallpaper ambiental. Fiecare parametru trebuie legat de o stare cognitivă reală (focus, avoidance, decay, energie), nu doar de pointer.",
+    "source": "https://motes.lucasmarkes.com/pulse",
+    "visual": "ascii",
+    "links": [
+      [
+        "PULSE",
+        "https://motes.lucasmarkes.com/pulse"
+      ],
+      [
+        "MOTES ROOT",
+        "https://motes.lucasmarkes.com/"
+      ]
+    ]
+  },
+  {
+    "id": "V17",
+    "title": "Motes",
+    "maker": "Lucas Markes",
+    "kind": "tool",
+    "direction": "tool-not-product",
+    "tags": [
+      "ascii",
+      "react",
+      "vanilla-js",
+      "background-system",
+      "interactive"
+    ],
+    "tldr": "Librăria npm (@lucasmarkes/motes) din spatele demo-ului. Fundaluri ASCII procedurale, pointer-reactive, cu efecte în GLSL și export de cod React/Core. defineEffect('rain') = efect custom în ~6 linii de GLSL.",
+    "steal": "Implementare directă pentru layer-ul de câmp: npm i @lucasmarkes/motes, alegi efectul (flow/waves/pulse), legi pointerul, și ai un fundal viu în câteva linii. Gramatica de forme e extensibilă — scrii un efect propriu care răspunde la stările task-ului, nu doar la cursor.",
+    "avoid": "Nu folosi efectele stock nemodificate ca produs final. Scrie un efect custom care reacționează la evenimentele reale ale app-ului (task creat, task evitat, decay).",
+    "source": "https://motes.lucasmarkes.com/",
+    "visual": "terminal",
+    "links": [
+      [
+        "SITE",
+        "https://motes.lucasmarkes.com/"
+      ],
+      [
+        "PULSE EXAMPLE",
+        "https://motes.lucasmarkes.com/pulse"
+      ]
+    ]
+  },
+  {
+    "id": "V18",
+    "title": "Edoardo Lunardi",
+    "maker": "Edoardo Lunardi",
+    "kind": "build",
+    "direction": "tool-not-product",
+    "tags": [
+      "workstation-ui",
+      "infinite-canvas",
+      "folder-tree",
+      "inspector",
+      "interaction"
+    ],
+    "tldr": "Referință excelentă pentru carcasa aplicației: shell dens, pane-uri dure, folder tree, inspector și feeling de workstation, nu de SaaS dashboard.",
+    "steal": "Ia de aici structura: shell utilitar, metadate vizibile, sidebar de navigație, counters și un canvas navigabil care se simte ca spațiu de lucru, nu ca pagină.",
+    "avoid": "Nu copia literal un desktop retro. Preia gramatica structurală și sentimentul de unealtă, apoi lasă nodurile vii să dea caracterul distinct.",
+    "source": "https://www.edoardolunardi.dev/",
+    "visual": "wireframe",
+    "links": [
+      [
+        "SITE",
+        "https://www.edoardolunardi.dev/"
+      ],
+      [
+        "LAB",
+        "https://www.edoardolunardi.dev/lab"
+      ],
+      [
+        "DRAG IN REACT",
+        "https://www.edoardolunardi.dev/blog/building-drag-in-react-without-a-library"
+      ],
+      [
+        "ENDLESS GRID",
+        "https://www.edoardolunardi.dev/blog/building-an-endless-drag-grid-in-react-without-webgl"
+      ],
+      [
+        "CONTENT ARCHITECTURE",
+        "https://www.contentarchitecture.dev/"
+      ]
+    ]
+  },
+  {
+    "id": "V06",
+    "title": "Sketch Design Club",
+    "maker": "@sketch.__________________",
+    "kind": "visual",
+    "direction": "audio-organism",
+    "tags": [
+      "audio-reactive",
+      "particles",
+      "organic",
+      "automation",
+      "live-tool"
+    ],
+    "tldr": "Tool indie audio-reactiv (construit de o singură persoană): urci vizualuri, le combini, generezi lyrics, și orice parametru se poate lega de muzică, BPM sau automatizare. Upload, customize, share.",
+    "steal": "Principiul 'orice se poate mișca cu muzica' — în ADHD_GOBLIN, orice proprietate vizuală a unui nod (masă, tensiune, număr de lobi, pulsație) poate fi un parametru audio-reactiv. Faptul că e un tool one-man = dovada că un sistem viu nu cere o echipă mare.",
+    "avoid": "Estetica de music visualizer generic (VJ loops, neon). Aici sunetul conduce forma și tensiunea, nu decorul.",
+    "source": "https://sketchdesign.club/",
+    "visual": "particles",
+    "links": [
+      [
+        "TOOL",
+        "https://sketchdesign.club/"
+      ],
+      [
+        "INSTAGRAM",
+        "https://www.instagram.com/sketch.__________________/"
+      ],
+      [
+        "AUDIO REACTIVITY",
+        "https://www.instagram.com/p/DY2blmVRGBi/"
+      ]
+    ]
+  },
+  {
+    "id": "V07",
+    "title": "Endel",
+    "maker": "Endel",
+    "kind": "visual",
+    "direction": "audio-organism",
+    "tags": [
+      "generative",
+      "state",
+      "soundscape",
+      "minimal",
+      "adaptive"
+    ],
+    "tldr": "Bun ca referință pentru un sistem generativ care își schimbă starea continuu și rămâne discret, nu ca dashboard.",
+    "steal": "Un singur centru vizual activ, schimbări de stare lente, relație clară între sunet, context și formă.",
+    "avoid": "Wellness polish și calm generic. Goblin-ul trebuie să rămână cinic, dens și puțin ostil.",
+    "source": "https://endel.io/",
+    "thumb": "endel",
+    "links": [
+      [
+        "SITE",
+        "https://endel.io/"
+      ],
+      [
+        "WEB PLAYER",
+        "https://app.endel.io/"
+      ]
+    ]
+  },
+  {
+    "id": "V08",
+    "title": "datamatics",
+    "maker": "Ryoji Ikeda",
+    "kind": "visual",
+    "direction": "data-brutalism",
+    "tags": [
+      "data",
+      "black-white",
+      "signal",
+      "scan",
+      "precision"
+    ],
+    "tldr": "Datele devin material vizual: bare, coduri, câmpuri, scanări și micro-accent rare. Diagnostic, nu decorativ.",
+    "steal": "Alb/negru sever, densitate variabilă, linii de scan, microsemnale și mici excepții colorate doar când contează.",
+    "avoid": "Copierea literală a barcode-urilor. Tradu task-uri, legături și memorie în semnal propriu.",
+    "source": "https://www.ryojiikeda.com/project/datamatics/",
+    "thumb": "ryoji",
+    "links": [
+      [
+        "PROJECT",
+        "https://www.ryojiikeda.com/project/datamatics/"
+      ]
+    ]
+  },
+  {
+    "id": "V09",
+    "title": "Cymatics",
+    "maker": "Nigel Stanford",
+    "kind": "visual",
+    "direction": "cymatic-organics",
+    "tags": [
+      "frequency",
+      "chladni",
+      "ferrofluid",
+      "sound",
+      "natural-geometry"
+    ],
+    "tldr": "Referința literală pentru „forma apare din frecvență”: plăci Chladni, ferrofluid și materie organizată de sunet.",
+    "steal": "Forme emergente, simetrie imperfectă, densitate dependentă de energie; nodul ca rezultat al unui câmp, nu icon desenat.",
+    "avoid": "Simetrie ornamentală statică. Forma trebuie să răspundă la stare, prioritate sau activitate.",
+    "source": "https://nigelstanford.com/cymatics/",
+    "thumb": "chladni",
+    "links": [
+      [
+        "PROJECT",
+        "https://nigelstanford.com/cymatics/"
+      ]
+    ]
+  },
+  {
+    "id": "V10",
+    "title": "GNARL / audiovisual systems",
+    "maker": "KLSR",
+    "kind": "visual",
+    "direction": "audio-organism",
+    "tags": [
+      "particle-field",
+      "sound-reactive",
+      "tension",
+      "black-white",
+      "flow"
+    ],
+    "tldr": "Câmpuri de particule care se întind, se rup și se reconectează sub tensiune. Interviu + portofoliu de sisteme audiovizuale.",
+    "steal": "Tendrils = conexiuni cu fizică reală: se întind când nodurile se depărtează, se rup când distanța e prea mare, se reconectează când revin. Aglomerările locale = idei care se clusteruiesc. Fiecare mișcare trebuie mapată pe o relație semantică (legătură, conflict, uitare).",
+    "avoid": "Să devină screensaver decorativ. Fiecare întindere/ruptură trebuie să indice o stare cognitivă sau o relație reală între idei.",
+    "source": "https://visualatelier8.com/klsr-audiovisual-experiences-interview/",
+    "thumb": "klsr",
+    "links": [
+      [
+        "INTERVIEW / WORK",
+        "https://visualatelier8.com/klsr-audiovisual-experiences-interview/"
+      ]
+    ]
+  },
+  {
+    "id": "V11",
+    "title": "Reaction–Diffusion",
+    "maker": "Nervous System / Jason Webb",
+    "kind": "visual",
+    "direction": "cymatic-organics",
+    "tags": [
+      "reaction-diffusion",
+      "growth",
+      "pattern",
+      "organic",
+      "simulation"
+    ],
+    "tldr": "Modele care cresc prin reguli locale. Util ca limbaj pentru memorie, decay, grupare și „idei care infectează alte idei”.",
+    "steal": "Contururi care se bifurcă, zone de activare/inhibare, apariție lentă a pattern-ului din reguli simple.",
+    "avoid": "Wallpaper procedural constant. Folosește-l în momente de reorganizare, arhivare sau insight.",
+    "source": "https://n-e-r-v-o-u-s.com/projects/albums/growing-objects/content/poster-reaction-diffusion-1/lightbox/",
+    "visual": "reaction",
+    "links": [
+      [
+        "ARTWORK",
+        "https://n-e-r-v-o-u-s.com/projects/albums/growing-objects/content/poster-reaction-diffusion-1/lightbox/"
+      ],
+      [
+        "PLAYGROUND",
+        "https://jasonwebb.github.io/reaction-diffusion-playground/"
+      ]
+    ]
+  },
+  {
+    "id": "V12",
+    "title": "Kunstformen der Natur",
+    "maker": "Ernst Haeckel",
+    "kind": "visual",
+    "direction": "occult-machine",
+    "tags": [
+      "archival",
+      "biology",
+      "engraving",
+      "taxonomy",
+      "organic"
+    ],
+    "tldr": "Taxonomie biologică densă și forme naturale stranii. Materie excelentă pentru iconografie, empty states și chapter art.",
+    "steal": "Simetrie organică, clasificare, numere de planșă, captions științifice și contrastul dintre frumos și neliniștitor.",
+    "avoid": "Vintage cosplay. Procesează sever: crop, dither, 1-bit, annotations, erori de print.",
+    "source": "https://commons.wikimedia.org/wiki/File:Haeckel_Actiniae.jpg",
+    "thumb": "haeckel",
+    "links": [
+      [
+        "PLATE 49",
+        "https://commons.wikimedia.org/wiki/File:Haeckel_Actiniae.jpg"
+      ],
+      [
+        "FULL COLLECTION",
+        "https://commons.wikimedia.org/wiki/Kunstformen_der_Natur"
+      ]
+    ]
+  },
+  {
+    "id": "V13",
+    "title": "Living Motion Systems",
+    "maker": "Universal Everything",
+    "kind": "visual",
+    "direction": "audio-organism",
+    "tags": [
+      "living-form",
+      "motion-system",
+      "transform",
+      "digital-organism"
+    ],
+    "tldr": "Un cadru conceptual bun: nu animații separate, ci un sistem de forme care cresc, se mișcă și se transformă coerent.",
+    "steal": "Definește o gramatică de mișcare unică pentru toate nodurile, nu 20 de efecte fără legătură.",
+    "avoid": "Mascote moi și friendly. Goblin-ul poate fi viu fără să fie cute.",
+    "source": "https://www.universaleverything.com/profile",
+    "visual": "living-form",
+    "links": [
+      [
+        "PROFILE",
+        "https://www.universaleverything.com/profile"
+      ],
+      [
+        "ART",
+        "https://www.universaleverything.com/art"
+      ]
+    ]
+  },
+  {
+    "id": "V14",
+    "title": "REAL / RAW / FAST",
+    "maker": "FIELD.IO × adidas",
+    "kind": "visual",
+    "direction": "data-brutalism",
+    "tags": [
+      "generative-identity",
+      "kinetic-type",
+      "multi-screen",
+      "system"
+    ],
+    "tldr": "Identitate generativă bazată pe remixarea continuă a tipului și conținutului, cu o unealtă proprie în spate.",
+    "steal": "Tip kinetic tăiat, compoziții care se recompun, sistem de reguli în loc de ecrane fixe.",
+    "avoid": "Brand spectacle fără funcție. În app, recompoziția trebuie să urmărească atenția și contextul.",
+    "source": "https://field.io/work/real-raw-fast-identity-system",
+    "visual": "kinetic-type",
+    "links": [
+      [
+        "CASE STUDY",
+        "https://field.io/work/real-raw-fast-identity-system"
+      ]
+    ]
+  },
+  {
+    "id": "V15",
+    "title": "Generative Design",
+    "maker": "onformative",
+    "kind": "visual",
+    "direction": "data-brutalism",
+    "tags": [
+      "generative-system",
+      "parameters",
+      "tooling",
+      "variation"
+    ],
+    "tldr": "Studio de generative design (Berlin). Lucrări cheie: 'unnamed soundsculpture' (sunet → formă 3D), logo-ul dinamic 'Oi' (reactiv la vocea utilizatorului), CX-Shanghai (date în timp real → vizual).",
+    "steal": "Logo-ul 'Oi' = identitate care se schimbă în timp real cu input-ul (vocea). În ADHD_GOBLIN: goblin-ul/wordmark-ul poate reacționa la tastare, voce sau activitate — identitate vie, nu statică. CX-Shanghai = date reale conduc vizualul, nu animație decorativă.",
+    "avoid": "Brand spectacle fără funcție. Fiecare schimbare a formei trebuie să aibă o cauză reală (stare, input, date), nu să fie doar 'frumoasă'.",
+    "source": "https://onformative.com/expertise/generative-design/",
+    "thumb": "onformative",
+    "links": [
+      [
+        "ESSAY / WORK",
+        "https://onformative.com/expertise/generative-design/"
+      ]
+    ]
+  },
+  {
+    "id": "B01",
+    "title": "Marching Cubes",
+    "maker": "Three.js",
+    "kind": "build",
+    "direction": "living-graph",
+    "tags": [
+      "metaballs",
+      "three.js",
+      "isosurface",
+      "webgl",
+      "3d"
+    ],
+    "tldr": "Construiește suprafețe organice dintr-un câmp scalar. Bun pentru un nod principal sau o „masă” de idei care se contopește.",
+    "steal": "Folosește marching cubes pentru focus/hero/selected cluster, nu pentru sute de noduri simultan.",
+    "avoid": "Cost GPU mare și look de demo 3D generic. Randare 1-bit sau contour-only.",
+    "source": "https://threejs.org/examples/webgl_marchingcubes.html",
+    "visual": "metaball-code",
+    "links": [
+      [
+        "DEMO",
+        "https://threejs.org/examples/webgl_marchingcubes.html"
+      ],
+      [
+        "DOCS",
+        "https://threejs.org/docs/pages/MarchingCubes.html"
+      ],
+      [
+        "THREE.JS",
+        "https://github.com/mrdoob/three.js"
+      ]
+    ]
+  },
+  {
+    "id": "B02",
+    "title": "Interactive Droplet Metaballs",
+    "maker": "Yuki Kojima / Codrops",
+    "kind": "build",
+    "direction": "living-graph",
+    "tags": [
+      "glsl",
+      "sdf",
+      "ray-marching",
+      "mouse-trail",
+      "metaballs"
+    ],
+    "tldr": "Implementare aproape directă pentru noduri elastice și tendrils: SDF + smooth-min + noise + trail de pointer.",
+    "steal": "Mapează hover/drag/focus la întindere, fuziune și revenire; redă în alb/negru și fără specular glossy.",
+    "avoid": "Aspect de picătură 3D lucioasă. Păstrează fizica, schimbă materialul în dither/contur.",
+    "source": "https://tympanus.net/codrops/2025/06/09/how-to-create-interactive-droplet-like-metaballs-with-three-js-and-glsl/",
+    "thumb": "metaballs",
+    "links": [
+      [
+        "ARTICLE",
+        "https://tympanus.net/codrops/2025/06/09/how-to-create-interactive-droplet-like-metaballs-with-three-js-and-glsl/"
+      ],
+      [
+        "DEMO",
+        "https://tympanus.net/Tutorials/InteractiveBubbleMetaballs/"
+      ],
+      [
+        "GITHUB",
+        "https://github.com/koji014/interactive-droplets"
+      ]
+    ]
+  },
+  {
+    "id": "B03",
+    "title": "WebGL Fluid Simulation",
+    "maker": "Pavel Dobryakov",
+    "kind": "build",
+    "direction": "living-graph",
+    "tags": [
+      "fluid",
+      "advection",
+      "velocity",
+      "webgl",
+      "interaction"
+    ],
+    "tldr": "Studiază cum gestul injectează viteză și densitate într-un câmp. Util pentru braindump, tranziții și legături care curg.",
+    "steal": "Pointer-ul lasă impuls și câmpul îl propagă; folosește doar în zone controlate sau ca layer tranzitoriu.",
+    "avoid": "Full-screen rainbow fluid. Fără palete multiple, fără blur, fără permanent background noise.",
+    "source": "https://paveldogreat.github.io/WebGL-Fluid-Simulation/",
+    "visual": "fluid",
+    "links": [
+      [
+        "DEMO",
+        "https://paveldogreat.github.io/WebGL-Fluid-Simulation/"
+      ],
+      [
+        "GITHUB",
+        "https://github.com/PavelDoGreat/WebGL-Fluid-Simulation"
+      ]
+    ]
+  },
+  {
+    "id": "B04",
+    "title": "Shader Park",
+    "maker": "Shader Park",
+    "kind": "build",
+    "direction": "living-graph",
+    "tags": [
+      "shader",
+      "sdf",
+      "prototyping",
+      "3d",
+      "creative-code"
+    ],
+    "tldr": "Mediu rapid pentru prototiparea formelor SDF și a suprafețelor organice fără boilerplate WebGL masiv.",
+    "steal": "Folosește-l pentru R&D vizual și pentru a găsi gramatici de formă înainte de implementarea finală.",
+    "avoid": "Să devină runtime-ul obligatoriu al produsului fără audit de performanță și control.",
+    "source": "https://shaderpark.com/",
+    "visual": "sdf",
+    "links": [
+      [
+        "PLAYGROUND",
+        "https://shaderpark.com/"
+      ],
+      [
+        "REFERENCE",
+        "https://docs.shaderpark.com/references/"
+      ],
+      [
+        "GITHUB",
+        "https://github.com/shader-park/shader-park-core"
+      ]
+    ]
+  },
+  {
+    "id": "B05",
+    "title": "Hydra",
+    "maker": "Olivia Jack",
+    "kind": "build",
+    "direction": "audio-organism",
+    "tags": [
+      "live-coding",
+      "video-synth",
+      "feedback",
+      "webgl",
+      "prototype"
+    ],
+    "tldr": "Video-synth în browser pentru iterat rapid pe feedback, oscilații, modulații și audio-reactivitate.",
+    "steal": "Prototipează stări, feedback loops și mappings audio; apoi portează numai limbajul vizual necesar.",
+    "avoid": "Feedback psychedelic permanent și culori multiple. Brief-ul cere control și materie uscată.",
+    "source": "https://hydra.ojack.xyz/",
+    "visual": "hydra",
+    "links": [
+      [
+        "LIVE CODING",
+        "https://hydra.ojack.xyz/"
+      ],
+      [
+        "GITHUB",
+        "https://github.com/hydra-synth/hydra"
+      ],
+      [
+        "DOCS",
+        "https://github.com/hydra-synth/hydra/blob/main/docs/README.md"
+      ]
+    ]
+  },
+  {
+    "id": "B06",
+    "title": "OGL",
+    "maker": "oframe",
+    "kind": "build",
+    "direction": "living-graph",
+    "tags": [
+      "webgl",
+      "minimal",
+      "shader-first",
+      "zero-dependency"
+    ],
+    "tldr": "Bibliotecă WebGL minimală pentru control aproape direct asupra shaderelor, fără suprafața mare a Three.js.",
+    "steal": "Alege OGL când vizualul e shader-first și ai puține primitive, nu o scenă 3D complexă.",
+    "avoid": "Să-l alegi doar pentru bundle mic dacă echipa nu vrea să scrie infrastructură grafică.",
+    "source": "https://oframe.github.io/ogl/examples/",
+    "visual": "wireframe",
+    "links": [
+      [
+        "EXAMPLES",
+        "https://oframe.github.io/ogl/examples/"
+      ],
+      [
+        "GITHUB",
+        "https://github.com/oframe/ogl"
+      ]
+    ]
+  },
+  {
+    "id": "B07",
+    "title": "LYGIA Shader Library",
+    "maker": "Patricio Gonzalez Vivo",
+    "kind": "build",
+    "direction": "living-graph",
+    "tags": [
+      "glsl",
+      "wgsl",
+      "noise",
+      "sdf",
+      "shader-functions"
+    ],
+    "tldr": "Bibliotecă mare de funcții shader reutilizabile pentru noise, SDF, color, generative patterns și portare între limbaje.",
+    "steal": "Nu rescrie noise/SDF de bază; compune funcții testate și păstrează shader-ele modulare.",
+    "avoid": "Import masiv fără tree-shaking conceptual. Include doar funcțiile folosite.",
+    "source": "https://github.com/patriciogonzalezvivo/lygia",
+    "visual": "shader-code",
+    "links": [
+      [
+        "GITHUB",
+        "https://github.com/patriciogonzalezvivo/lygia"
+      ],
+      [
+        "EXAMPLES",
+        "https://github.com/patriciogonzalezvivo/lygia_examples"
+      ]
+    ]
+  },
+  {
+    "id": "B08",
+    "title": "The Book of Shaders",
+    "maker": "Patricio Gonzalez Vivo & Jen Lowe",
+    "kind": "build",
+    "direction": "living-graph",
+    "tags": [
+      "glsl",
+      "noise",
+      "patterns",
+      "sdf",
+      "learning"
+    ],
+    "tldr": "Fundamentul pentru a înțelege noise, shapes, matrices și generative patterns înainte de a lipi fragmente GLSL.",
+    "steal": "Capitolele Random, Noise și Shapes sunt baza pentru contururile organice și textura controlată.",
+    "avoid": "Copiere de shader fără a lega parametrii de semnificația produsului.",
+    "source": "https://thebookofshaders.com/",
+    "visual": "book-shader",
+    "links": [
+      [
+        "BOOK",
+        "https://thebookofshaders.com/"
+      ],
+      [
+        "GITHUB",
+        "https://github.com/patriciogonzalezvivo/thebookofshaders"
+      ]
+    ]
+  },
+  {
+    "id": "B09",
+    "title": "The Art of Dithering and Retro Shading",
+    "maker": "Maxime Heckel",
+    "kind": "build",
+    "direction": "dither-material",
+    "tags": [
+      "dither",
+      "shader",
+      "bayer",
+      "retro",
+      "tutorial"
+    ],
+    "tldr": "Explicație modernă și vizuală pentru integrarea dithering-ului în shader-e, nu doar procesare offline de imagini.",
+    "steal": "Folosește dither ca material de randare și stare de degradare, cu matrice controlată la rezoluția device-ului.",
+    "avoid": "Pixelation uniformă pe tot produsul. Dither-ul trebuie să aibă intensitate și scop.",
+    "source": "https://blog.maximeheckel.com/posts/the-art-of-dithering-and-retro-shading-web/",
+    "visual": "dither-code",
+    "links": [
+      [
+        "ARTICLE",
+        "https://blog.maximeheckel.com/posts/the-art-of-dithering-and-retro-shading-web/"
+      ]
+    ]
+  },
+  {
+    "id": "B10",
+    "title": "Real-time Dithering Shader",
+    "maker": "Niccolò Fanton / Codrops",
+    "kind": "build",
+    "direction": "dither-material",
+    "tags": [
+      "real-time",
+      "dither",
+      "webgl",
+      "shader",
+      "postprocess"
+    ],
+    "tldr": "Tutorial și cod pentru dithering în timp real, potrivit pentru preview-uri, state transitions și media procesată live.",
+    "steal": "Aplică efectul la layer-ul de imagine sau selected node, nu ca postprocess global permanent.",
+    "avoid": "Posterizare care reduce lizibilitatea textului și a task-urilor.",
+    "source": "https://tympanus.net/codrops/2025/06/04/building-a-real-time-dithering-shader/",
+    "visual": "dither-bars",
+    "links": [
+      [
+        "ARTICLE",
+        "https://tympanus.net/codrops/2025/06/04/building-a-real-time-dithering-shader/"
+      ],
+      [
+        "GITHUB",
+        "https://github.com/niccolofanton/dithering-shader"
+      ]
+    ]
+  },
+  {
+    "id": "B11",
+    "title": "Bayer Dithering WebGL Demo",
+    "maker": "zavalit",
+    "kind": "build",
+    "direction": "dither-material",
+    "tags": [
+      "bayer",
+      "webgl",
+      "ordered-dither",
+      "stable-animation"
+    ],
+    "tldr": "Implementare simplă de ordered dithering; utilă când animația trebuie să rămână stabilă între cadre.",
+    "steal": "Bayer 4×4 sau 8×8 pentru decay, disabled states și imagini de knowledge base.",
+    "avoid": "Matrice prea mare care devine pattern decorativ dominant.",
+    "source": "https://github.com/zavalit/bayer-dithering-webgl-demo",
+    "visual": "bayer",
+    "links": [
+      [
+        "GITHUB",
+        "https://github.com/zavalit/bayer-dithering-webgl-demo"
+      ]
+    ]
+  },
+  {
+    "id": "B12",
+    "title": "Paper Shaders — Dithering",
+    "maker": "Paper",
+    "kind": "build",
+    "direction": "dither-material",
+    "tags": [
+      "shader",
+      "dither",
+      "copy-paste",
+      "web"
+    ],
+    "tldr": "Preset shader accesibil pentru explorare rapidă și validarea intensității/scalei de dither.",
+    "steal": "Folosește-l ca benchmark vizual și prototip, apoi mută logica în pipeline-ul propriu.",
+    "avoid": "Dependency nouă doar pentru un efect de 20 de linii.",
+    "source": "https://shaders.paper.design/dithering",
+    "visual": "paper-dither",
+    "links": [
+      [
+        "DEMO / CODE",
+        "https://shaders.paper.design/dithering"
+      ]
+    ]
+  },
+  {
+    "id": "B13",
+    "title": "Atkinson Dither",
+    "maker": "gazs",
+    "kind": "build",
+    "direction": "dither-material",
+    "tags": [
+      "atkinson",
+      "canvas",
+      "1-bit",
+      "crisp"
+    ],
+    "tldr": "Canvas demo pentru Atkinson: dither mai aerisit și luminos, bun pentru gravuri și portrete 1-bit.",
+    "steal": "Folosește-l la imagini arhaice și avatars/portraits, unde Floyd–Steinberg devine prea murdar.",
+    "avoid": "Aplicare la text mic sau elemente funcționale.",
+    "source": "https://gazs.github.io/canvas-atkinson-dither/",
+    "visual": "atkinson",
+    "links": [
+      [
+        "DEMO",
+        "https://gazs.github.io/canvas-atkinson-dither/"
+      ]
+    ]
+  },
+  {
+    "id": "B14",
+    "title": "Dither Me This",
+    "maker": "Doodad",
+    "kind": "build",
+    "direction": "dither-material",
+    "tags": [
+      "dither",
+      "image-tool",
+      "palette",
+      "export"
+    ],
+    "tldr": "Tool rapid pentru a genera probe de imagine și a decide algoritm, scară și contrast înainte de implementare.",
+    "steal": "Construiește un mini test set cu 10 imagini reale din app și compară algoritmii în context.",
+    "avoid": "Alegerea efectului pe baza unui singur hero image.",
+    "source": "https://doodad.dev/dither-me-this/",
+    "visual": "dither-poster",
+    "links": [
+      [
+        "TOOL",
+        "https://doodad.dev/dither-me-this/"
+      ]
+    ]
+  },
+  {
+    "id": "B15",
+    "title": "Dither It",
+    "maker": "Dither It",
+    "kind": "build",
+    "direction": "dither-material",
+    "tags": [
+      "dither",
+      "tool",
+      "conversion",
+      "texture"
+    ],
+    "tldr": "Încă un comparator practic pentru conversie; util pentru surse fotografice și material archival.",
+    "steal": "Testează pragul și contrastul pe fundalul real #0d0f14, nu pe canvas alb.",
+    "avoid": "Prea multe stiluri amestecate. Alege 1 algoritm principal și 1 secundar.",
+    "source": "https://ditherit.com/",
+    "visual": "dither-lines",
+    "links": [
+      [
+        "TOOL",
+        "https://ditherit.com/"
+      ]
+    ]
+  },
+  {
+    "id": "B16",
+    "title": "d3-force",
+    "maker": "D3 / Observable",
+    "kind": "build",
+    "direction": "living-graph",
+    "tags": [
+      "physics",
+      "graph",
+      "collision",
+      "link-force",
+      "canvas"
+    ],
+    "tldr": "Motor de fizică pentru pozițiile nodurilor. Separă simularea de randare și poți desena în Canvas/Pixi/WebGL.",
+    "steal": "Custom forces pentru gravitație semantică, repulsie, decay și „idei uitate” care ies lent din câmp.",
+    "avoid": "SVG force graph clasic cu cercuri și linii drepte. Folosește doar fizica.",
+    "source": "https://d3js.org/d3-force",
+    "visual": "force-field",
+    "links": [
+      [
+        "DOCS",
+        "https://d3js.org/d3-force"
+      ],
+      [
+        "GITHUB",
+        "https://github.com/d3/d3-force"
+      ]
+    ]
+  },
+  {
+    "id": "B17",
+    "title": "PixiJS",
+    "maker": "PixiJS",
+    "kind": "build",
+    "direction": "living-graph",
+    "tags": [
+      "2d",
+      "webgl",
+      "webgpu",
+      "particles",
+      "filters",
+      "ai-skill"
+    ],
+    "tldr": "Cea mai pragmatică bază pentru un graph 2D viu: multe sprites/particles, Canvas-like API și shader filters.",
+    "steal": "Pixi pentru randare, d3-force pentru poziții, simplex-noise pentru contur, custom shader pentru noduri.",
+    "avoid": "Să tratezi nodurile ca sprites circulare. Generează meshes/contours organice.",
+    "source": "https://pixijs.com/",
+    "visual": "pixi",
+    "links": [
+      [
+        "SITE / DOCS",
+        "https://pixijs.com/"
+      ],
+      [
+        "GITHUB",
+        "https://github.com/pixijs/pixijs"
+      ],
+      [
+        "OFFICIAL AI SKILLS",
+        "https://github.com/pixijs/pixijs-skills"
+      ]
+    ]
+  },
+  {
+    "id": "B18",
+    "title": "React Three Fiber",
+    "maker": "pmndrs",
+    "kind": "build",
+    "direction": "living-graph",
+    "tags": [
+      "react",
+      "three.js",
+      "webgl",
+      "components",
+      "3d"
+    ],
+    "tldr": "Renderer React pentru Three.js. Potrivit dacă app-ul este deja React și ai scene 3D/shader-e complexe.",
+    "steal": "Componente izolate pentru nod, field, tendril și selection state; folosește drei doar unde reduce cod real.",
+    "avoid": "R3F pentru un graph 2D simplu. Pixi poate fi mai direct și mai ieftin.",
+    "source": "https://r3f.docs.pmnd.rs/getting-started/introduction",
+    "visual": "r3f",
+    "links": [
+      [
+        "DOCS",
+        "https://r3f.docs.pmnd.rs/getting-started/introduction"
+      ],
+      [
+        "GITHUB",
+        "https://github.com/pmndrs/react-three-fiber"
+      ],
+      [
+        "DREI",
+        "https://drei.docs.pmnd.rs/"
+      ]
+    ]
+  },
+  {
+    "id": "B19",
+    "title": "simplex-noise.js",
+    "maker": "Jonas Wagner",
+    "kind": "build",
+    "direction": "living-graph",
+    "tags": [
+      "simplex-noise",
+      "contour",
+      "motion",
+      "procedural",
+      "tiny"
+    ],
+    "tldr": "Noise mic și rapid pentru contururi organice, drift, puls și variație deterministă în Canvas/JS.",
+    "steal": "Seed per node, amplitudine legată de activitate, frecvență legată de tip, decay legat de vechime.",
+    "avoid": "Jitter random per frame. Folosește noise continuu în timp, nu random() brut.",
+    "source": "https://github.com/jwagner/simplex-noise.js/",
+    "visual": "noise-contour",
+    "links": [
+      [
+        "GITHUB / API",
+        "https://github.com/jwagner/simplex-noise.js/"
+      ]
+    ]
+  },
+  {
+    "id": "A01",
+    "title": "Tone.js",
+    "maker": "Tone.js",
+    "kind": "audio",
+    "direction": "audio-organism",
+    "tags": [
+      "web-audio",
+      "scheduling",
+      "synthesis",
+      "interactive-music"
+    ],
+    "tldr": "Framework Web Audio pentru timing, transport, synths și efecte. Util dacă goblin-ul generează sau sincronizează sunet.",
+    "steal": "Leagă stări și feedback de un transport coerent; ține sunetul opțional și non-intruziv.",
+    "avoid": "Nu e obligatoriu dacă doar citești microfon/audio. Pentru analiză, Meyda + Web Audio pot fi suficiente.",
+    "source": "https://tonejs.github.io/",
+    "visual": "waveform",
+    "links": [
+      [
+        "SITE",
+        "https://tonejs.github.io/"
+      ],
+      [
+        "DOCS",
+        "https://tonejs.github.io/docs/"
+      ],
+      [
+        "GITHUB",
+        "https://github.com/Tonejs/Tone.js"
+      ]
+    ]
+  },
+  {
+    "id": "A02",
+    "title": "Meyda",
+    "maker": "Meyda",
+    "kind": "audio",
+    "direction": "audio-organism",
+    "tags": [
+      "audio-features",
+      "rms",
+      "spectral-centroid",
+      "realtime",
+      "web-audio"
+    ],
+    "tldr": "Extrage features audio în timp real. Exact puntea dintre frecvență și parametri vizuali.",
+    "steal": "RMS → amplitudine/puls; spectral centroid → asperitate; flux → nervozitate; bands → lobes/tendrils.",
+    "avoid": "Mapping 1:1 fără smoothing. Normalizează, filtrează și limitează reacția vizuală.",
+    "source": "https://meyda.js.org/",
+    "visual": "spectrum",
+    "links": [
+      [
+        "DOCS",
+        "https://meyda.js.org/"
+      ],
+      [
+        "GITHUB",
+        "https://github.com/meyda/meyda"
+      ]
+    ]
+  },
+  {
+    "id": "A03",
+    "title": "p5.sound",
+    "maker": "p5.js",
+    "kind": "audio",
+    "direction": "audio-organism",
+    "tags": [
+      "prototype",
+      "fft",
+      "amplitude",
+      "creative-code",
+      "education"
+    ],
+    "tldr": "Cea mai rapidă cale pentru prototipuri audio-reactive și teste de FFT/amplitude fără infrastructură grea.",
+    "steal": "Faceți 5 sketch-uri independente pentru mappings; nu încercați să construiți produsul direct în p5.",
+    "avoid": "Canvas demo monolitic greu de integrat cu aplicația.",
+    "source": "https://p5js.org/reference/p5.sound/",
+    "visual": "radial-wave",
+    "links": [
+      [
+        "REFERENCE",
+        "https://p5js.org/reference/p5.sound/"
+      ],
+      [
+        "EDITOR",
+        "https://editor.p5js.org/"
+      ]
+    ]
+  },
+  {
+    "id": "A04",
+    "title": "Web Audio API",
+    "maker": "W3C / MDN",
+    "kind": "audio",
+    "direction": "audio-organism",
+    "tags": [
+      "browser-api",
+      "analyser-node",
+      "audio-worklet",
+      "foundation"
+    ],
+    "tldr": "Baza nativă pentru input, analiză și procesare audio. AnalyserNode poate alimenta vizualurile fără framework complet.",
+    "steal": "Folosește AudioWorklet pentru procesare serioasă și AnalyserNode pentru MVP vizual.",
+    "avoid": "Procesare grea pe main thread și permisiuni audio cerute fără context clar.",
+    "source": "https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API",
+    "visual": "audio-nodes",
+    "links": [
+      [
+        "MDN",
+        "https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API"
+      ],
+      [
+        "SPEC",
+        "https://webaudio.github.io/web-audio-api/"
+      ]
+    ]
+  },
+  {
+    "id": "M01",
+    "title": "GSAP",
+    "maker": "GreenSock",
+    "kind": "motion",
+    "direction": "motion-grammar",
+    "tags": [
+      "timeline",
+      "cascade",
+      "svg",
+      "canvas",
+      "webgl",
+      "ai-skill"
+    ],
+    "tldr": "Pentru coregrafie precisă: cascade, interruptions, morphing, timelines și feedback legat de canvas/WebGL.",
+    "steal": "Un singur timeline pentru acțiune: 0–90 ms impact, 90–260 ms propagare, 260–520 ms settle.",
+    "avoid": "Scroll spectacle și easing-uri diferite peste tot. Definește 3 curbe de mișcare canonice.",
+    "source": "https://gsap.com/docs/v3/",
+    "visual": "timeline",
+    "links": [
+      [
+        "DOCS",
+        "https://gsap.com/docs/v3/"
+      ],
+      [
+        "GITHUB",
+        "https://github.com/greensock/gsap"
+      ],
+      [
+        "OFFICIAL AI SKILLS",
+        "https://github.com/greensock/gsap-skills"
+      ]
+    ]
+  },
+  {
+    "id": "M02",
+    "title": "Motion",
+    "maker": "Motion.dev",
+    "kind": "motion",
+    "direction": "motion-grammar",
+    "tags": [
+      "react",
+      "microinteraction",
+      "spring",
+      "stagger",
+      "svg"
+    ],
+    "tldr": "Opțiunea mai simplă pentru micro-interacțiuni React/DOM/SVG. Bună pentru feedback sub 600 ms și layout transitions.",
+    "steal": "Folosește Motion pentru UI shell și GSAP doar dacă scena procedurală cere timeline complex.",
+    "avoid": "Două librării de animație fără delimitare clară.",
+    "source": "https://motion.dev/docs",
+    "visual": "spring",
+    "links": [
+      [
+        "DOCS",
+        "https://motion.dev/docs"
+      ],
+      [
+        "EXAMPLES",
+        "https://motion.dev/examples"
+      ],
+      [
+        "GITHUB",
+        "https://github.com/motiondivision/motion"
+      ]
+    ]
+  },
+  {
+    "id": "T01",
+    "title": "Monome norns",
+    "maker": "monome",
+    "kind": "tool",
+    "direction": "tool-not-product",
+    "tags": [
+      "instrument",
+      "minimal-ui",
+      "scripts",
+      "hardware",
+      "community"
+    ],
+    "tldr": "Referință puternică pentru „tool viu”: suprafață redusă, feedback direct, scriptabilitate și identitate fără chrome SaaS.",
+    "steal": "Puține controale, fiecare dens semantic; stări vizibile ca instrument, nu ca onboarding explicativ.",
+    "avoid": "Obscuritate totală. ADHD_GOBLIN trebuie să fie straniu, dar recuperabil și accesibil.",
+    "source": "https://monome.org/docs/norns/",
+    "visual": "norns",
+    "links": [
+      [
+        "DOCS",
+        "https://monome.org/docs/norns/"
+      ],
+      [
+        "GITHUB",
+        "https://github.com/monome/norns"
+      ]
+    ]
+  },
+  {
+    "id": "T02",
+    "title": "VCV Rack",
+    "maker": "VCV",
+    "kind": "tool",
+    "direction": "tool-not-product",
+    "tags": [
+      "modular",
+      "patching",
+      "signal-flow",
+      "instrument",
+      "open-source"
+    ],
+    "tldr": "Referință pentru relații vizibile și manipulabile: patching, signal flow, module distincte și feedback permanent.",
+    "steal": "Conexiunea trebuie să pară activă și să poată fi urmărită; nodurile au personalitate locală, nu carduri identice.",
+    "avoid": "Cabluri literal skeuomorfe și aglomerație de knobs.",
+    "source": "https://vcvrack.com/",
+    "visual": "patch-cables",
+    "links": [
+      [
+        "SITE",
+        "https://vcvrack.com/"
+      ],
+      [
+        "MANUAL",
+        "https://vcvrack.com/manual/"
+      ],
+      [
+        "GITHUB",
+        "https://github.com/VCVRack/Rack"
+      ]
+    ]
+  },
+  {
+    "id": "T03",
+    "title": "Max / MSP / Jitter",
+    "maker": "Cycling '74",
+    "kind": "tool",
+    "direction": "tool-not-product",
+    "tags": [
+      "visual-programming",
+      "audio",
+      "video",
+      "patcher",
+      "prototype"
+    ],
+    "tldr": "Mediu de patching pentru a prototipa relația dintre semnal, logică și vizual în mod explicit.",
+    "steal": "Gândește interacțiunea ca patch: eveniment → transformări → feedback → stare, nu ca „screen navigation”.",
+    "avoid": "Estetica de patcher copiată literal în produs.",
+    "source": "https://docs.cycling74.com/userguide/",
+    "visual": "patcher",
+    "links": [
+      [
+        "USER GUIDE",
+        "https://docs.cycling74.com/userguide/"
+      ],
+      [
+        "DOCS",
+        "https://docs.cycling74.com/"
+      ],
+      [
+        "A/V TOOLBOX",
+        "https://cycling74.com/packages/av-toolbox"
+      ]
+    ]
+  },
+  {
+    "id": "T04",
+    "title": "TouchDesigner — Audio Reactive",
+    "maker": "Derivative",
+    "kind": "tool",
+    "direction": "audio-organism",
+    "tags": [
+      "audio-reactive",
+      "node-based",
+      "visual-rd",
+      "realtime"
+    ],
+    "tldr": "Laborator excelent pentru a găsi mappings audio/visual și motion grammar înainte de portarea pe web.",
+    "steal": "Prototipează 10 mappings rapid, înregistrează-le, apoi implementează doar 2–3 care comunică stări reale.",
+    "avoid": "Export video ca substitut pentru interacțiune reală.",
+    "source": "https://derivative.ca/tags/audio-reactive",
+    "visual": "touchdesigner",
+    "links": [
+      [
+        "AUDIO-REACTIVE WORK",
+        "https://derivative.ca/tags/audio-reactive"
+      ],
+      [
+        "DOCS",
+        "https://docs.derivative.ca/"
+      ]
+    ]
+  },
+  {
+    "id": "T05",
+    "title": "Warp",
+    "maker": "Warp",
+    "kind": "tool",
+    "direction": "tool-not-product",
+    "tags": [
+      "terminal",
+      "keyboard",
+      "dark-ui",
+      "command",
+      "tool"
+    ],
+    "tldr": "Referință pentru densitate, input-first și feedback rapid într-un shell modern.",
+    "steal": "Comenzi, shortcuts și rezultate grupate; interacțiunea principală poate fi tastatura, nu click-ul.",
+    "avoid": "Block UI prea curat și product-polish corporate.",
+    "source": "https://www.warp.dev/",
+    "visual": "terminal",
+    "links": [
+      [
+        "SITE",
+        "https://www.warp.dev/"
+      ]
+    ]
+  },
+  {
+    "id": "T06",
+    "title": "Raycast",
+    "maker": "Raycast",
+    "kind": "tool",
+    "direction": "tool-not-product",
+    "tags": [
+      "command-palette",
+      "keyboard",
+      "fast-feedback",
+      "dark-ui"
+    ],
+    "tldr": "Model bun pentru un command layer foarte rapid și predictibil, fără a domina experiența vizuală.",
+    "steal": "Global command palette pentru dump, capture, re-link, snooze, ask goblin.",
+    "avoid": "Să arate ca un launcher cu liste identice și iconițe colorate.",
+    "source": "https://www.raycast.com/",
+    "visual": "command",
+    "links": [
+      [
+        "SITE",
+        "https://www.raycast.com/"
+      ]
+    ]
+  },
+  {
+    "id": "T07",
+    "title": "Arc Browser",
+    "maker": "The Browser Company",
+    "kind": "tool",
+    "direction": "tool-not-product",
+    "tags": [
+      "browser",
+      "spatial",
+      "sidebar",
+      "context",
+      "dark-ui"
+    ],
+    "tldr": "Referință pentru context, spaces și navigație care se simte ca mediu de lucru, nu website.",
+    "steal": "Context persistent și suprafețe care se mută fără reload mental; spații distincte pentru tipuri de gândire.",
+    "avoid": "Sidebar permanent lat și decor colorat pe fiecare space.",
+    "source": "https://arc.net/",
+    "visual": "arc",
+    "links": [
+      [
+        "SITE",
+        "https://arc.net/"
+      ]
+    ]
+  },
+  {
+    "id": "F01",
+    "title": "Instrument Serif",
+    "maker": "Instrument / Google Fonts",
+    "kind": "type",
+    "direction": "typographic-voice",
+    "tags": [
+      "display-serif",
+      "editorial",
+      "condensed",
+      "open-source"
+    ],
+    "tldr": "Display serif cu suficientă personalitate pentru titluri și microcopy cinic, fără să cadă în horror/gothic.",
+    "steal": "Titluri foarte mari, italic folosit rar pentru sarcasm și contraste dure cu mono.",
+    "avoid": "Body copy lung în serif condensat.",
+    "source": "https://fonts.google.com/specimen/Instrument+Serif",
+    "visual": "font-serif",
+    "links": [
+      [
+        "SPECIMEN",
+        "https://fonts.google.com/specimen/Instrument+Serif"
+      ]
+    ]
+  },
+  {
+    "id": "F02",
+    "title": "Bodoni Moda",
+    "maker": "Google Fonts",
+    "kind": "type",
+    "direction": "typographic-voice",
+    "tags": [
+      "didone",
+      "display-serif",
+      "high-contrast",
+      "open-source"
+    ],
+    "tldr": "Alternativă Didone mai apropiată de tensiunea Hermes: contrast mare și aer editorial/ritualic.",
+    "steal": "Folosește pentru chapter titles, numbers și mesaje scurte de sistem.",
+    "avoid": "Dimensiuni mici sau text dens; devine fragil pe ecrane slabe.",
+    "source": "https://fonts.google.com/specimen/Bodoni+Moda",
+    "visual": "font-didone",
+    "links": [
+      [
+        "SPECIMEN",
+        "https://fonts.google.com/specimen/Bodoni+Moda"
+      ]
+    ]
+  },
+  {
+    "id": "F03",
+    "title": "Fraunces",
+    "maker": "Google Fonts",
+    "kind": "type",
+    "direction": "typographic-voice",
+    "tags": [
+      "variable-serif",
+      "quirky",
+      "soft-sharp",
+      "open-source"
+    ],
+    "tldr": "Alternativă mai „goblin”: variabilă, ciudată, cu axe care permit o personalitate mai instabilă.",
+    "steal": "Folosește variabilitatea pentru stări — wonky/softness discret, nu animație continuă.",
+    "avoid": "Look jucăuș sau friendly. Ține greutatea și culoarea severe.",
+    "source": "https://fonts.google.com/specimen/Fraunces",
+    "visual": "font-fraunces",
+    "links": [
+      [
+        "SPECIMEN",
+        "https://fonts.google.com/specimen/Fraunces"
+      ]
+    ]
+  },
+  {
+    "id": "F04",
+    "title": "Commit Mono",
+    "maker": "Eigil Nikolajsen",
+    "kind": "type",
+    "direction": "typographic-voice",
+    "tags": [
+      "mono",
+      "code",
+      "neutral",
+      "open-source"
+    ],
+    "tldr": "Mono foarte controlat și discret; bun pentru body, metadata, logs și copy tehnic fără vibe de IDE mainstream.",
+    "steal": "Body 13–15 px, tracking ușor deschis, uppercase pentru labels și timestamps.",
+    "avoid": "Să fie prea neutru în titluri; contrastează-l cu serif-ul expresiv.",
+    "source": "https://commitmono.com/",
+    "visual": "font-mono",
+    "links": [
+      [
+        "SPECIMEN",
+        "https://commitmono.com/"
+      ],
+      [
+        "GITHUB",
+        "https://github.com/eigilnikolajsen/commit-mono"
+      ]
+    ]
+  },
+  {
+    "id": "F05",
+    "title": "IBM Plex Mono",
+    "maker": "IBM",
+    "kind": "type",
+    "direction": "typographic-voice",
+    "tags": [
+      "mono",
+      "technical",
+      "ui",
+      "open-source",
+      "romanian"
+    ],
+    "tldr": "Fallback matur, robust și foarte lizibil pentru diacritice, knowledge text și interfață tehnică.",
+    "steal": "Folosește-l unde Commit Mono pare prea anonim sau ai nevoie de o familie completă.",
+    "avoid": "Pairing cu IBM Plex Sans peste tot; ar muta direcția spre enterprise.",
+    "source": "https://www.ibm.com/plex/",
+    "visual": "font-plex",
+    "links": [
+      [
+        "SPECIMEN",
+        "https://www.ibm.com/plex/"
+      ],
+      [
+        "GITHUB",
+        "https://github.com/IBM/plex"
+      ],
+      [
+        "GOOGLE FONTS",
+        "https://fonts.google.com/specimen/IBM+Plex+Mono"
+      ]
+    ]
+  },
+  {
+    "id": "F06",
+    "title": "Velvetyne Type Foundry",
+    "maker": "VTF",
+    "kind": "type",
+    "direction": "typographic-voice",
+    "tags": [
+      "experimental-type",
+      "libre",
+      "display",
+      "grunge"
+    ],
+    "tldr": "Foundry libre (OFL) cu cele mai bune fonturi 'stranii' gratuite. Nu un singur font — o sursă. Priorități pentru goblin: Basteleur (F07), Avara (F08), Pilowlava (display organic/blob).",
+    "steal": "Basteleur = display-ul occult-machine (tarot, medieval × Cooper Black). Avara = serif editorial ascuțit. Pilowlava = display organic pentru accente și wordmark experimental.",
+    "avoid": "Mai mult de două familii display. Velvetyne e pentru wordmark/chapter art, nu pentru întregul UI.",
+    "source": "https://velvetyne.fr/",
+    "visual": "font-experimental",
+    "links": [
+      [
+        "FOUNDRY",
+        "https://velvetyne.fr/"
+      ]
+    ]
+  },
+  {
+    "id": "F07",
+    "title": "Basteleur",
+    "maker": "Keussel / Velvetyne",
+    "kind": "type",
+    "direction": "typographic-voice",
+    "tags": [
+      "tarot",
+      "medieval",
+      "display-serif",
+      "cooper-black",
+      "ofl",
+      "free"
+    ],
+    "tldr": "Display serif conceput pentru Tarot de Marseille — un amestec de medieval și Cooper Black. Două greutăți: Bold (moale, lat) și Moonlight (mai ușor, mai ascuțit). Gratuit, OFL.",
+    "steal": "Wordmark și chapter titles. Arcana Basteleur înseamnă 'începuturi noi, meșteșug, dar și lipsă de încredere și proiecte neterminate' — literalmente descrierea ADHD-ului. Bold pentru titluri mari, Moonlight pentru subtitluri.",
+    "avoid": "Body text. E prea lat și prea plin de personalitate pentru paragrafe sau UI dens.",
+    "source": "https://velvetyne.fr/fonts/basteleur/",
+    "visual": "font-basteleur",
+    "links": [
+      [
+        "SPECIMEN",
+        "https://velvetyne.fr/fonts/basteleur/"
+      ],
+      [
+        "DOWNLOAD",
+        "https://velvetyne.fr/fonts/basteleur/"
+      ]
+    ]
+  },
+  {
+    "id": "F08",
+    "title": "Avara",
+    "maker": "Raphaël Bastide et al. / Velvetyne",
+    "kind": "type",
+    "direction": "typographic-voice",
+    "tags": [
+      "editorial-serif",
+      "sharp",
+      "variable",
+      "ofl",
+      "free"
+    ],
+    "tldr": "Serif editorial ascuțit, cu axe variabile, folosit în publicații reale (The Table Review). Mai disciplinat decât Instrument Serif, mai mult caracter decât Bodoni Moda.",
+    "steal": "Display principal alternativ pentru titluri și pull-quotes. Axele variabile permit ajustarea fineții — titlurile pot deveni mai 'tăioase' pe măsură ce un task devine mai urgent sau mai vechi.",
+    "avoid": "Nu-l amesteca cu Basteleur în același ecran. Alege unul singur ca display principal.",
+    "source": "https://velvetyne.fr/fonts/avara/",
+    "visual": "font-avara",
+    "links": [
+      [
+        "SPECIMEN",
+        "https://velvetyne.fr/fonts/avara/"
+      ],
+      [
+        "IN USE",
+        "https://thetablereview.com/colophon"
+      ]
+    ]
+  },
+  {
+    "id": "F09",
+    "title": "Departure Mono",
+    "maker": "departuremono.com",
+    "kind": "type",
+    "direction": "typographic-voice",
+    "tags": [
+      "pixel-font",
+      "mono",
+      "lo-fi",
+      "terminal",
+      "free"
+    ],
+    "tldr": "Mono pixelat, lo-fi tehnic. Arată ca un font bitmap din 1998 dar scalează curat (grid de 550 units, nu bitmap real). Gratuit. Fără italic — și nu are nevoie.",
+    "steal": "Labels, timestamps, status, counters, metadata — tot ce e 'system text'. Aduce vibe-ul de terminal/instrument fără retro-kitsch. Folosește dimensiuni multiplu de 11px ca pixelii să rămână ascuțiți.",
+    "avoid": "Body text lung sau text sub 11px. E pentru semnal și etichete, nu pentru paragrafe.",
+    "source": "https://departuremono.com/",
+    "visual": "font-departure",
+    "links": [
+      [
+        "SITE / DOWNLOAD",
+        "https://departuremono.com/"
+      ]
+    ]
+  },
+  {
+    "id": "F10",
+    "title": "Fragment Mono",
+    "maker": "Weiwei Huang",
+    "kind": "type",
+    "direction": "typographic-voice",
+    "tags": [
+      "mono",
+      "editorial",
+      "warm",
+      "free"
+    ],
+    "tldr": "Mono cu o căldură subtilă, aproape handmade în terminalele literelor. Excelent pentru editorial și cod deopotrivă. Gratuit.",
+    "steal": "Alternativă pentru body/mono UI unde Commit Mono pare prea anonim și Departure Mono prea pixelat. Bun pentru knowledge text, descrieri și copy-ul cinic al goblin-ului.",
+    "avoid": "Nu-l folosi pentru labels tehnice dense — acolo Departure Mono sau Commit Mono sunt mai clare.",
+    "source": "https://github.com/weiweihuanghuang/fragment-mono",
+    "visual": "font-fragment",
+    "links": [
+      [
+        "GITHUB / DOWNLOAD",
+        "https://github.com/weiweihuanghuang/fragment-mono"
+      ]
+    ]
+  }
+]

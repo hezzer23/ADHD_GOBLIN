@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+
+# Claude sessions
+.claude/
+
+# Internal docs — not for public repo
+docs/
+.wayfinder/
+curs/
+archive/
+BUILD_HANDOFF.md
+PROJECT_STATE.md
+BUILD_PLAN_v0.md
+HANDOFF_HERMES.md
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Editor
+.vscode/
+*.swp
+
+# Build output
+v0/dist/
+
+# Keys / secrets — NEVER commit
+*.key
+.env
+.env.*
+
+# Temp
+*.tmp
+design/macheta-legaturi/index.v1-robotic.html
+design/ADHD_GOBLIN_PROJECT_STATE.html

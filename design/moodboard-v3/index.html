@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0d0f14">
+<title>ADHD_GOBLIN — Field Manual v3</title>
+<meta name="description" content="Moodboard explorativ cu demo-uri live. Fiecare direcție se testează, nu se privește.">
+<link rel="stylesheet" href="css/tokens.css?v=1785531557">
+<link rel="stylesheet" href="css/fonts.css?v=1785531557">
+<link rel="stylesheet" href="css/shell.css?v=1785531557">
+<link rel="stylesheet" href="css/parts.css?v=1785531557">
+</head>
+<body>
+
+<header class="hud">
+  <span class="pulse" id="hud-pulse" data-live="0"></span>
+  <span><b>ADHD_GOBLIN</b></span>
+  <span class="sep">/</span>
+  <span>FIELD MANUAL v3</span>
+  <span class="sep">/</span>
+  <span id="hud-section">00 NORTH STAR</span>
+  <span class="spacer"></span>
+  <span id="hud-count">—</span>
+  <span class="sep">/</span>
+  <span>⌘K COMMAND</span>
+</header>
+
+<nav class="rail" id="rail" aria-label="Secțiuni">
+  <div class="rail-group">
+    <span class="label">Manual</span>
+    <a href="#north"      data-nav><span class="num">00</span><span>North star</span><span class="tail"></span></a>
+    <a href="#directions" data-nav><span class="num">01</span><span>Direcții</span><span class="tail" id="t-dir"></span></a>
+    <a href="#field"      data-nav><span class="num">02</span><span>Living field</span><span class="tail">LIVE</span></a>
+    <a href="#dither"     data-nav><span class="num">03</span><span>Dither lab</span><span class="tail">LIVE</span></a>
+    <a href="#decay"      data-nav><span class="num">04</span><span>Decay</span><span class="tail">LIVE</span></a>
+    <a href="#motion"     data-nav><span class="num">05</span><span>Motion grammar</span><span class="tail">LIVE</span></a>
+    <a href="#type"       data-nav><span class="num">06</span><span>Tipografie</span><span class="tail" id="t-type"></span></a>
+    <a href="#atlas"      data-nav><span class="num">07</span><span>Source atlas</span><span class="tail" id="t-src"></span></a>
+    <a href="#ecran"      data-nav><span class="num">09</span><span>Ecran principal</span><span class="tail">B/C/D</span></a>
+    <a href="#clustere"   data-nav><span class="num">10</span><span>Clustere</span><span class="tail">LIVE</span></a>
+    <a href="#kill"       data-nav><span class="num">08</span><span>Kill list</span><span class="tail"></span></a>
+  </div>
+</nav>
+
+<main class="stage">
+
+  <!-- 00 ------------------------------------------------------------------ -->
+  <section class="bay masthead" id="north">
+    <div class="hero">
+      <div class="hero-meta label">
+        FIELD MANUAL / v3 / EXPLORATIV<br>
+        NU E UI SPEC. E UN BANC DE TEST.
+      </div>
+      <h1 class="wordmark">ADHD<span class="us">_</span><br>GOBLIN</h1>
+      <p class="hero-sub">
+        Un sistem nervos cu atitudine proastă. Nu asistent, nu dashboard —
+        ăla din telefon care vede grămada, taie politețea și scoate un lucru real din mlaștină.
+      </p>
+      <div class="hero-grid">
+        <div><span class="label">Produs</span><p>ADHD webapp / AI local / graph + dump + tasks + knowledge</p></div>
+        <div><span class="label">Voce</span><p>Cinic / direct / prieten informat / zero glazing</p></div>
+        <div><span class="label">Material</span><p>1-bit / grain / scan / probă de arhivă / tip dur</p></div>
+        <div><span class="label">Semn de viață</span><p>Membrane organice / tendrils / decay / feedback în cascadă</p></div>
+      </div>
+    </div>
+
+    <div class="diff panel">
+      <div class="panel-head"><span class="label">Ce e diferit față de v2</span></div>
+      <div class="panel-body diff-grid">
+        <div><b>v2</b><p class="dim">56 de referințe vizuale, zero mecanici. Document de derulat.</p></div>
+        <div><b>v3</b><p>Fiecare direcție are un demo funcțional. Dacă nu se poate demonstra, nu intră.</p></div>
+        <div><b>v2</b><p class="dim">10 fonturi listate, 2 încărcate efectiv. Specimenele minţeau.</p></div>
+        <div><b>v3</b><p>Fonturile sunt embedate local. Ce vezi e fontul real, cu diacritice românești testate.</p></div>
+        <div><b>v2</b><p class="dim">Canvas decorativ în hero care nu demonstra nicio direcție.</p></div>
+        <div><b>v3</b><p>Zero decor. Fiecare canvas e o afirmație testabilă cu parametri.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 ------------------------------------------------------------------ -->
+  <section class="bay" id="directions">
+    <div class="bay-head">
+      <div class="idx">01</div>
+      <div>
+        <h2>Direcții</h2>
+        <p class="thesis">
+          Opt sunt din v2 și rămân pentru că sunt bune. Cinci sunt noi și sunt puse
+          aici ca să fie contrazise — trei dintre ele rup intenționat kill list-ul
+          actual. Fiecare direcție nouă spune ce te costă dacă o adopți.
+        </p>
+      </div>
+    </div>
+    <div class="directions" data-directions></div>
+  </section>
+
+  <!-- 02 ------------------------------------------------------------------ -->
+  <section class="bay" id="field">
+    <div class="bay-head">
+      <div class="idx">02</div>
+      <div>
+        <h2>Living field</h2>
+        <p class="thesis">
+          Nodul nu e cerc cu label. E membrană cu masă, contur propriu și relație
+          fizică vizibilă. Legătura nu e linie — e țesut sub tensiune. Uitarea nu
+          primeşte badge „stale": se vede cum putrezește. Trage de noduri. Urcă decay-ul.
+        </p>
+      </div>
+    </div>
+
+    <div class="demo" data-demo-host>
+      <div class="demo-canvas" data-demo="field"><canvas></canvas></div>
+      <div class="demo-side">
+        <div class="panel-head">
+          <span class="label">Field / parametri</span>
+          <span class="spacer"></span>
+          <span class="num">CANVAS 2D</span>
+        </div>
+        <div class="panel-body">
+          <p class="dim" style="font-size:12px">
+            Pointer = atenție (bracket verde). Click = împinge. Nimic nu se mișcă
+            fără cauză — driftul e câmp de noise, nu animație ambientală.
+          </p>
+          <div class="rules">
+            <div class="rule" data-verdict="use"><b>USE</b><span>Contur per-nod din noise. Două noduri nu arată niciodată ca aceeaşi componentă.</span></div>
+            <div class="rule" data-verdict="mutate"><b>MUTATE</b><span>Tensiunea se citește în sag, nu în culoare. Culoarea rămâne resursă.</span></div>
+            <div class="rule" data-verdict="never"><b>NEVER</b><span>Cerc + linie dreaptă + badge „stale". Aia e Obsidian, nu organism.</span></div>
+          </div>
+          <div class="readout"></div>
+        </div>
+        <div class="ctl-row">
+          <label class="ctl"><span>noduri</span><input type="range" data-ctl="nodes" min="3" max="22" step="1" value="9"><output></output></label>
+          <label class="ctl"><span>tensiune</span><input type="range" data-ctl="tension" min="0" max="1.6" step="0.01" value="0.55"><output></output></label>
+          <label class="ctl"><span>contur</span><input type="range" data-ctl="contour" min="0" max="0.6" step="0.01" value="0.24"><output></output></label>
+        </div>
+        <div class="ctl-row">
+          <label class="ctl"><span>decay +zile</span><input type="range" data-ctl="decayDays" min="0" max="40" step="1" value="0"><output></output></label>
+          <label class="ctl"><span>rată</span><input type="range" data-ctl="decayRate" min="0" max="3" step="0.1" value="0"><output></output></label>
+        </div>
+        <div class="ctl-row">
+          <span>dither</span>
+          <span class="seg">
+            <button class="btn" data-ctl="dither" data-group="fd" data-value="none">off</button>
+            <button class="btn" data-ctl="dither" data-group="fd" data-value="bayer" aria-pressed="true">bayer</button>
+            <button class="btn" data-ctl="dither" data-group="fd" data-value="atkinson">atkinson</button>
+          </span>
+          <label class="ctl"><span>px</span><input type="range" data-ctl="pixel" min="0.25" max="1" step="0.05" value="0.5"><output></output></label>
+        </div>
+        <div class="ctl-row">
+          <button class="btn" data-ctl="reseed">reseed</button>
+          <button class="btn" data-ctl="touch">touch (novelty)</button>
+          <button class="btn" data-kind="cut" data-ctl="kill">kill stale</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 ------------------------------------------------------------------ -->
+  <section class="bay" id="dither">
+    <div class="bay-head">
+      <div class="idx">03</div>
+      <div>
+        <h2>Dither lab</h2>
+        <p class="thesis">
+          Comparația e interfața, nu un panou de setări. Pornește <b>mișcare</b> și
+          treci pe Floyd–Steinberg: fierbe, pentru că lanțul de eroare se recalculează
+          la fiecare cadru. Bayer stă pe loc. Asta e singura decizie care contează.
+          <b>Black point</b> există pentru că dither-ul manualului de școală albește
+          fondul negru — golul nu e materie.
+        </p>
+      </div>
+    </div>
+
+    <div class="demo" data-demo-host>
+      <div class="demo-canvas" data-demo="dither"><canvas></canvas></div>
+      <div class="demo-side">
+        <div class="panel-head"><span class="label">Dither / parametri</span><span class="spacer"></span><span class="num">IMAGEDATA</span></div>
+        <div class="panel-body">
+          <div class="rules">
+            <div class="rule" data-verdict="use"><b>USE</b><span>Bayer pentru tot ce se mișcă. Cost O(n), sub 0.2 ms la 4K.</span></div>
+            <div class="rule" data-verdict="mutate"><b>MUTATE</b><span>Atkinson difuzează doar 6/8 din eroare — pierde intenționat, câștigă contrast. Doar pe material static.</span></div>
+            <div class="rule" data-verdict="never"><b>NEVER</b><span>Floyd–Steinberg pe ceva animat. Și niciun dither sub black point.</span></div>
+          </div>
+          <div class="readout"></div>
+        </div>
+        <div class="ctl-row">
+          <span>algoritm</span>
+          <span class="seg">
+            <button class="btn" data-ctl="mode" data-group="dl" data-value="none">off</button>
+            <button class="btn" data-ctl="mode" data-group="dl" data-value="bayer" aria-pressed="true">bayer</button>
+            <button class="btn" data-ctl="mode" data-group="dl" data-value="atkinson">atkinson</button>
+            <button class="btn" data-ctl="mode" data-group="dl" data-value="floyd">floyd</button>
+          </span>
+        </div>
+        <div class="ctl-row">
+          <label class="ctl"><span>niveluri</span><input type="range" data-ctl="levels" min="2" max="6" step="1" value="2"><output></output></label>
+          <label class="ctl"><span>black</span><input type="range" data-ctl="black" min="0" max="90" step="1" value="12"><output></output></label>
+          <label class="ctl"><span>white</span><input type="range" data-ctl="white" min="120" max="255" step="1" value="235"><output></output></label>
+        </div>
+        <div class="ctl-row">
+          <label class="ctl"><span>px</span><input type="range" data-ctl="pixel" min="0.2" max="1" step="0.05" value="0.5"><output></output></label>
+          <label class="ctl"><span>mișcare</span><input type="range" data-ctl="motion" min="0" max="1" step="1" value="0"><output></output></label>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 ------------------------------------------------------------------ -->
+  <section class="bay" id="decay">
+    <div class="bay-head">
+      <div class="idx">04</div>
+      <div>
+        <h2>Decay</h2>
+        <p class="thesis">
+          Vârsta nu e opacitate. Opacitatea zice „ascuns"; tu vrei „se degradează".
+          Patru axe simultan, luate din vocabularul real al scanurilor de microfișă:
+          pierdere de contrast, câștig de granulație, skew sub-grad, și tracking
+          care se lărgește. Textul rămâne lizibil la 30 de zile — nu-l pedepsești
+          pe utilizator făcându-l orb, îi arăți putrezirea.
+        </p>
+      </div>
+    </div>
+
+    <div class="demo" data-demo-host data-decay>
+      <div class="demo-canvas decay-stage"></div>
+      <div class="demo-side">
+        <div class="panel-head"><span class="label">Decay / DOM + CSS</span><span class="spacer"></span><span class="num">FĂRĂ CANVAS</span></div>
+        <div class="panel-body">
+          <div class="rules">
+            <div class="rule" data-verdict="use"><b>USE</b><span>Un singur număr, <code>--age</code>, înregistrat cu <code>@property</code>. Toate cele patru axe derivă din el.</span></div>
+            <div class="rule" data-verdict="mutate"><b>MUTATE</b><span>Fiecare rând îmbătrânește cu rată proprie. Câmpul arată un gradient de neglijare, nu o stare uniformă.</span></div>
+            <div class="rule" data-verdict="never"><b>NEVER</b><span>Să animezi decay-ul continuu. Se calculează la load și la interacțiune, atât.</span></div>
+          </div>
+          <div class="readout"><span>stare</span><b data-decay-readout>—</b></div>
+        </div>
+        <div class="ctl-row">
+          <label class="ctl"><span>zile</span><input type="range" data-decay-days min="0" max="30" step="1" value="0"><output data-decay-out>0</output></label>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 ------------------------------------------------------------------ -->
+  <section class="bay" id="motion">
+    <div class="bay-head">
+      <div class="idx">05</div>
+      <div>
+        <h2>Motion grammar</h2>
+        <p class="thesis">
+          Aceeași coregrafie, două registre. Diferența e în patru parametri, nu în
+          două animații. <b>CALM</b> decelerează. <b>CONFRUNTARE</b> se oprește —
+          fără coadă de easing, cu hit-stop înainte de impact. Sistemul nervos
+          citește oprirea bruscă drept consecință. Apasă declanșează și schimbă regimul.
+        </p>
+      </div>
+    </div>
+
+    <div class="demo" data-demo-host>
+      <div class="demo-canvas" data-demo="motion"><canvas></canvas></div>
+      <div class="demo-side">
+        <div class="panel-head"><span class="label">Motion / regim</span><span class="spacer"></span><span class="num">IMPACT · CASCADE · SETTLE</span></div>
+        <div class="panel-body">
+          <div class="rules">
+            <div class="rule" data-verdict="use"><b>USE</b><span>Durata scalată cu distanța: 120 + 0.28 × px, limitat la [150, 700].</span></div>
+            <div class="rule" data-verdict="mutate"><b>MUTATE</b><span>CONFRUNTARE doar la momente în care utilizatorul a intrat deliberat. Niciodată pe eroare, absență sau deadline ratat.</span></div>
+            <div class="rule" data-verdict="never"><b>NEVER</b><span>Mișcare pe stări de eșec. Absența mișcării e siguranța emoțională.</span></div>
+          </div>
+          <div class="readout"></div>
+        </div>
+        <div class="ctl-row">
+          <span>regim</span>
+          <span class="seg">
+            <button class="btn" data-ctl="regime" data-group="mg" data-value="calm" aria-pressed="true">calm</button>
+            <button class="btn" data-ctl="regime" data-group="mg" data-value="confr">confruntare</button>
+          </span>
+          <button class="btn" data-ctl="fire">declanșează</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 ------------------------------------------------------------------ -->
+  <section class="bay" id="type">
+    <div class="bay-head">
+      <div class="idx">06</div>
+      <div>
+        <h2>Tipografie</h2>
+        <p class="thesis">
+          Fiecare specimen de mai jos e randat în fontul lui real, încărcat local.
+          Verdictul de diacritice nu vine din pagina foundry-ului — vine din citirea
+          tabelei cmap din binarul livrat, căutând U+0218/0219/021A/021B, virgulă
+          dedesubt, nu cedilă turcească. <span class="live" data-type-tally></span>
+        </p>
+      </div>
+    </div>
+    <div class="type-grid" data-type-grid></div>
+  </section>
+
+  <!-- 07 ------------------------------------------------------------------ -->
+  <section class="bay" id="atlas">
+    <div class="bay-head">
+      <div class="idx">07</div>
+      <div>
+        <h2>Source atlas</h2>
+        <p class="thesis">
+          O referință fără verdict e un bookmark. Fiecare intrare are STEAL concret
+          — destul de specific încât să se poată implementa — plus AVOID și cum se
+          construiește.
+        </p>
+      </div>
+    </div>
+    <div class="atlas-bar" data-atlas-filters-wrap>
+      <input type="search" data-atlas-search placeholder="caută în steal…" aria-label="Caută în atlas">
+      <span data-atlas-filters style="display:contents"></span>
+      <span class="count" data-atlas-count></span>
+    </div>
+    <div class="src-grid" data-atlas-grid></div>
+  </section>
+
+  <!-- 09 ------------------------------------------------------------------ -->
+  <section class="bay" id="ecran">
+    <div class="bay-head">
+      <div class="idx">09</div>
+      <div>
+        <h2>Ecranul principal — B vs C</h2>
+        <p class="thesis">
+          Aceleași date, același layout înghețat, același slider de noduri.
+          Trage-l la 200 și uită-te ce se întâmplă cu fiecare. Layout-ul se
+          relaxează o dată și îngheață — memoria spațială e canalul intact la
+          ADHD, deci nodurile n-au voie să se mute între sesiuni. Din bugetul
+          eliberat de solverul care nu mai rulează se plătește câmpul.
+        </p>
+      </div>
+    </div>
+
+    <div class="demo" data-demo-host>
+      <div class="demo-canvas" data-demo="screenB"><canvas></canvas></div>
+      <div class="demo-side">
+        <div class="panel-head"><span class="label">B — câmp atmosferic</span><span class="spacer"></span><span class="num">GRILĂ DE CARACTERE</span></div>
+        <div class="panel-body">
+          <p class="dim" style="font-size:12px">
+            Niciun graf desenat. Nodurile sunt termeni într-un câmp scalar, grila
+            citește câmpul. Cursorul e input, nu decor. Click = deschide zona.
+          </p>
+          <div class="rules">
+            <div class="rule" data-verdict="use"><b>USE</b><span>Densitatea spune masa fără contor și fără ghem de păr.</span></div>
+            <div class="rule" data-verdict="mutate"><b>MUTATE</b><span>Termenul de graf e static — layout înghețat, deci se coace o dată, nu per cadru.</span></div>
+            <div class="rule" data-verdict="never"><b>NEVER</b><span>Drift permanent pe ceas propriu. Aia e screensaver, și e pe kill list.</span></div>
+          </div>
+          <div class="readout"></div>
+        </div>
+        <div class="ctl-row">
+          <label class="ctl"><span>noduri</span><input type="range" data-ctl="nodes" min="8" max="200" step="1" value="40"><output></output></label>
+          <label class="ctl"><span>rază masă</span><input type="range" data-ctl="sigma" min="0.05" max="0.2" step="0.005" value="0.1"><output></output></label>
+        </div>
+        <div class="ctl-row">
+          <label class="ctl"><span>gravitație</span><input type="range" data-ctl="gravity" min="0" max="1.4" step="0.02" value="0.62"><output></output></label>
+          <label class="ctl"><span>ambient</span><input type="range" data-ctl="flow" min="0" max="1.2" step="0.02" value="0.55"><output></output></label>
+          <label class="ctl"><span>cursor</span><input type="range" data-ctl="force" min="0" max="1.5" step="0.05" value="0.55"><output></output></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo" data-demo-host>
+      <div class="demo-canvas" data-demo="screenC"><canvas></canvas></div>
+      <div class="demo-side">
+        <div class="panel-head"><span class="label">C — rezoluție după atenție</span><span class="spacer"></span><span class="num">FĂRĂ BUTON DE MOD</span></div>
+        <div class="panel-body">
+          <p class="dim" style="font-size:12px">
+            Repaus = 7 ancore, restul e substrat. „Zi-mi ce am pe cap" = exact 3.
+            Ingest = un braindump cade și ripple-ul călătorește pe muchii reale.
+            Click pe orice zonă o rezolvă.
+          </p>
+          <div class="rules">
+            <div class="rule" data-verdict="use"><b>USE</b><span>Nu desenezi niciodată tot graful. O vecinătate, nu o hartă.</span></div>
+            <div class="rule" data-verdict="mutate"><b>MUTATE</b><span>Conversația e zoom-ul. Rezoluția urmează vorba goblinului.</span></div>
+            <div class="rule" data-verdict="never"><b>NEVER</b><span>Toggle „atmospheric / graph". Ăla e costul de decizie pe care-l tăiem.</span></div>
+          </div>
+          <div class="readout"></div>
+        </div>
+        <div class="ctl-row">
+          <label class="ctl"><span>noduri</span><input type="range" data-ctl="nodes" min="8" max="200" step="1" value="40"><output></output></label>
+          <label class="ctl"><span>rază masă</span><input type="range" data-ctl="sigma" min="0.05" max="0.2" step="0.005" value="0.1"><output></output></label>
+        </div>
+        <div class="ctl-row">
+          <button class="btn" data-ctl="rest">repaus</button>
+          <button class="btn" data-ctl="query">zi-mi ce am pe cap</button>
+          <button class="btn" data-ctl="ingest">ingest braindump</button>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="demo" data-demo-host>
+      <div class="demo-canvas" data-demo="screenD"><canvas></canvas></div>
+      <div class="demo-side">
+        <div class="panel-head"><span class="label">D — graf curat</span><span class="spacer"></span><span class="num">2 CULORI</span></div>
+        <div class="panel-body">
+          <p class="dim" style="font-size:12px">
+            Forma lui Obsidian, fără obiceiurile lui. Hover = restul se stinge,
+            nimic nu se aprinde. Click = fixează. Gradul se citește din tick-urile
+            de pe rim, nu dintr-un număr.
+          </p>
+          <div class="rules">
+            <div class="rule" data-verdict="use"><b>USE</b><span>Ierarhia prin mărime și greutate. Culoarea rămâne liberă să însemne ceva.</span></div>
+            <div class="rule" data-verdict="mutate"><b>MUTATE</b><span>Două semnale, atât: acid = atenție, rugină = evitare. Restul e alb-negru.</span></div>
+            <div class="rule" data-verdict="never"><b>NEVER</b><span>Etichete pe toate nodurile. 200 de etichete nu sunt informație, sunt textură din cuvinte.</span></div>
+          </div>
+          <div class="readout"></div>
+        </div>
+        <div class="ctl-row">
+          <label class="ctl"><span>noduri</span><input type="range" data-ctl="nodes" min="8" max="200" step="1" value="40"><output></output></label>
+          <label class="ctl"><span>ancore</span><input type="range" data-ctl="labels" min="0" max="20" step="1" value="8"><output></output></label>
+        </div>
+        <div class="ctl-row">
+          <label class="ctl"><span>prag zile</span><input type="range" data-ctl="thin" min="10" max="120" step="5" value="60"><output></output></label>
+          <label class="ctl"><span>spațiere</span><input type="range" data-ctl="spread" min="0.7" max="1.3" step="0.02" value="1"><output></output></label>
+        </div>
+        <div class="ctl-row">
+          <button class="btn" data-ctl="query">zi-mi ce am pe cap</button>
+          <button class="btn" data-ctl="clear">curăță</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo" data-motes-real>
+      <div class="demo-canvas"><canvas></canvas><span class="motes-err"></span></div>
+      <div class="demo-side">
+        <div class="panel-head"><span class="label">motes — librăria reală</span><span class="spacer"></span><span class="num">WEBGL2 · MIT</span></div>
+        <div class="panel-body">
+          <p class="dim" style="font-size:12px">
+            <code>npm i @lucasmarkes/motes</code> — vendorat în <code>vendor/motes.js</code>,
+            zero dependențe. Efectul <b>goblin</b> e scris de noi: graful compilat
+            în GLSL ca funcție de câmp, cu nodurile ca puțuri gaussiene.
+          </p>
+          <div class="rules">
+            <div class="rule" data-verdict="use"><b>USE</b><span>Stratul de pointer e partajat și obligatoriu — un efect nu poate trișa spre interactivitate.</span></div>
+            <div class="rule" data-verdict="mutate"><b>MUTATE</b><span>Pozițiile intră ca array constant în shader. Legal doar pentru că layout-ul e înghețat: recompilezi la ingest, nu per cadru.</span></div>
+            <div class="rule" data-verdict="never"><b>NEVER</b><span>Trail mare + accent tare. Devine fosfor de film SF.</span></div>
+          </div>
+          <div class="readout" data-motes-readout></div>
+        </div>
+        <div class="ctl-row">
+          <span>efect</span>
+          <span class="seg">
+            <button class="btn" data-mctl="effect" data-value="goblin" aria-pressed="true">goblin</button>
+            <button class="btn" data-mctl="effect" data-value="flow">flow</button>
+            <button class="btn" data-mctl="effect" data-value="waves">waves</button>
+            <button class="btn" data-mctl="effect" data-value="pulse">pulse</button>
+          </span>
+        </div>
+        <div class="ctl-row">
+          <label class="ctl"><span>noduri</span><input type="range" data-mctl="nodes" min="8" max="120" step="1" value="40"><output>40</output></label>
+          <label class="ctl"><span>rază</span><input type="range" data-mctl="sigma" min="0.05" max="0.2" step="0.005" value="0.11"><output>0.11</output></label>
+          <label class="ctl"><span>celulă</span><input type="range" data-mctl="density" min="8" max="26" step="1" value="13"><output>13</output></label>
+        </div>
+        <div class="ctl-row">
+          <label class="ctl"><span>cursor r</span><input type="range" data-mctl="radius" min="60" max="400" step="10" value="190"><output>190</output></label>
+          <label class="ctl"><span>forță</span><input type="range" data-mctl="force" min="0" max="3" step="0.1" value="1.1"><output>1.1</output></label>
+          <label class="ctl"><span>trail</span><input type="range" data-mctl="trail" min="0" max="0.9" step="0.05" value="0.25"><output>0.25</output></label>
+          <label class="ctl"><span>viteză</span><input type="range" data-mctl="speed" min="0" max="2" step="0.05" value="0.7"><output>0.7</output></label>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- 10 ------------------------------------------------------------------ -->
+  <section class="bay" id="clustere">
+    <div class="bay-head">
+      <div class="idx">10</div>
+      <div>
+        <h2>Clustere — compilarea haosului</h2>
+        <p class="thesis">
+          Ierarhia din PROJECT_STATE, testată vizual: braindump → nod → cluster → direcție.
+          Regula de contrast, cerută explicit: <b>materia e organică</b> — pete dithered,
+          contur din noise, grunge. <b>Instrumentul e geometric</b> — box-uri, linii
+          ortogonale, chip-uri de etichetă, cifre reci. Nimic la mijloc. Fără frânghii.
+        </p>
+      </div>
+    </div>
+
+    <div class="demo" data-demo-host>
+      <div class="demo-canvas" data-demo="compile"><canvas></canvas></div>
+      <div class="demo-side">
+        <div class="panel-head"><span class="label">Compilare — loop-ul v0</span><span class="spacer"></span><span class="num">B+C</span></div>
+        <div class="panel-body">
+          <p class="dim" style="font-size:12px">
+            Apasă <b>braindump</b> de trei ori. Textul brut cade împrăștiat, din el
+            precipită nodurile, nodurile se trag spre ancoră, box-ul se desenează,
+            goblinul reacționează. Transformarea e produsul.
+          </p>
+          <div class="rules">
+            <div class="rule" data-verdict="use"><b>USE</b><span>Ancorele clusterelor sunt fixe. Nodul nu se plimbă — poziția e memorie spațială.</span></div>
+            <div class="rule" data-verdict="mutate"><b>MUTATE</b><span>Spirală cu unghi de aur pentru membri: determinist, același nod în același loc.</span></div>
+            <div class="rule" data-verdict="never"><b>NEVER</b><span>Force-directed live. Layout care nu se reproduce = memorie spațială zero.</span></div>
+          </div>
+          <div class="readout"></div>
+        </div>
+        <div class="ctl-row">
+          <button class="btn" data-ctl="dump">braindump →</button>
+          <button class="btn" data-kind="cut" data-ctl="reset">reset</button>
+          <label class="ctl"><span>viteză</span><input type="range" data-ctl="speed" min="0.3" max="2.5" step="0.1" value="1"><output></output></label>
+        </div>
+        <div class="ctl-row">
+          <span>dither</span>
+          <span class="seg">
+            <button class="btn" data-ctl="dither" data-group="cd" data-value="none">off</button>
+            <button class="btn" data-ctl="dither" data-group="cd" data-value="bayer" aria-pressed="true">bayer</button>
+            <button class="btn" data-ctl="dither" data-group="cd" data-value="atkinson">atkinson</button>
+          </span>
+          <label class="ctl"><span>grunge</span><input type="range" data-ctl="grunge" min="0" max="1.6" step="0.05" value="1"><output></output></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo" data-demo-host>
+      <div class="demo-canvas" data-demo="detect"><canvas></canvas></div>
+      <div class="demo-side">
+        <div class="panel-head"><span class="label">Detecție — stil la densitate</span><span class="spacer"></span><span class="num">BOUNDING BOX</span></div>
+        <div class="panel-body">
+          <p class="dim" style="font-size:12px">
+            Registrul rece de object detection peste materie organică. Trage nodurile
+            la 240: nodurile devin textură, box-urile rămân lizibile. Nu mai citești
+            noduri — citești teritorii.
+          </p>
+          <div class="rules">
+            <div class="rule" data-verdict="use"><b>USE</b><span>Box axis-aligned, nu convex hull. Hull-ul e organic și ar strica contrastul.</span></div>
+            <div class="rule" data-verdict="mutate"><b>MUTATE</b><span>Rugina marchează tensiunea: cluster cu multe acțiuni deschise.</span></div>
+            <div class="rule" data-verdict="never"><b>NEVER</b><span>Etichetă pe fiecare nod. Nodurile mici sunt greutate, nu conținut.</span></div>
+          </div>
+          <div class="readout"></div>
+        </div>
+        <div class="ctl-row">
+          <label class="ctl"><span>noduri</span><input type="range" data-ctl="nodes" min="10" max="240" step="2" value="60"><output></output></label>
+          <label class="ctl"><span>clustere</span><input type="range" data-ctl="clusters" min="2" max="7" step="1" value="5"><output></output></label>
+        </div>
+        <div class="ctl-row">
+          <label class="ctl"><span>box-uri</span><input type="range" data-ctl="boxes" min="0" max="1" step="1" value="1"><output></output></label>
+          <label class="ctl"><span>etichete</span><input type="range" data-ctl="labels" min="0" max="1" step="1" value="1"><output></output></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo" data-demo-host>
+      <div class="demo-canvas" data-demo="context"><canvas></canvas></div>
+      <div class="demo-side">
+        <div class="panel-head"><span class="label">Context persistent — teza terapeutică</span><span class="spacer"></span><span class="num">KARPATHY</span></div>
+        <div class="panel-body">
+          <p class="dim" style="font-size:12px">
+            Ești în hyperfocus pe un cluster. Celelalte rămân în dreapta, în aceeași
+            poziție, reduse la masă + nume + număr. Nu le citești — știi că sunt.
+            Pune <b>context</b> pe 0 ca să vezi exact ce se pierde.
+          </p>
+          <div class="rules">
+            <div class="rule" data-verdict="use"><b>USE</b><span>Contextul compilat stă acolo, nu se re-derivă. Wiki-ul lui Karpathy pe creier.</span></div>
+            <div class="rule" data-verdict="mutate"><b>MUTATE</b><span>Coloana din dreapta are ordine fixă. Înveți zonele, nu coordonatele.</span></div>
+            <div class="rule" data-verdict="never"><b>NEVER</b><span>Să ascunzi celelalte clustere cât ești în unul. Aia e chiar boala.</span></div>
+          </div>
+          <div class="readout"></div>
+        </div>
+        <div class="ctl-row">
+          <label class="ctl"><span>focus</span><input type="range" data-ctl="focus" min="0" max="2" step="1" value="0"><output></output></label>
+          <label class="ctl"><span>context</span><input type="range" data-ctl="others" min="0" max="1" step="1" value="1"><output></output></label>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 ------------------------------------------------------------------ -->
+  <section class="bay" id="kill">
+    <div class="bay-head">
+      <div class="idx">08</div>
+      <div>
+        <h2>Kill list</h2>
+        <p class="thesis">Astea sunt decizii de design, nu preferințe. Ce e aici nu se negociază per ecran.</p>
+      </div>
+    </div>
+    <div class="kill-grid" data-kills></div>
+  </section>
+
+</main>
+
+<script src="js/data.js?v=1785531557"></script>
+<script src="js/sources.js?v=1785531557"></script>
+<script src="js/lib/noise.js?v=1785531557"></script>
+<script src="js/lib/dither.js?v=1785531557"></script>
+<script src="js/lib/demo.js?v=1785531557"></script>
+<script src="js/demos/field.js?v=1785531557"></script>
+<script src="js/demos/lab.js?v=1785531557"></script>
+<script src="js/demos/screen.js?v=1785531557"></script>
+<script src="js/demos/cluster.js?v=1785531767"></script>
+<script src="js/demos/clean.js?v=1785531557"></script>
+<script src="js/render.js?v=1785531557"></script>
+<script src="js/app.js?v=1785531557"></script>
+<script type="module" src="js/demos/motes-real.js?v=1785531557"></script>
+</body>
+</html>

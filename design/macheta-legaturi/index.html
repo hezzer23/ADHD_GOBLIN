@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ADHD_GOBLIN — machetă: legături</title>
+<style>
+@font-face { font-family:'DepartureMono'; src:url('../moodboard-v3/fonts/DepartureMono-Regular.woff2') format('woff2'); font-display:block; }
+@font-face { font-family:'Basteleur'; src:url('../moodboard-v3/fonts/basteleur-moonlight.woff2') format('woff2'); font-display:block; }
+
+/* ── SISTEM DE CULORI ────────────────────────────────────────────────
+   Trei valori, atât. Culoarea e resursă, nu paletă.
+
+     os     materia. TOT ce e cunoaștere e os. Densitatea și mărimea fac
+            ierarhia, nu nuanța.
+     acid   ce e viu ACUM: atenția ta, pulsul, ce poartă o acțiune.
+     rugina ce eviți. Singurul semnal negativ din sistem.
+
+   Ce NU primește culoare: tipul nodului, vechimea, clusterul, gradul,
+   legătura inter-cluster. Alea se citesc prin greutate, mărime și marcaj.
+   Patru culori acoperă tot graful și atunci niciuna nu mai semnalează. */
+:root{
+  --bg:#000000;
+  --os:#e6e2d6; --os-dim:#8e8a7e; --os-faint:#4a4842;
+  --acid:#c9f24d;
+  --rugina:#c9702f;
+  --mono:'DepartureMono',ui-monospace,monospace;
+  --display:'Basteleur',Georgia,serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--os);
+  font-family:var(--mono);-webkit-font-smoothing:antialiased}
+canvas#field{position:fixed;inset:0;z-index:0;cursor:crosshair;touch-action:none}
+canvas#field.grab{cursor:grabbing}
+
+.grain{position:fixed;inset:-50%;z-index:1;pointer-events:none;opacity:.04;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grain .9s steps(4) infinite}
+@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-2%,3%)}50%{transform:translate(3%,-2%)}75%{transform:translate(-3%,-3%)}100%{transform:translate(2%,2%)}}
+
+/* ── bara de stare ─────────────────────────────────────── */
+#status{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;gap:22px;
+  padding:11px 18px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--os-dim);border-bottom:1px solid rgba(230,226,214,.07);background:rgba(0,0,0,.78)}
+#status .sp{margin-left:auto}
+#status b{color:var(--os);font-weight:400}
+#status .live{color:var(--acid)}
+#status .live::before{content:'●';margin-right:6px;animation:blink 2s infinite}
+@keyframes blink{50%{opacity:.2}}
+
+/* ── reticul de detecție ───────────────────────────────── */
+#reticle{position:fixed;z-index:8;pointer-events:none;opacity:0;transition:opacity .13s;
+  transform:translate(-50%,-100%)}
+#reticle.on{opacity:1}
+#reticle .rb{position:relative;padding:9px 13px 10px;background:rgba(0,0,0,.9)}
+#reticle .rb::before,#reticle .rb::after,#reticle .c3,#reticle .c4{
+  content:'';position:absolute;width:10px;height:10px;border-style:solid;border-width:0;
+  border-color:var(--rc,var(--os))}
+#reticle .rb::before{top:0;left:0;border-top-width:1.5px;border-left-width:1.5px}
+#reticle .rb::after{top:0;right:0;border-top-width:1.5px;border-right-width:1.5px}
+#reticle .c3{bottom:0;left:0;border-bottom-width:1.5px;border-left-width:1.5px}
+#reticle .c4{bottom:0;right:0;border-bottom-width:1.5px;border-right-width:1.5px}
+#reticle .rl{display:flex;gap:16px;align-items:baseline;font-size:13px;letter-spacing:.06em;
+  white-space:nowrap;color:var(--os)}
+#reticle .rc{font-size:11px;color:var(--rc,var(--os-dim));margin-left:auto}
+#reticle .rm{margin-top:6px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--os-dim)}
+#reticle .tag{display:inline-block;padding:2px 6px;border:1px solid var(--rc,var(--os-faint));
+  color:var(--rc,var(--os-dim));font-size:9px;margin-right:7px}
+
+/* ── fișa de muchie ────────────────────────────────────── */
+#edgecard{position:fixed;z-index:9;pointer-events:none;opacity:0;transition:opacity .13s;
+  transform:translate(-50%,-100%);max-width:360px;
+  background:rgba(0,0,0,.94);border:1px solid rgba(230,226,214,.18);padding:10px 13px 12px}
+#edgecard.on{opacity:1}
+#edgecard .eh{display:flex;gap:12px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--os-dim);margin-bottom:7px}
+#edgecard .eh .k{color:var(--acid)}
+#edgecard .src{font-family:var(--display);font-size:17px;line-height:1.42;color:var(--os)}
+#edgecard .src em{color:var(--acid);font-style:normal}
+#edgecard .meta{margin-top:8px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--os-faint)}
+
+/* ── goblin ────────────────────────────────────────────── */
+#goblin{position:fixed;left:26px;bottom:128px;z-index:20;max-width:340px;
+  font-family:var(--display);font-size:18px;line-height:1.44;color:var(--os);
+  padding:16px 20px 18px;background:rgba(22,20,16,.94);
+  border:1px solid rgba(230,226,214,.15);border-radius:2px 14px 3px 12px;
+  transform:rotate(-.6deg);box-shadow:0 8px 34px rgba(0,0,0,.6)}
+#goblin .who{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--os-dim);margin-bottom:9px}
+#goblin .who::before{content:'▲';color:var(--rugina);margin-right:7px;font-size:8px}
+#goblin .cur{display:inline-block;width:8px;height:15px;background:var(--rugina);
+  vertical-align:-2px;margin-left:3px;animation:blink 1s steps(1) infinite}
+
+/* ── panou ─────────────────────────────────────────────── */
+#panel{position:fixed;right:16px;top:46px;z-index:20;width:232px;
+  background:rgba(0,0,0,.92);border:1px solid rgba(230,226,214,.13)}
+#panel h4{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--os-dim);
+  font-weight:400;padding:10px 13px;border-bottom:1px solid rgba(230,226,214,.09)}
+#panel .row{display:flex;align-items:center;gap:9px;padding:7px 13px;font-size:11px;
+  letter-spacing:.05em;text-transform:uppercase;color:var(--os-dim)}
+#panel .row:last-of-type{padding-bottom:11px}
+#panel .seg{display:flex;margin-left:auto;border:1px solid rgba(230,226,214,.18)}
+#panel .seg button{font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;
+  background:transparent;color:var(--os-dim);border:0;border-right:1px solid rgba(230,226,214,.18);
+  padding:4px 8px;cursor:pointer}
+#panel .seg button:last-child{border-right:0}
+#panel .seg button[aria-pressed=true]{background:var(--acid);color:#000}
+#panel input[type=range]{-webkit-appearance:none;appearance:none;width:84px;height:14px;
+  background:transparent;margin-left:auto;cursor:ew-resize}
+#panel input[type=range]::-webkit-slider-runnable-track{height:1px;background:rgba(230,226,214,.32)}
+#panel input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:3px;height:12px;
+  margin-top:-5.5px;background:var(--acid);border:0}
+#panel output{color:var(--acid);min-width:3.5ch;text-align:right;font-size:11px}
+#panel .read{border-top:1px solid rgba(230,226,214,.09);padding:10px 13px;
+  display:grid;grid-template-columns:1fr auto;gap:3px 10px;font-size:10px;letter-spacing:.04em;
+  color:var(--os-faint);text-transform:uppercase}
+#panel .read b{color:var(--os-dim);font-weight:400}
+
+/* ── braindump ─────────────────────────────────────────── */
+#dump{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:20;
+  width:min(760px,92vw);background:rgba(0,0,0,.92);border:1px solid rgba(230,226,214,.11);
+  padding:13px 17px 12px}
+#dump .dh{display:flex;justify-content:space-between;font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--os-dim);margin-bottom:10px}
+#dump .dh .sc{color:var(--acid)}
+#dump .text{font-size:14px;line-height:2.05;color:var(--os-dim)}
+#dump .det{position:relative;color:var(--os);padding:2px 6px;margin:0 2px;white-space:nowrap;cursor:pointer}
+#dump .det::before,#dump .det::after{content:'';position:absolute;width:6px;height:6px;
+  border-style:solid;border-width:0;border-color:var(--acid)}
+#dump .det::before{top:0;left:0;border-top-width:1px;border-left-width:1px}
+#dump .det::after{bottom:0;right:0;border-bottom-width:1px;border-right-width:1px}
+#dump .det .n{position:absolute;top:-9px;right:-4px;font-size:9px;color:var(--acid)}
+#dump .det:hover{color:var(--acid)}
+</style>
+</head>
+<body>
+
+<canvas id="field"></canvas>
+<div class="grain"></div>
+
+<div id="status">
+  <span class="live">graf viu</span>
+  <span>noduri <b id="s-n">0</b></span>
+  <span>legături <b id="s-l">0</b></span>
+  <span>clustere <b id="s-c">0</b></span>
+  <span class="sp">zoom <b id="s-z">1.00</b></span>
+  <span>scroll = zoom · drag = pan · click nod = puls</span>
+</div>
+
+<div id="reticle"><div class="rb"><span class="c3"></span><span class="c4"></span>
+  <div class="rl"><span id="r-name">—</span></div>
+  <div class="rm"><span id="r-sub">—</span></div>
+</div></div>
+
+<div id="edgecard">
+  <div class="eh"><span class="k" id="e-kind">—</span></div>
+  <div class="src" id="e-src">—</div>
+  <div class="meta" id="e-meta">—</div>
+</div>
+
+<div id="panel">
+  <h4>Legături — parametri</h4>
+  <div class="row"><span>slabe</span>
+    <span class="seg" id="seg-weak">
+      <button data-v="hover" aria-pressed="true">hover</button>
+      <button data-v="always">mereu</button>
+      <button data-v="never">nicicând</button>
+    </span></div>
+  <div class="row"><span>etichete</span><input type="range" id="c-labels" min="0" max="2" step="1" value="1"><output id="o-labels">1</output></div>
+  <div class="row"><span>box cluster</span><input type="range" id="c-box" min="0" max="1" step="1" value="1"><output id="o-box">1</output></div>
+  <div class="row"><span>respirație</span><input type="range" id="c-breath" min="0" max="2" step=".05" value="1"><output id="o-breath">1</output></div>
+  <div class="row"><span>deformare</span><input type="range" id="c-morph" min="0" max="2" step=".05" value="1"><output id="o-morph">1</output></div>
+  <div class="row"><span>halou</span><input type="range" id="c-halo" min="0" max="1.8" step=".05" value="1"><output id="o-halo">1</output></div>
+  <div class="row"><span>hop puls</span><input type="range" id="c-hops" min="1" max="4" step="1" value="3"><output id="o-hops">3</output></div>
+  <div class="read">
+    <span>focus</span><b id="k-focus">—</b>
+    <span>vecini hop 1</span><b id="k-h1">—</b>
+    <span>atinse de puls</span><b id="k-pulse">0</b>
+    <span>muchii desenate</span><b id="k-edges">0</b>
+    <span>etichete</span><b id="k-labels">0</b>
+  </div>
+</div>
+
+<div id="goblin">
+  <div class="who">goblin</div>
+  <span id="gtext"></span><span class="cur"></span>
+</div>
+
+<div id="dump">
+  <div class="dh"><span>braindump · 01.08 · 00:41</span><span class="sc" id="d-count">7 detectate</span></div>
+  <div class="text" id="d-text"></div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   MACHETĂ — LEGĂTURI
+
+   Trei straturi, fără nimic la mijloc:
+
+     MATERIA       noduri dithered care se DEFORMEAZĂ, nu doar se scalează.
+                   Haloul clusterului e organic, cu propriul contur neregulat.
+     INSTRUMENTUL  linii drepte, tick-uri, box-uri, cifre. Geometric, rece,
+                   niciodată dithered.
+     VOCEA         goblinul: serif cald pe hârtie rotită.
+
+   Ce face nodul să pară viu, concret: pentru fiecare nod se pre-randează
+   PATRU faze de contur, fiecare cu alt set de armonice. Cadrul curent
+   interpolează între două faze consecutive, deci silueta chiar se mișcă —
+   membrana se umflă într-o parte și se retrage în alta — în loc să se
+   scaleze rigid. Costul rămâne două drawImage per nod, pentru că totul e
+   pre-randat la pornire. O simulare per-pixel per-cadru ar arăta la fel și
+   ar costa de o sută de ori mai mult.
+
+   Layout: relaxat o dată la pornire, apoi ÎNGHEȚAT. Force-directed live nu
+   e reproductibil — adaugi un nod și harta se schimbă complet, iar memoria
+   spațială devine zero. Camera se plimbă peste o lume de dimensiune fixă,
+   ca zoom-ul să nu deformeze distanțele pe o axă față de cealaltă.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+const cv = document.getElementById('field');
+const cx = cv.getContext('2d');
+let W, H, DPR;
+function resize(){
+  DPR = Math.min(devicePixelRatio || 1, 2);
+  W = innerWidth; H = innerHeight;
+  cv.width = W*DPR; cv.height = H*DPR;
+  cv.style.width = W+'px'; cv.style.height = H+'px';
+  cx.setTransform(DPR,0,0,DPR,0,0);
+}
+resize();
+
+function mulberry32(a){return function(){a|=0;a=(a+0x6D2B79F5)|0;let t=Math.imul(a^(a>>>15),1|a);
+  t=(t+Math.imul(t^(t>>>7),61|t))^t;return ((t^(t>>>14))>>>0)/4294967296;}}
+const BAYER = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]].map(r=>r.map(v=>(v+.5)/16));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+
+const C = { os:[230,226,214], osDim:[142,138,126], acid:[201,242,77], rug:[201,112,47] };
+const rgba = (c,a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+
+/* ── textura unui nod, PE FAZE ───────────────────────────────────────── */
+const PHASES = 4;
+function makeNodeTexture(rad, rgb, intensity, seed, phase){
+  const size = Math.ceil(rad*2*3);
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const g = c.getContext('2d');
+  const img = g.createImageData(size, size);
+  const ctr = size/2, R = rad*1.15;
+  const chars = ' .:-=+*#%@';
+  const rnd = mulberry32(seed + phase*7919);
+  const H1=[], PH=[];
+  for (let k=0;k<6;k++){ H1.push(rnd()*2-1); PH.push(rnd()*6.28); }
+  const edge = (th) => {
+    let v=0;
+    for (let k=1;k<=4;k++) v += H1[k]*Math.sin(th*k + PH[k])/k;
+    return v*0.19;
+  };
+  for (let y=0;y<size;y++){
+    for (let x=0;x<size;x++){
+      const dx=(x-ctr)/R, dy=(y-ctr)/R;
+      const d=Math.sqrt(dx*dx+dy*dy);
+      const lim = 1.04 + edge(Math.atan2(dy,dx));
+      if (d>lim) continue;
+      let v = Math.max(0,1-d/lim);
+      v = Math.pow(v,.70)*intensity;
+      v += (rnd()-.5)*.08;
+      const i=(y*size+x)*4;
+      if (v > BAYER[y%4][x%4]){
+        img.data[i]=rgb[0]; img.data[i+1]=rgb[1]; img.data[i+2]=rgb[2];
+        img.data[i+3]=185+Math.floor(v*70);
+      }
+    }
+  }
+  g.putImageData(img,0,0);
+  g.font='7px DepartureMono, monospace';
+  for (let y=4;y<size;y+=8){
+    for (let x=4;x<size;x+=7){
+      const dx=(x-ctr)/R, dy=(y-ctr)/R;
+      const d=Math.sqrt(dx*dx+dy*dy);
+      if (d>.96 || rnd() > (1-d)*.5) continue;
+      g.fillStyle=`rgba(${rgb[0]},${rgb[1]},${rgb[2]},${.3*(1-d)})`;
+      g.fillText(chars[Math.floor((1-d)*8)%chars.length], x, y);
+    }
+  }
+  return c;
+}
+
+/* haloul organic al clusterului: contur neregulat, nu cerc. Un cerc perfect
+   ar introduce o formă geometrică în stratul care trebuie să fie organic. */
+function makeHalo(r, rgb, seed){
+  const size = Math.ceil(r*2);
+  const c=document.createElement('canvas'); c.width=c.height=size;
+  const g=c.getContext('2d');
+  const img=g.createImageData(size,size);
+  const rnd=mulberry32(seed);
+  const H1=[],PH=[];
+  for(let k=0;k<5;k++){H1.push(rnd()*2-1);PH.push(rnd()*6.28);}
+  for(let y=0;y<size;y++){
+    for(let x=0;x<size;x++){
+      const dx=(x-size/2)/(size/2), dy=(y-size/2)/(size/2);
+      const d=Math.sqrt(dx*dx+dy*dy);
+      const th=Math.atan2(dy,dx);
+      let wob=0; for(let k=1;k<=3;k++) wob+=H1[k]*Math.sin(th*k+PH[k])/k;
+      const lim=1+wob*.24;
+      if(d>lim) continue;
+      const v=Math.pow(Math.max(0,1-d/lim),2.1)*.42;
+      const i=(y*size+x)*4;
+      if(v > BAYER[y%4][x%4]*.6*(0.55+rnd()*0.9)){
+        img.data[i]=rgb[0];img.data[i+1]=rgb[1];img.data[i+2]=rgb[2];
+        img.data[i+3]=Math.floor(26+v*105);
+      }
+    }
+  }
+  g.putImageData(img,0,0);
+  return c;
+}
+
+/* ── date ────────────────────────────────────────────────────────────── */
+const CLUSTERS = [
+  { id:0, name:'SISTEM MEDICAL', conf:'0.91' },
+  { id:1, name:'SOMN / ENERGIE', conf:'0.84' },
+  { id:2, name:'MUNCĂ',          conf:'0.77' }
+];
+
+const RAW = [
+  ['concerta','Concerta','fapt',0,false,.94],
+  ['doza','doza 36mg','fapt',0,false,.90],
+  ['cnas','CNAS','fapt',0,false,.88],
+  ['reteta','rețetă privată','task',0,true,.91],
+  ['medic','medic de familie','task',0,true,.89],
+  ['dosar','dosar comisie','task',0,true,.86],
+  ['programare','programare ratată','observație',0,true,.79],
+  ['adeverinta','adeverință salariu','task',0,true,.74],
+  ['stomac','pe stomacul gol','observație',0,false,.71],
+
+  ['somn','somn prost','observație',1,false,.87],
+  ['trezit11','trezit la 11','observație',1,false,.83],
+  ['cafea','cafea după 16','fapt',1,false,.80],
+  ['patru12','4h apoi 12h','observație',1,false,.77],
+  ['nuapuc','nu mă apuc','îngrijorare',1,false,.69],
+  ['energie','energie dimineața','observație',1,false,.66],
+
+  ['refactor','refactor auth','task',2,true,.88],
+  ['radu','mail lui radu','task',2,true,.85],
+  ['demo','demo pt curs','task',2,true,.82],
+  ['bug','bug la import','task',2,true,.76],
+  ['newsletter','newsletter','task',2,true,.64]
+];
+
+const RAWL = [
+  ['concerta','doza','are',.96,2,'iar n-am dormit. <em>concerta</em> pe stomacul gol azi a fost prost'],
+  ['concerta','stomac','condiție',.88,2,'concerta <em>pe stomacul gol</em> azi a fost prost'],
+  ['concerta','reteta','necesită',.93,5,'mi-a expirat <em>rețeta</em> și trebuie una privată până iau de la stat'],
+  ['reteta','medic','prin',.91,5,'trebuie să ajung la <em>medicul de familie</em> pentru rețetă'],
+  ['cnas','dosar','cere',.90,11,'la <em>CNAS</em> îmi trebuie dosarul complet pentru comisie'],
+  ['dosar','adeverinta','conține',.84,11,'dosarul cere și <em>adeverință de salariu</em>, încă una'],
+  ['medic','programare','a eșuat',.81,18,'iar <em>am uitat de programare</em>, a treia oară'],
+  ['cnas','medic','trimite la',.72,18,'de la CNAS m-au trimis tot la medicul de familie'],
+
+  ['somn','trezit11','manifestă',.89,1,'mă <em>trezesc la 11</em> în ultima vreme'],
+  ['cafea','somn','cauzează',.86,1,'<em>cafeaua de după 4</em> clar mă omoară'],
+  ['somn','patru12','tipar',.83,0,'dorm <em>4 ore și după 12</em>'],
+  ['patru12','nuapuc','duce la',.78,0,'cred că de aia <em>nu pot să mă apuc</em> de nimic'],
+  ['somn','energie','scade',.74,6,'dimineața n-am nicio <em>energie</em>'],
+
+  ['refactor','bug','a scos',.87,3,'am început <em>refactorul la auth</em> și a ieșit un bug la import'],
+  ['radu','demo','pentru',.79,3,'trebuie să-i trimit lui <em>radu</em> ce am pentru demo'],
+  ['demo','newsletter','după',.62,14,'după demo rămâne <em>newsletterul</em>'],
+
+  ['concerta','somn','suspect',.68,1,'<em>iar n-am dormit</em>. concerta pe stomacul gol azi a fost prost'],
+  ['nuapuc','refactor','blochează',.71,0,'de aia nu pot să mă apuc de <em>nimic</em>'],
+  ['programare','nuapuc','tipar',.58,18,'am 3 zile în care <em>n-am făcut nimic</em> din ce trebuia']
+];
+
+const WORLD = { w:1500, h:1000 };
+
+const nodes = RAW.map(([id,label,type,cluster,action,conf]) => ({
+  id,label,type,cluster,action,conf,
+  worry: type==='îngrijorare',
+  r: 17 + (action?6:0) + conf*15,
+  nx:.5, ny:.5, wx:0, wy:0, deg:0,
+  ph:0, spd:1, breath:.05, mspd:1, tex:[]
+}));
+const byId = Object.fromEntries(nodes.map(n=>[n.id,n]));
+const edges = RAWL.map(([a,b,kind,conf,age,src]) => ({
+  a:byId[a], b:byId[b], kind, conf, age, src,
+  cross: byId[a].cluster !== byId[b].cluster,
+  /* O muchie între clustere nu are voie să fie clasificată slabă. Exact
+     legăturile lungi spun ceva nou; un graf care le ascunde primele îți
+     păstrează fix ce știai deja. */
+  weak: (conf<.72 || age>12) && byId[a].cluster===byId[b].cluster
+}));
+edges.forEach(e => { e.a.deg++; e.b.deg++; });
+
+const rnd0 = mulberry32(7);
+nodes.forEach(n => {
+  const tint = n.action ? C.acid : n.worry ? C.rug : C.os;
+  n.tint = tint;
+  const seed = Math.floor(rnd0()*99999);
+  for (let p=0;p<PHASES;p++) n.tex.push(makeNodeTexture(n.r, tint, n.action?.95:.82, seed, p));
+  n.ph = rnd0()*6.28; n.spd = .55+rnd0()*.6;
+  n.breath = .04+rnd0()*.035; n.mspd = .16+rnd0()*.16;
+});
+
+/* ── layout: o dată, apoi înghețat ───────────────────────────────────── */
+function layout(){
+  const rnd = mulberry32(19);
+  const anchors = [[.27,.44],[.72,.26],[.70,.74]];
+  nodes.forEach(n => {
+    const a=anchors[n.cluster];
+    n.nx=a[0]+(rnd()-.5)*.18; n.ny=a[1]+(rnd()-.5)*.20;
+  });
+  for (let it=0; it<340; it++){
+    for (const e of edges){
+      const rest = e.cross ? .26 : .115;
+      const dx=e.b.nx-e.a.nx, dy=e.b.ny-e.a.ny;
+      const d=Math.hypot(dx,dy)||1e-4;
+      const f=(d-rest)*(e.cross?.010:.045);
+      e.a.nx+=dx/d*f; e.a.ny+=dy/d*f;
+      e.b.nx-=dx/d*f; e.b.ny-=dy/d*f;
+    }
+    for (let i=0;i<nodes.length;i++){
+      for (let j=i+1;j<nodes.length;j++){
+        const a=nodes[i],b=nodes[j];
+        const dx=b.nx-a.nx, dy=b.ny-a.ny, d2=dx*dx+dy*dy;
+        const min=(a.cluster===b.cluster)?.105:.16;
+        if(d2<min*min && d2>1e-8){
+          const d=Math.sqrt(d2),p=(min-d)/d*.24;
+          a.nx-=dx*p;a.ny-=dy*p;b.nx+=dx*p;b.ny+=dy*p;
+        }
+      }
+      const a=anchors[nodes[i].cluster];
+      nodes[i].nx += (a[0]-nodes[i].nx)*.006;
+      nodes[i].ny += (a[1]-nodes[i].ny)*.006;
+    }
+  }
+  nodes.forEach(n => { n.wx = n.nx*WORLD.w; n.wy = n.ny*WORLD.h; });
+}
+layout();
+
+CLUSTERS.forEach(c => {
+  const list = nodes.filter(n=>n.cluster===c.id);
+  let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+  list.forEach(n=>{x0=Math.min(x0,n.wx);y0=Math.min(y0,n.wy);x1=Math.max(x1,n.wx);y1=Math.max(y1,n.wy);});
+  c.cxw=(x0+x1)/2; c.cyw=(y0+y1)/2;
+  c.rw = Math.max(x1-x0, y1-y0)/2 + 150;
+  c.halo = makeHalo(c.rw, C.os, 31+c.id*13);
+  c.open = list.filter(n=>n.action).length;
+  c.count = list.length;
+  c.tense = c.open/list.length >= .45;
+});
+
+/* ── cameră ──────────────────────────────────────────────────────────── */
+const cam = { x: WORLD.w/2, y: WORLD.h/2, k: 1 };
+function fit(){
+  cam.k = Math.min(W/(WORLD.w*1.02), H/(WORLD.h*1.16));
+  cam.x = WORLD.w/2; cam.y = WORLD.h/2;
+}
+fit();
+addEventListener('resize', () => { resize(); fit(); });
+
+const toS = (wx,wy) => ({ x:(wx-cam.x)*cam.k + W/2, y:(wy-cam.y)*cam.k + H/2 });
+const toW = (sx,sy) => ({ x:(sx-W/2)/cam.k + cam.x, y:(sy-H/2)/cam.k + cam.y });
+
+cv.addEventListener('wheel', ev => {
+  ev.preventDefault();
+  const before = toW(ev.clientX, ev.clientY);
+  cam.k = clamp(cam.k*Math.exp(-ev.deltaY*0.0016), 0.22, 4.5);
+  const after = toW(ev.clientX, ev.clientY);
+  // zoom ancorat pe cursor: punctul de sub mouse rămâne sub mouse
+  cam.x += before.x-after.x; cam.y += before.y-after.y;
+}, { passive:false });
+
+let drag=null;
+cv.addEventListener('mousedown', ev => {
+  if (hoverNode) return;
+  drag = { sx:ev.clientX, sy:ev.clientY, cx:cam.x, cy:cam.y };
+  cv.classList.add('grab');
+});
+addEventListener('mouseup', () => { drag=null; cv.classList.remove('grab'); });
+addEventListener('mousemove', ev => {
+  if (!drag) return;
+  cam.x = drag.cx - (ev.clientX-drag.sx)/cam.k;
+  cam.y = drag.cy - (ev.clientY-drag.sy)/cam.k;
+});
+
+/* ── stare ───────────────────────────────────────────────────────────── */
+const state = { weak:'hover', labels:1, box:1, breath:1, morph:1, halo:1, hops:3 };
+let hoverNode=null, hoverEdge=null, pulse=null, mouse={x:-1e4,y:-1e4};
+
+const adj = new Map(nodes.map(n=>[n.id,[]]));
+edges.forEach(e => { adj.get(e.a.id).push(e); adj.get(e.b.id).push(e); });
+function neighbours(n){
+  const s=new Set([n.id]);
+  adj.get(n.id).forEach(e => s.add(e.a===n?e.b.id:e.a.id));
+  return s;
+}
+function firePulse(n){
+  const dist=new Map([[n.id,0]]); const q=[n.id];
+  while(q.length){
+    const cur=q.shift(), d=dist.get(cur);
+    if (d>=state.hops) continue;
+    for (const e of adj.get(cur)){
+      const o = e.a.id===cur ? e.b.id : e.a.id;
+      if (!dist.has(o)){ dist.set(o,d+1); q.push(o); }
+    }
+  }
+  pulse = { origin:n, dist, t:0 };
+}
+cv.addEventListener('mousemove', ev => { mouse.x=ev.clientX; mouse.y=ev.clientY; });
+cv.addEventListener('mouseleave', () => { mouse.x=mouse.y=-1e4; });
+cv.addEventListener('click', () => { if (hoverNode) firePulse(hoverNode); });
+
+function distToSeg(ax,ay,bx,by,px,py){
+  const dx=bx-ax, dy=by-ay, L=dx*dx+dy*dy;
+  let t = L ? ((px-ax)*dx+(py-ay)*dy)/L : 0;
+  t = clamp(t,0,1);
+  return Math.hypot(px-(ax+dx*t), py-(ay+dy*t));
+}
+
+/* ── randare ─────────────────────────────────────────────────────────── */
+const $ = id => document.getElementById(id);
+const reticle=$('reticle'), edgecard=$('edgecard');
+const r_name=$('r-name'), r_sub=$('r-sub');
+const e_kind=$('e-kind'), e_src=$('e-src'), e_meta=$('e-meta');
+const k_focus=$('k-focus'), k_h1=$('k-h1'), k_pulse=$('k-pulse'), k_edges=$('k-edges'), k_labels=$('k-labels');
+const s_n=$('s-n'), s_l=$('s-l'), s_c=$('s-c'), s_z=$('s-z');
+
+function frame(t){
+  cx.fillStyle='#000'; cx.fillRect(0,0,W,H);
+
+  const P = new Map();
+  for (const n of nodes){
+    const k = state.breath;
+    const dx = Math.sin(t*.00012*n.spd+n.ph)*7*k + Math.sin(t*.00007+n.ph*2)*4*k;
+    const dy = Math.cos(t*.00010*n.spd+n.ph)*7*k;
+    P.set(n.id, toS(n.wx+dx, n.wy+dy));
+  }
+
+  hoverNode=null; hoverEdge=null;
+  for (const n of nodes){
+    const p=P.get(n.id);
+    if (Math.hypot(p.x-mouse.x,p.y-mouse.y) < n.r*cam.k*1.6){ hoverNode=n; break; }
+  }
+  const near = hoverNode ? neighbours(hoverNode) : null;
+
+  if (pulse){ pulse.t += 1/60; if (pulse.t > state.hops*.55+1.5) pulse=null; }
+  const front = pulse ? pulse.t/0.55 : -1;
+
+  /* ── MATERIA: halouri de cluster ───────────────────────────────────── */
+  if (state.halo>0.01){
+    for (const c of CLUSTERS){
+      const p = toS(c.cxw, c.cyw);
+      const puls = 1 + Math.sin(t*.00045 + c.id*2.1)*.05;
+      const R = c.rw*2*cam.k*puls;
+      const focusIn = hoverNode && hoverNode.cluster===c.id;
+      cx.save();
+      cx.globalAlpha = state.halo * (focusIn ? .95 : hoverNode ? .28 : .66);
+      cx.drawImage(c.halo, p.x-R/2, p.y-R/2, R, R);
+      cx.restore();
+    }
+  }
+
+  /* ── muchii: drepte, geometrice, sub noduri ────────────────────────── */
+  let drawn=0;
+  for (const e of edges){
+    const a=P.get(e.a.id), b=P.get(e.b.id);
+    const lit = hoverNode && (e.a===hoverNode || e.b===hoverNode);
+    if (e.weak && state.weak!=='always' && !(state.weak==='hover' && lit)) continue;
+    const dim = hoverNode && !lit;
+    drawn++;
+
+    if (!hoverNode && !hoverEdge && distToSeg(a.x,a.y,b.x,b.y,mouse.x,mouse.y) < 7) hoverEdge=e;
+    const hot = hoverEdge===e;
+
+    /* Muchia nu are culoare proprie. Acidul apare doar sub atenție.
+       Legătura inter-cluster se distinge prin GREUTATE și printr-un romb la
+       mijloc — formă, nu o a patra culoare. */
+    const col = (hot||lit) ? C.acid : C.os;
+    const alpha = hot ? .95 : lit ? .8 : dim ? .07 : (e.weak ? .16 : e.cross ? .44 : .27);
+    cx.strokeStyle = rgba(col, alpha);
+    cx.lineWidth = hot?2:lit?1.6:e.cross?1.4:1;
+    cx.lineCap='butt';
+    cx.setLineDash(e.weak ? [3,5] : []);
+
+    const dx=b.x-a.x, dy=b.y-a.y, L=Math.hypot(dx,dy)||1;
+    const ra=e.a.r*cam.k*1.05, rb=e.b.r*cam.k*1.05;
+    const ax=a.x+dx/L*ra, ay=a.y+dy/L*ra, bx=b.x-dx/L*rb, by=b.y-dy/L*rb;
+    cx.beginPath(); cx.moveTo(ax,ay); cx.lineTo(bx,by); cx.stroke();
+    cx.setLineDash([]);
+
+    if (!dim){
+      cx.lineWidth=1;
+      [[ax,ay],[bx,by]].forEach(([sx,sy])=>{
+        cx.beginPath();
+        cx.moveTo(sx-(dy/L)*3.5, sy+(dx/L)*3.5);
+        cx.lineTo(sx+(dy/L)*3.5, sy-(dx/L)*3.5);
+        cx.stroke();
+      });
+      if (e.cross){
+        const mx=(ax+bx)/2, my=(ay+by)/2, s=4.5;
+        cx.beginPath();
+        cx.moveTo(mx,my-s); cx.lineTo(mx+s,my); cx.lineTo(mx,my+s); cx.lineTo(mx-s,my);
+        cx.closePath();
+        cx.fillStyle='#000'; cx.fill();
+        cx.strokeStyle=rgba(col, Math.max(alpha,.6)); cx.lineWidth=1.2; cx.stroke();
+      }
+    }
+
+    if ((hot||lit) && state.labels>0){
+      const away = lit && hoverNode===e.a ? .70 : lit && hoverNode===e.b ? .30 : .5;
+      const mx=ax+(bx-ax)*away, my=ay+(by-ay)*away;
+      cx.font='11px DepartureMono, monospace';
+      cx.textAlign='center'; cx.textBaseline='middle';
+      const txt=e.kind.toUpperCase(), w=cx.measureText(txt).width+10;
+      cx.fillStyle='rgba(0,0,0,.94)'; cx.fillRect(mx-w/2,my-9,w,18);
+      cx.strokeStyle=rgba(col,.7); cx.lineWidth=1; cx.strokeRect(mx-w/2+.5,my-8.5,w-1,17);
+      cx.fillStyle=rgba(col,.98); cx.fillText(txt,mx,my);
+    }
+  }
+
+  /* ── pulsul de atenție ─────────────────────────────────────────────── */
+  let hit=0;
+  if (pulse){
+    pulse.dist.forEach((d)=>{ if(front>=d) hit++; });
+    for (const e of edges){
+      const da=pulse.dist.get(e.a.id), db=pulse.dist.get(e.b.id);
+      if (da===undefined||db===undefined) continue;
+      const from = da<db?e.a:e.b, to = da<db?e.b:e.a;
+      const hop = Math.max(da,db), local = front-(hop-1);
+      if (local<0||local>1.6) continue;
+      const s=Math.min(1,local);
+      const A=P.get(from.id), B=P.get(to.id);
+      const px=A.x+(B.x-A.x)*s, py=A.y+(B.y-A.y)*s;
+      // energia scade cu hop-ul: pulsul moare, nu se stinge brusc
+      const decay = Math.pow(.55,hop-1)*(1-Math.max(0,local-1)/.6);
+      cx.beginPath(); cx.arc(px,py,3*decay+1.2,0,6.28);
+      cx.fillStyle=rgba(C.acid,.9*decay); cx.fill();
+    }
+  }
+
+  /* ── nodurile: materia care se deformează ──────────────────────────── */
+  const labelBoxes=[]; let shownLabels=0;
+  for (const n of nodes){
+    const p=P.get(n.id);
+    const hovered = hoverNode===n;
+    const dim = near && !near.has(n.id);
+    const pulsed = pulse && pulse.dist.has(n.id) && front>=pulse.dist.get(n.id);
+    const kick = pulsed ? Math.max(0,1-(front-pulse.dist.get(n.id))*1.4) : 0;
+    const breath = 1 + Math.sin(t*.0011*n.spd+n.ph)*n.breath*state.breath;
+    const scale = breath*(hovered?1.13:1)*(1+kick*.18);
+    const R = n.r*3*scale*cam.k;
+
+    /* DEFORMAREA: cursor continuu prin cele patru faze, cu cross-fade între
+       faza curentă și următoarea. Silueta chiar se mișcă. */
+    const cursor = (t*.001*n.mspd*state.morph + n.ph) % PHASES;
+    const i0 = Math.floor(cursor), i1 = (i0+1)%PHASES;
+    const mix = state.morph>0.01 ? (cursor-i0) : 0;
+    cx.save();
+    cx.globalAlpha = dim?.15:1;
+    cx.drawImage(n.tex[i0], p.x-R/2, p.y-R/2, R, R);
+    if (mix>0.01){
+      cx.globalAlpha = (dim?.15:1)*mix;
+      cx.drawImage(n.tex[i1], p.x-R/2, p.y-R/2, R, R);
+    }
+    cx.restore();
+
+    // semantic zoom: sub un prag de scară eticheta nu mai are ce transmite
+    const wants = !dim && cam.k>0.34 && (state.labels===2 ||
+      (state.labels===1 && (hovered || n.deg>=3 || cam.k>1.2 || (near&&near.has(n.id)))));
+    if (wants){
+      cx.font='12px DepartureMono, monospace';
+      cx.textAlign='center'; cx.textBaseline='alphabetic';
+      const w=cx.measureText(n.label).width+8, ly=p.y+n.r*cam.k*scale+16;
+      const box=[p.x-w/2, ly-11, w, 16];
+      const clash = labelBoxes.some(b=> box[0]<b[0]+b[2] && box[0]+box[2]>b[0] &&
+                                        box[1]<b[1]+b[3] && box[1]+box[3]>b[1]);
+      if (!clash || hovered){
+        labelBoxes.push(box); shownLabels++;
+        cx.save();
+        cx.shadowColor='rgba(0,0,0,.9)'; cx.shadowBlur=4;
+        cx.fillStyle = hovered ? rgba(C.os,1) : rgba(C.os,.72);
+        cx.fillText(n.label, p.x, ly);
+        cx.restore();
+      }
+    }
+  }
+
+  /* ── INSTRUMENTUL: box-uri de cluster ──────────────────────────────── */
+  if (state.box){
+    for (const c of CLUSTERS){
+      const list=nodes.filter(n=>n.cluster===c.id);
+      let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+      list.forEach(n=>{const p=P.get(n.id), r=n.r*cam.k;
+        x0=Math.min(x0,p.x-r);y0=Math.min(y0,p.y-r);
+        x1=Math.max(x1,p.x+r);y1=Math.max(y1,p.y+r);});
+      const pad=30*Math.max(.6,cam.k);
+      x0-=pad;y0-=pad;x1+=pad;y1+=pad;
+      const focusIn = hoverNode && hoverNode.cluster===c.id;
+      const col = c.tense ? C.rug : C.os;
+      const a = focusIn ? .95 : (hoverNode ? .16 : .5);
+
+      cx.strokeStyle=rgba(C.os, a*.3); cx.lineWidth=1;
+      cx.strokeRect(x0+.5,y0+.5,x1-x0,y1-y0);
+      cx.strokeStyle=rgba(col,a); cx.lineWidth=1.5;
+      const A=13;
+      [[x0,y0,1,1],[x1,y0,-1,1],[x0,y1,1,-1],[x1,y1,-1,-1]].forEach(([x,y,sx,sy])=>{
+        cx.beginPath(); cx.moveTo(x+sx*A,y); cx.lineTo(x,y); cx.lineTo(x,y+sy*A); cx.stroke();
+      });
+      cx.font='11px DepartureMono, monospace';
+      cx.textAlign='left'; cx.textBaseline='alphabetic';
+      const txt=c.name+' · '+c.count+' noduri'+(c.open?' · '+c.open+' deschise':'');
+      const w=cx.measureText(txt).width+14;
+      cx.fillStyle='rgba(0,0,0,.96)'; cx.fillRect(x0,y0-20,w,20);
+      cx.strokeStyle=rgba(col,a); cx.lineWidth=1; cx.strokeRect(x0+.5,y0-19.5,w-1,19);
+      cx.fillStyle=rgba(col, Math.max(a,.75)); cx.fillText(txt,x0+7,y0-6);
+    }
+  }
+
+  /* ── overlay-uri DOM ───────────────────────────────────────────────── */
+  const cssc = n => n.action ? '#c9f24d' : n.worry ? '#c9702f' : '#e6e2d6';
+  if (hoverNode){
+    const p=P.get(hoverNode.id);
+    reticle.classList.add('on');
+    reticle.style.left=p.x+'px';
+    reticle.style.top=(p.y-hoverNode.r*cam.k*1.6-12)+'px';
+    reticle.style.setProperty('--rc', cssc(hoverNode));
+    r_name.textContent=hoverNode.label;
+    r_sub.textContent=CLUSTERS[hoverNode.cluster].name.toLowerCase()+' · '+hoverNode.deg+' legături';
+  } else reticle.classList.remove('on');
+
+  if (hoverEdge && !hoverNode){
+    const a=P.get(hoverEdge.a.id), b=P.get(hoverEdge.b.id);
+    edgecard.classList.add('on');
+    edgecard.style.left=((a.x+b.x)/2)+'px';
+    edgecard.style.top=((a.y+b.y)/2-16)+'px';
+    e_kind.textContent=hoverEdge.kind;
+    e_src.innerHTML=hoverEdge.src;
+    e_meta.textContent=hoverEdge.a.label+' → '+hoverEdge.b.label+(hoverEdge.cross?' · între clustere':'');
+  } else edgecard.classList.remove('on');
+
+  k_focus.textContent = hoverNode ? hoverNode.label : '—';
+  k_h1.textContent = hoverNode ? (near.size-1) : '—';
+  k_pulse.textContent = hit;
+  k_edges.textContent = drawn+' / '+edges.length;
+  k_labels.textContent = shownLabels;
+  s_z.textContent = cam.k.toFixed(2);
+
+  requestAnimationFrame(frame);
+}
+
+/* ── chrome ──────────────────────────────────────────────────────────── */
+s_n.textContent=nodes.length; s_l.textContent=edges.length; s_c.textContent=CLUSTERS.length;
+
+const segWeak=$('seg-weak');
+segWeak.addEventListener('click', ev => {
+  const b=ev.target.closest('button'); if(!b) return;
+  segWeak.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+  state.weak=b.dataset.v;
+});
+[['c-labels','labels','o-labels'],['c-box','box','o-box'],['c-breath','breath','o-breath'],
+ ['c-morph','morph','o-morph'],['c-halo','halo','o-halo'],['c-hops','hops','o-hops']]
+ .forEach(([id,key,out])=>{
+   const el=$(id), o=$(out);
+   el.addEventListener('input',()=>{ state[key]=parseFloat(el.value); o.textContent=el.value; });
+ });
+
+const DUMPTEXT = [
+  ['iar n-am dormit. ',null],['concerta','concerta'],[' pe ',null],['stomacul gol','stomac'],
+  [' azi a fost prost. mi-a expirat ',null],['rețeta','reteta'],
+  [' și trebuie una privată. trebuie să ajung la ',null],['medicul de familie','medic'],
+  [', iar la ',null],['CNAS','cnas'],[' îmi cer ',null],['dosarul complet','dosar'],
+  ['. și iar ',null],['am uitat de programare','programare'],['.',null]
+];
+const dt=$('d-text'); let di=0;
+DUMPTEXT.forEach(([txt,id])=>{
+  if(!id){ dt.appendChild(document.createTextNode(txt)); return; }
+  di++;
+  const s=document.createElement('span');
+  s.className='det'; s.textContent=txt;
+  s.addEventListener('mouseenter',()=>{ const n=byId[id]; if(n) firePulse(n); });
+  dt.appendChild(s);
+});
+$('d-count').textContent = di+' detectate';
+
+const msg='20 de noduri, 19 legături. Trei trec dintr-un cluster în altul — alea contează. „Somn prost" atinge și medicația, și motivul pentru care nu te apuci. Nu ai trei probleme. Ai una, cu trei fețe.';
+let gi=0;
+setTimeout(function type(){
+  if (gi<=msg.length){ $('gtext').textContent=msg.slice(0,gi++); setTimeout(type,22); }
+}, 1200);
+
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

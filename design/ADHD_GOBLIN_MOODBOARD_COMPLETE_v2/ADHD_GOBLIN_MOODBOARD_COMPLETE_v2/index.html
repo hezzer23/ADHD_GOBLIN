@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0d0f14">
+<title>ADHD_GOBLIN — Style Exploration Moodboard</title>
+<meta name="description" content="Moodboard interactiv, dens și documentat pentru direcția vizuală ADHD_GOBLIN.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0f14;
+  --ink: #f1f0e9;
+  --muted: #9da1a8;
+  --dim: #666b73;
+  --line: #343941;
+  --line2: #858a91;
+  --node: #b8ff38;
+  --node-soft: rgba(184,255,56,.14);
+  --serif: "Instrument Serif", "Times New Roman", serif;
+  --mono: "IBM Plex Mono", "Courier New", monospace;
+  --max: 1660px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; background: var(--bg); }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 1.55;
+  overflow-x: hidden;
+}
+a { color: inherit; }
+::selection { background: var(--ink); color: var(--bg); }
+button, input { font: inherit; }
+button { color: inherit; }
+
+/* Material texture, not cosmetic blur. */
+body::before {
+  content: "";
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  opacity: .16;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.92' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.34'/%3E%3C/svg%3E");
+  mix-blend-mode: screen;
+}
+body::after {
+  content: "";
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 49;
+  opacity: .055;
+  background: repeating-linear-gradient(0deg, transparent 0 3px, rgba(255,255,255,.35) 4px);
+}
+#neural-field {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: min(940px, 100vh);
+  pointer-events: auto;
+  z-index: 0;
+}
+.page { position: relative; z-index: 1; }
+.shell { width: min(calc(100% - 40px), var(--max)); margin-inline: auto; }
+
+.skip { position: fixed; left: 8px; top: -80px; z-index: 100; background: var(--ink); color: var(--bg); padding: 8px 12px; }
+.skip:focus { top: 8px; }
+
+.masthead {
+  min-height: 780px;
+  display: grid;
+  align-content: space-between;
+  padding: 28px 0 34px;
+  border-bottom: 1px solid var(--line2);
+  position: relative;
+}
+.topline { display: flex; justify-content: space-between; gap: 20px; text-transform: uppercase; letter-spacing: .12em; font-size: 11px; color: var(--muted); }
+.topline .status { display: flex; align-items: center; gap: 10px; }
+.node-mark { width: 18px; height: 14px; display: inline-block; background: var(--node); clip-path: polygon(6% 30%, 22% 5%, 54% 12%, 80% 0, 98% 25%, 90% 62%, 68% 96%, 32% 88%, 0 64%); }
+.hero-lockup { margin-top: 70px; max-width: 1280px; }
+.hero-lockup h1 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(82px, 15vw, 248px);
+  line-height: .73;
+  letter-spacing: -.065em;
+  margin: 0;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+.hero-lockup h1 .slash { font-style: italic; display: inline-block; transform: translateY(.06em) skewX(-7deg); }
+.hero-lockup h1 .goblin { display: block; margin-left: clamp(2px, 7vw, 130px); }
+.hero-statement {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(300px, 1.35fr);
+  gap: 24px;
+  margin: 60px 0 0 clamp(0px, 17vw, 260px);
+  max-width: 1010px;
+}
+.hero-statement .big { font-family: var(--serif); font-size: clamp(30px, 4vw, 63px); line-height: .96; letter-spacing: -.02em; }
+.hero-statement .small { border-left: 1px solid var(--line2); padding-left: 20px; color: var(--muted); max-width: 620px; }
+.hero-statement strong { color: var(--ink); font-weight: 500; }
+.hero-meta {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--line2);
+  border-left: 1px solid var(--line2);
+}
+.hero-meta > div { min-height: 95px; border-right: 1px solid var(--line2); border-bottom: 1px solid var(--line2); padding: 12px 14px; }
+.hero-meta .label { display: block; color: var(--dim); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; margin-bottom: 18px; }
+.hero-meta .value { text-transform: uppercase; font-size: 12px; }
+
+.jumpbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(13,15,20,.96);
+  border-bottom: 1px solid var(--line2);
+  min-height: 50px;
+  display: flex;
+  align-items: stretch;
+}
+.jumpbar .shell { display: flex; align-items: stretch; overflow-x: auto; scrollbar-width: none; }
+.jumpbar .shell::-webkit-scrollbar { display:none; }
+.jumpbar a { display: flex; align-items: center; padding: 0 18px; text-decoration: none; border-right: 1px solid var(--line); white-space: nowrap; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.jumpbar a:first-child { border-left: 1px solid var(--line); }
+.jumpbar a:hover, .jumpbar a:focus-visible { color: var(--ink); background: #15181e; outline: none; }
+
+section { padding: 94px 0; border-bottom: 1px solid var(--line2); }
+.section-head { display: grid; grid-template-columns: 130px 1fr minmax(250px, 460px); align-items: end; gap: 18px; margin-bottom: 42px; }
+.section-no { font-family: var(--serif); font-size: 62px; line-height: .75; color: var(--muted); }
+.section-head h2 { font-family: var(--serif); font-size: clamp(48px, 7vw, 106px); font-weight: 400; line-height: .82; letter-spacing: -.045em; margin: 0; text-transform: uppercase; }
+.section-head p { margin: 0; color: var(--muted); }
+
+.north-grid { display: grid; grid-template-columns: repeat(12, 1fr); border-top: 1px solid var(--line2); border-left: 1px solid var(--line2); }
+.north-grid > article { border-right: 1px solid var(--line2); border-bottom: 1px solid var(--line2); padding: 18px; min-height: 260px; position: relative; overflow: hidden; }
+.north-grid .formula { grid-column: span 12; min-height: 190px; display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: center; gap: 24px; }
+.formula .term { font-family: var(--serif); font-size: clamp(35px, 5vw, 78px); line-height: .9; text-transform: uppercase; }
+.formula .op { font-size: 22px; color: var(--muted); }
+.north-grid .dna { grid-column: span 4; }
+.north-grid .dna h3 { font-family: var(--serif); font-size: 42px; font-weight: 400; margin: 0 0 14px; line-height: .95; }
+.north-grid .dna .ratio { position: absolute; right: 12px; top: 8px; color: var(--dim); font-size: 10px; }
+.north-grid .dna p { color: var(--muted); max-width: 46ch; }
+.north-grid .dna ul { list-style: none; padding: 0; margin: 24px 0 0; }
+.north-grid .dna li { border-top: 1px solid var(--line); padding: 7px 0; font-size: 11px; text-transform: uppercase; }
+
+.mosaic {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 250px;
+  grid-auto-flow: dense;
+  gap: 8px;
+}
+.tile {
+  position: relative;
+  display: block;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--line2);
+  background: #08090c;
+  text-decoration: none;
+  isolation: isolate;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 4px), calc(100% - 5px) 100%, 0 100%);
+}
+.tile.x2 { grid-column: span 2; }
+.tile.y2 { grid-row: span 2; }
+.tile img { width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(1) contrast(1.08); transition: transform 260ms steps(4,end), filter 180ms linear; }
+.tile:hover img, .tile:focus-visible img { transform: scale(1.025) translate(-2px, 1px); filter: grayscale(1) contrast(1.35); }
+.tile:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+.tile::after { content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; border: 9px solid transparent; transition: border 120ms linear; }
+.tile:hover::after { border-left-color: rgba(255,255,255,.45); border-bottom-color: rgba(255,255,255,.25); }
+.tile-label {
+  position: absolute;
+  z-index: 4;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 8px;
+  align-items: end;
+  background: rgba(13,15,20,.92);
+  border-top: 1px solid var(--ink);
+  padding-top: 8px;
+}
+.tile-label .n { font-family: var(--serif); font-size: 27px; line-height: .7; }
+.tile-label strong { display:block; font-size: 11px; letter-spacing:.09em; }
+.tile-label small { display:block; color: var(--muted); margin-top: 2px; font-size: 9px; }
+.tile .visual { width:100%; height:100%; position:relative; overflow:hidden; background:#08090c; }
+
+/* CSS-only source studies. */
+.visual.ascii { font-family: var(--mono); font-size: 11px; line-height: .85; white-space: pre; color: var(--ink); padding: 14px; overflow: hidden; }
+.visual.ascii::before { content:"@%#*+=-:.  @@@%%##**++==--::..  010101  ERROR  FIELD  NODE  /\/\/\  \A @@@#*=:  ///////////////  [SIGNAL]  @%#+-.  001101  MEMORY_DECAY  @@@  "; position:absolute; inset:-20%; width:150%; word-break:break-all; transform:rotate(-8deg) scale(1.2); opacity:.86; animation: asciiShift 1.8s steps(5,end) infinite; }
+@keyframes asciiShift { 50% { transform:rotate(-6deg) translate(13px,-8px) scale(1.2); } }
+.visual.particles { background:#06070a; }
+.visual.particles::before, .visual.particles::after { content:""; position:absolute; inset:0; background-image: radial-gradient(circle, #fff 0 1px, transparent 1.5px); background-size: 17px 13px; transform:skewY(-9deg) scale(1.2); opacity:.72; animation: particleDrift 4s linear infinite; }
+.visual.particles::after { background-size: 29px 23px; transform:skewY(11deg) translateX(12%); opacity:.34; animation-duration:6s; animation-direction:reverse; }
+@keyframes particleDrift { to { background-position: 80px -40px; } }
+.visual.editorial { padding:20px; display:grid; grid-template-columns:1fr 2fr; grid-template-rows:auto 1fr; gap:13px; }
+.visual.editorial::before { content:"CONTENT / ARCHITECTURE"; grid-column:1/-1; font-family:var(--serif); font-size:clamp(24px,3vw,52px); line-height:.85; }
+.visual.editorial::after { content:"01  INDEX\A02  SYSTEMS\A03  PROTOCOLS\A04  SIGNAL / MEMORY\A\AThe page behaves like a document under pressure."; white-space:pre; color:var(--muted); border-top:1px solid var(--ink); padding-top:10px; font-size:9px; }
+.visual.polygon { background:#090a0d; }
+.visual.polygon::before { content:""; position:absolute; inset:8%; border:1px solid #fff; clip-path:polygon(5% 14%, 72% 0, 96% 27%, 80% 86%, 23% 100%, 0 62%); transform:rotate(7deg); box-shadow:inset 0 0 0 14px #090a0d, inset 0 0 0 15px #fff, inset 0 0 0 43px #090a0d, inset 0 0 0 44px #fff; }
+.visual.polygon::after { content:"POLYGON / FIELD / 03"; position:absolute; left:10px; top:10px; writing-mode:vertical-rl; font-size:9px; color:var(--muted); }
+
+.directions { display: grid; gap: 0; border-top: 1px solid var(--line2); }
+.direction { display: grid; grid-template-columns: 104px minmax(250px, .8fr) 1.25fr .8fr; min-height: 320px; border-left: 1px solid var(--line2); }
+.direction > * { border-right: 1px solid var(--line2); border-bottom: 1px solid var(--line2); padding: 18px; }
+.direction .num { font-family: var(--serif); font-size: 52px; line-height:.8; }
+.direction h3 { font-family:var(--serif); font-size:clamp(37px,4vw,68px); font-weight:400; line-height:.88; margin:0; text-transform:uppercase; }
+.direction .thesis { color:var(--muted); margin-top:20px; max-width:42ch; }
+.direction .rules { display:grid; align-content:start; gap:0; }
+.direction .rule { display:grid; grid-template-columns:70px 1fr; gap:12px; padding:10px 0; border-top:1px solid var(--line); }
+.direction .rule b { font-size:9px; letter-spacing:.12em; color:var(--muted); }
+.direction .sample { min-height:280px; position:relative; overflow:hidden; background:#08090c; }
+.direction .sample img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:grayscale(1) contrast(1.25); }
+.direction .sample .sample-text { position:relative; z-index:2; font-family:var(--serif); font-size:clamp(42px,6vw,90px); line-height:.76; letter-spacing:-.04em; }
+.direction .sample .mono-sample { font-family:var(--mono); font-size:11px; line-height:1.25; white-space:pre-wrap; }
+.direction .sample .motion-track { position:absolute; inset:20px; display:grid; grid-template-columns:90fr 170fr 260fr; align-items:center; gap:4px; }
+.motion-track span { height:34px; border:1px solid var(--ink); display:grid; place-items:center; font-size:9px; position:relative; overflow:hidden; }
+.motion-track span::after { content:""; position:absolute; left:0; top:0; bottom:0; width:38%; background:var(--node); clip-path:polygon(0 10%,90% 0,100% 68%,40% 100%,0 74%); animation:pulseTrack 1.7s steps(4,end) infinite; }
+@keyframes pulseTrack { 50% { transform:translateX(160%); } 100% { transform:translateX(290%); } }
+
+.microcopy { display:grid; grid-template-columns:repeat(3,1fr); border-left:1px solid var(--line2); border-top:1px solid var(--line2); margin-top:40px; }
+.microcopy blockquote { margin:0; min-height:170px; border-right:1px solid var(--line2); border-bottom:1px solid var(--line2); padding:18px; font-family:var(--serif); font-size:clamp(28px,3vw,50px); line-height:.96; }
+.microcopy blockquote small { display:block; margin-top:20px; font-family:var(--mono); font-size:9px; color:var(--muted); letter-spacing:.1em; }
+
+.controls { display:grid; grid-template-columns:minmax(240px,1fr) auto; gap:14px; align-items:center; margin:0 0 26px; }
+.search { position:relative; }
+.search input { width:100%; height:48px; background:#0a0b0f; border:1px solid var(--line2); color:var(--ink); padding:0 14px 0 42px; border-radius:0; outline:none; }
+.search::before { content:"/"; position:absolute; left:15px; top:11px; font-family:var(--serif); font-size:25px; color:var(--muted); }
+.search input:focus { border-color:var(--ink); }
+.filters { display:flex; flex-wrap:wrap; justify-content:flex-end; }
+.filters button { height:48px; background:#0a0b0f; border:1px solid var(--line2); border-left:0; padding:0 13px; cursor:pointer; text-transform:uppercase; font-size:10px; letter-spacing:.08em; }
+.filters button:first-child { border-left:1px solid var(--line2); }
+.filters button[aria-pressed="true"] { background:var(--ink); color:var(--bg); }
+.filters button:hover { background:#1a1d23; color:var(--ink); }
+.atlas-meta { display:flex; justify-content:space-between; gap:20px; color:var(--muted); font-size:10px; margin-bottom:12px; text-transform:uppercase; letter-spacing:.08em; }
+.source-grid { display:grid; grid-template-columns:repeat(4,1fr); border-left:1px solid var(--line2); border-top:1px solid var(--line2); }
+.source-card {
+  min-height:430px;
+  border-right:1px solid var(--line2);
+  border-bottom:1px solid var(--line2);
+  background:#0b0d11;
+  display:grid;
+  grid-template-rows:150px auto 1fr auto;
+  position:relative;
+  transition:background 130ms linear;
+  cursor:pointer;
+}
+.source-card:hover { background:#11141a; }
+.source-card:focus-visible { outline:2px solid var(--ink); outline-offset:-4px; }
+.source-preview { position:relative; overflow:hidden; border-bottom:1px solid var(--line2); background:#07080b; }
+.source-preview img { width:100%; height:100%; object-fit:cover; filter:grayscale(1) contrast(1.2); transition:transform 220ms steps(3,end); }
+.source-card:hover .source-preview img { transform:scale(1.035); }
+.source-preview .mini-visual { width:100%;height:100%; }
+.source-top { display:grid; grid-template-columns:46px 1fr; gap:9px; padding:13px 13px 9px; }
+.source-id { font-family:var(--serif); font-size:28px; line-height:.8; color:var(--muted); }
+.source-title h3 { font-family:var(--serif); font-size:30px; line-height:.92; font-weight:400; margin:0; }
+.source-title p { color:var(--muted); font-size:9px; margin:6px 0 0; text-transform:uppercase; letter-spacing:.08em; }
+.source-body { padding:0 13px 14px; display:grid; align-content:start; gap:12px; }
+.source-body .tldr { color:#d5d4cf; }
+.source-body dl { margin:0; display:grid; gap:7px; font-size:10px; }
+.source-body dl div { display:grid; grid-template-columns:52px 1fr; gap:8px; border-top:1px solid var(--line); padding-top:7px; }
+.source-body dt { color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
+.source-body dd { margin:0; color:#b9bcc1; }
+.tag-row { display:flex; flex-wrap:wrap; gap:5px; padding:0 13px 12px; }
+.tag { border:1px solid var(--line); padding:2px 5px; font-size:8px; color:var(--muted); text-transform:uppercase; }
+.source-links { display:flex; flex-wrap:wrap; border-top:1px solid var(--line2); }
+.source-links a { flex:1 1 auto; min-width:68px; text-decoration:none; padding:9px 8px; border-right:1px solid var(--line); font-size:8px; letter-spacing:.08em; text-align:center; }
+.source-links a:last-child { border-right:0; }
+.source-links a:hover, .source-links a:focus-visible { background:var(--ink); color:var(--bg); outline:none; }
+.source-card.hidden { display:none; }
+
+/* Reusable miniature visual grammar for cards. */
+.mini-visual { position:relative; overflow:hidden; background:#07080b; color:#fff; }
+.mini-visual::before, .mini-visual::after { position:absolute; content:""; }
+.mv-ascii::before { content:"010101 / NODE / MEMORY / %%%###***===---:::..."; inset:-15%; font-size:13px; line-height:.8; word-break:break-all; transform:rotate(-11deg); }
+.mv-dither-grid::before { inset:0; background:radial-gradient(circle,#fff 0 1px,transparent 1.5px); background-size:5px 5px; opacity:.75; }
+.mv-polygon::before { inset:15%; border:1px solid #fff; clip-path:polygon(0 15%,65% 0,100% 28%,78% 100%,15% 83%); box-shadow:inset 0 0 0 13px #07080b,inset 0 0 0 14px #fff,inset 0 0 0 30px #07080b,inset 0 0 0 31px #fff; }
+.mv-editorial::before { content:"01 / FIELD\AARCHIVE\ASYSTEM"; white-space:pre; left:12px; top:12px; font-family:var(--serif); font-size:26px; line-height:.72; }
+.mv-particles::before { inset:0; background-image:radial-gradient(circle,#fff 0 1px,transparent 1.6px);background-size:13px 9px;transform:skewY(-12deg);animation:particleDrift 4s linear infinite; }
+.mv-reaction::before { inset:-20%; border:10px double #fff; border-radius:42% 58% 37% 63% / 63% 37% 62% 38%; box-shadow:0 0 0 14px #07080b,0 0 0 16px #fff,0 0 0 25px #07080b,0 0 0 27px #fff; transform:rotate(17deg); animation:organicSpin 9s linear infinite; }
+@keyframes organicSpin { to { transform:rotate(377deg); } }
+.mv-living-form::before { width:80px;height:70px;left:38%;top:25%;background:#fff;clip-path:polygon(11% 24%,25% 4%,54% 12%,83% 0,100% 27%,86% 58%,98% 82%,61% 100%,34% 86%,5% 97%,0 59%);animation:blobPulse 2.8s steps(7,end) infinite; }
+@keyframes blobPulse { 50% { clip-path:polygon(0 35%,18% 0,47% 10%,79% 4%,100% 38%,79% 67%,90% 100%,54% 86%,25% 100%,8% 73%); transform:scale(1.22) rotate(9deg); } }
+.mv-kinetic-type::before { content:"RAW FAST REAL SIGNAL"; left:-8%;top:18%;font-family:var(--serif);font-size:42px;line-height:.65;transform:rotate(-8deg);width:130%; }
+.mv-metaball-code::before, .mv-fluid::before, .mv-sdf::before { width:75px;height:60px;left:16%;top:25%;background:#fff;border-radius:45% 55% 62% 38% / 45% 37% 63% 55%;box-shadow:52px 18px 0 -8px #fff,92px -5px 0 -18px #fff;animation:blobPulse 2.4s steps(8,end) infinite; }
+.mv-hydra::before { inset:-40%; border:1px solid #fff; transform:rotate(35deg); box-shadow:0 0 0 17px #07080b,0 0 0 18px #fff,0 0 0 42px #07080b,0 0 0 43px #fff,0 0 0 74px #07080b,0 0 0 75px #fff; animation:organicSpin 13s linear infinite; }
+.mv-wireframe::before { inset:8%; background:repeating-linear-gradient(125deg,transparent 0 12px,#fff 13px 14px,transparent 15px 30px); clip-path:polygon(0 20%,100% 0,82% 100%,18% 83%); }
+.mv-shader-code::before,.mv-book-shader::before,.mv-dither-code::before { content:"float field(vec2 p) {\A  return noise(p*3.7)-.42;\A}\A// signal → shape"; white-space:pre; left:12px;top:14px;font-size:10px;line-height:1.5;color:#ddd; }
+.mv-dither-bars::before,.mv-bayer::before,.mv-paper-dither::before,.mv-atkinson::before,.mv-dither-poster::before,.mv-dither-lines::before { inset:0; background:repeating-linear-gradient(90deg,#fff 0 2px,transparent 2px 6px); clip-path:polygon(0 0,100% 12%,82% 100%,16% 82%); opacity:.72; }
+.mv-bayer::before { background:radial-gradient(circle,#fff 0 1px,transparent 1.3px);background-size:4px 4px; }
+.mv-atkinson::before { background:radial-gradient(circle,#fff 0 1px,transparent 1.5px);background-size:7px 7px; }
+.mv-force-field::before { width:18px;height:14px;left:18%;top:28%;background:var(--node);clip-path:polygon(6% 30%,22% 5%,54% 12%,80% 0,98% 25%,90% 62%,68% 96%,32% 88%,0 64%);box-shadow:64px 23px 0 2px var(--node),120px -12px 0 -2px var(--node),145px 54px 0 3px var(--node); }
+.mv-force-field::after { inset:0; background:repeating-linear-gradient(17deg,transparent 0 27px,#fff 28px 29px,transparent 30px 60px);opacity:.25; }
+.mv-pixi::before,.mv-r3f::before { inset:15%; border:1px solid #fff; transform:skew(-13deg) rotate(7deg); box-shadow:18px 15px 0 -1px #07080b,18px 15px 0 0 #fff,42px -8px 0 -1px #07080b,42px -8px 0 0 #fff; }
+.mv-noise-contour::before { inset:-12%; border:2px solid #fff;border-radius:49% 51% 35% 65% / 67% 41% 59% 33%;box-shadow:0 0 0 8px #07080b,0 0 0 9px #fff,0 0 0 18px #07080b,0 0 0 19px #fff;animation:blobPulse 3s steps(9,end) infinite; }
+.mv-waveform::before,.mv-spectrum::before,.mv-radial-wave::before,.mv-audio-nodes::before { left:0;right:0;top:50%;height:1px;background:#fff;box-shadow:0 -17px 0 rgba(255,255,255,.5),0 21px 0 rgba(255,255,255,.25);transform:skewY(-8deg); }
+.mv-spectrum::after { inset:14%; background:repeating-linear-gradient(90deg,#fff 0 2px,transparent 2px 8px);clip-path:polygon(0 88%,7% 50%,14% 72%,22% 14%,30% 69%,38% 32%,47% 78%,57% 5%,68% 60%,78% 24%,87% 74%,100% 45%,100% 100%,0 100%); }
+.mv-radial-wave::before { width:90px;height:90px;left:50%;top:50%;right:auto;border:1px solid #fff;background:transparent;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 0 8px #07080b,0 0 0 9px #fff,0 0 0 18px #07080b,0 0 0 19px #fff; }
+.mv-timeline::before { left:8%;right:8%;top:50%;height:1px;background:#fff;box-shadow:32px -22px 0 -0.5px #fff,76px 17px 0 -0.5px #fff,120px -8px 0 -0.5px #fff; }
+.mv-spring::before { content:"~~~~~~~~~~~~";left:8%;top:32%;font-family:var(--serif);font-size:38px;letter-spacing:-.28em;transform:rotate(-8deg); }
+.mv-norns::before { content:"N O R N S\A\A01  TAPE\A02  LOOP\A03  GRAIN";white-space:pre;left:12px;top:10px;font-size:10px;line-height:1.5; }
+.mv-patch-cables::before,.mv-patcher::before,.mv-touchdesigner::before { inset:12%;border-top:1px solid #fff;border-bottom:1px solid #fff;transform:skewY(-13deg);box-shadow:0 18px 0 -17px #fff,0 38px 0 -37px #fff; }
+.mv-terminal::before { content:"> dump --brain\A[14 nodes captured]\A> goblin sort --merciless";white-space:pre;left:12px;top:13px;font-size:10px;line-height:1.65; }
+.mv-command::before { content:"ASK GOBLIN…\A────────────────\A▸ CAPTURE THOUGHT\A▸ KILL STALE TASK\A▸ LINK MEMORY";white-space:pre;left:12px;top:13px;font-size:9px;line-height:1.6; }
+.mv-arc::before { inset:0 62% 0 0;border-right:1px solid #fff;background:repeating-linear-gradient(0deg,transparent 0 19px,#fff 20px 21px,transparent 22px 38px);opacity:.7; }
+.mv-font-serif::before,.mv-font-didone::before,.mv-font-fraunces::before { content:"Gg / ăla";left:12px;top:5px;font-family:var(--serif);font-size:54px;line-height:1; }
+.mv-font-didone::before { font-family:"Times New Roman",serif;letter-spacing:-.07em; }
+.mv-font-fraunces::before { transform:skewX(-6deg); }
+.mv-font-mono::before,.mv-font-plex::before { content:"ADHD_GOBLIN\A01: MEMORY DECAY\AȚ Ă Â Î Ș";white-space:pre;left:12px;top:13px;font-size:12px;line-height:1.55; }
+.mv-font-experimental::before { content:"GOBLIN";left:-2%;top:20%;font-family:var(--serif);font-size:58px;letter-spacing:-.15em;transform:skewX(-18deg) rotate(-6deg); }
+
+.stack-grid { display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid var(--line2); border-left:1px solid var(--line2); }
+.stack-card { border-right:1px solid var(--line2); border-bottom:1px solid var(--line2); min-height:360px; padding:18px; position:relative; }
+.stack-card h3 { font-family:var(--serif);font-size:42px;font-weight:400;line-height:.9;margin:0 0 16px; }
+.stack-card .badge { font-size:9px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase; }
+.stack-card ol { margin:28px 0 0;padding:0;list-style:none;counter-reset:stack; }
+.stack-card li { counter-increment:stack;display:grid;grid-template-columns:28px 1fr;gap:8px;border-top:1px solid var(--line);padding:9px 0; }
+.stack-card li::before { content:counter(stack,decimal-leading-zero);color:var(--muted);font-size:10px; }
+.stack-card p { color:var(--muted);max-width:46ch; }
+
+.kill-list { display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid var(--line2); border-left:1px solid var(--line2); }
+.kill-list > div { min-height:150px;border-right:1px solid var(--line2);border-bottom:1px solid var(--line2);padding:16px;position:relative; }
+.kill-list s { font-family:var(--serif);font-size:34px;text-decoration-thickness:2px; }
+.kill-list p { color:var(--muted);font-size:10px; }
+.kill-list .x { position:absolute;right:12px;top:8px;font-family:var(--serif);font-size:30px;color:var(--dim); }
+
+footer { padding:36px 0 70px; }
+.footer-grid { display:grid;grid-template-columns:1fr 1fr;gap:24px; }
+.footer-grid .mark { font-family:var(--serif);font-size:clamp(54px,9vw,130px);line-height:.75;letter-spacing:-.04em; }
+.footer-grid .note { color:var(--muted);align-self:end;max-width:64ch; }
+
+@media (max-width: 1180px) {
+  .source-grid { grid-template-columns:repeat(3,1fr); }
+  .direction { grid-template-columns:80px 1fr 1fr; }
+  .direction .sample { grid-column:2/-1; }
+  .mosaic { grid-template-columns:repeat(3,1fr); }
+}
+@media (max-width: 840px) {
+  .shell { width:min(calc(100% - 24px),var(--max)); }
+  .masthead { min-height:690px; }
+  .hero-lockup h1 { font-size:clamp(68px,21vw,150px); }
+  .hero-statement { grid-template-columns:1fr; margin-left:0; }
+  .hero-statement .small { border-left:0;border-top:1px solid var(--line2);padding:12px 0 0; }
+  .hero-meta { grid-template-columns:repeat(2,1fr); }
+  .section-head { grid-template-columns:70px 1fr; }
+  .section-head p { grid-column:2; }
+  .north-grid .formula { grid-template-columns:1fr; gap:8px; }
+  .formula .op { transform:rotate(90deg);width:20px; }
+  .north-grid .dna { grid-column:span 12; }
+  .mosaic { grid-template-columns:repeat(2,1fr);grid-auto-rows:210px; }
+  .direction { grid-template-columns:62px 1fr; }
+  .direction .rules,.direction .sample { grid-column:1/-1; }
+  .microcopy { grid-template-columns:1fr; }
+  .controls { grid-template-columns:1fr; }
+  .filters { justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap; }
+  .source-grid { grid-template-columns:repeat(2,1fr); }
+  .stack-grid,.kill-list { grid-template-columns:1fr; }
+}
+@media (max-width: 560px) {
+  body { font-size:13px; }
+  .masthead { min-height:630px; }
+  .topline { font-size:9px; }
+  .hero-meta { grid-template-columns:1fr; }
+  .hero-meta > div { min-height:72px; }
+  .section-head { grid-template-columns:1fr; }
+  .section-head .section-no,.section-head p { grid-column:1; }
+  .mosaic { grid-template-columns:1fr;grid-auto-rows:240px; }
+  .tile.x2,.tile.y2 { grid-column:span 1;grid-row:span 1; }
+  .source-grid { grid-template-columns:1fr; }
+  .source-card { min-height:390px; }
+  .footer-grid { grid-template-columns:1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,*::before,*::after { animation-duration:.001ms !important;animation-iteration-count:1 !important;scroll-behavior:auto !important;transition-duration:.001ms !important; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#board">Sari la moodboard</a>
+<canvas id="neural-field" aria-hidden="true"></canvas>
+<div class="page">
+<header class="masthead shell" id="top">
+  <div class="topline">
+    <span>STYLE EXPLORATION / MOODBOARD / v1.0</span>
+    <span class="status"><i class="node-mark"></i> LOCAL GOBLIN / FIELD ACTIVE</span>
+  </div>
+  <div class="hero-lockup">
+    <h1>ADHD<span class="slash">_</span><span class="goblin">GOBLIN</span></h1>
+    <div class="hero-statement">
+      <div class="big">A nervous system with a bad attitude.</div>
+      <div class="small"><strong>Nu un asistent. Nu un dashboard.</strong><br>Un „ăla din telefon” care vede grămada, taie politețea și te ajută să scoți un lucru real din mlaștină.</div>
+    </div>
+  </div>
+  <div class="hero-meta">
+    <div><span class="label">PRODUCT</span><span class="value">ADHD webapp / local AI / graph + dump + tasks + knowledge</span></div>
+    <div><span class="label">VOICE</span><span class="value">Cynic / blunt / informed friend / zero glazing</span></div>
+    <div><span class="label">MATERIAL</span><span class="value">1-bit / grain / scan / archival evidence / hard type</span></div>
+    <div><span class="label">LIFE SIGNAL</span><span class="value">Organic nodes / tendrils / decay / cascading feedback</span></div>
+  </div>
+</header>
+
+<nav class="jumpbar" aria-label="Navigare moodboard">
+  <div class="shell">
+    <a href="#north">00 North star</a>
+    <a href="#board">01 Visual field</a>
+    <a href="#directions">02 Directions</a>
+    <a href="#atlas">03 Source atlas</a>
+    <a href="#stack">04 Build paths</a>
+    <a href="#kill">05 Kill list</a>
+  </div>
+</nav>
+
+<main>
+<section id="north">
+  <div class="shell">
+    <div class="section-head">
+      <div class="section-no">00</div>
+      <h2>North star</h2>
+      <p>Direcția nu este „dark productivity”. Este o combinație controlată de laborator ocult, organism audio-reactiv și materie cognitivă care îmbătrânește vizibil.</p>
+    </div>
+    <div class="north-grid">
+      <article class="formula">
+        <div class="term">Archaic<br>engineering</div><div class="op">×</div>
+        <div class="term">Living<br>audio</div><div class="op">×</div>
+        <div class="term">Cymatic<br>decay</div>
+      </article>
+      <article class="dna"><span class="ratio">45%</span><h3>Nous / Hermes</h3><p>Structura, tipografia, gravurile și conflictul dintre limbaj vechi și infrastructură modernă.</p><ul><li>Didone + mono</li><li>Hard modular grid</li><li>Archive as evidence</li></ul></article>
+      <article class="dna"><span class="ratio">35%</span><h3>Sketch / signal</h3><p>Mișcarea, reacția la input și sentimentul că sistemul are metabolism, nu doar transitions.</p><ul><li>Particles under tension</li><li>Audio mapped to form</li><li>Immediate feedback</li></ul></article>
+      <article class="dna"><span class="ratio">20%</span><h3>Cymatics / rot</h3><p>Forme emergente din frecvență, imperfecțiune naturală și degradare vizuală bazată pe timp.</p><ul><li>Noise-driven contours</li><li>Organic symmetry</li><li>Memory decay</li></ul></article>
+    </div>
+  </div>
+</section>
+
+<section id="board">
+  <div class="shell">
+    <div class="section-head">
+      <div class="section-no">01</div>
+      <h2>Visual field</h2>
+      <p>Fiecare placă este clickabilă și duce la sursa originală. Imaginile sunt procesate monocrom pentru a testa dacă direcția rezistă fără culoare.</p>
+    </div>
+    <div class="mosaic" id="mosaic"></div>
+  </div>
+</section>
+
+<section id="directions">
+  <div class="shell">
+    <div class="section-head">
+      <div class="section-no">02</div>
+      <h2>8 directions</h2>
+      <p>Nu sunt opt stiluri separate. Sunt opt sisteme de reguli care trebuie combinate într-o singură gramatică.</p>
+    </div>
+    <div class="directions">
+      <article class="direction">
+        <div class="num">01</div>
+        <div><h3>Occult machine</h3><p class="thesis">Knowledge base-ul arată ca un manual tehnic găsit într-o arhivă suspectă. Gravura nu e decor; este probă, mascotă, diagramă și eroare de imprimare.</p></div>
+        <div class="rules"><div class="rule"><b>USE</b><span>Didone mare, captions mono, numerotare, margini de planșă.</span></div><div class="rule"><b>MUTATE</b><span>Dither agresiv, crops incomode, annotations și defecte de print.</span></div><div class="rule"><b>NEVER</b><span>Tarot kitsch, rune fără sens sau „AI mysticism” generic.</span></div></div>
+        <div class="sample"><img src="assets/haeckel_actiniae_dither.webp" alt="Planșă Haeckel procesată 1-bit"></div>
+      </article>
+      <article class="direction">
+        <div class="num">02</div>
+        <div><h3>Dither as material</h3><p class="thesis">Dither-ul descrie calitatea memoriei și a atenției: clar, murdar, pierdut, recuperat. Nu este un filtru global aplicat la final.</p></div>
+        <div class="rules"><div class="rule"><b>USE</b><span>Floyd–Steinberg pentru organic; Bayer pentru motion stabil; Atkinson pentru archival crisp.</span></div><div class="rule"><b>MUTATE</b><span>Intensitatea devine semantică: confidence, age, focus, decay.</span></div><div class="rule"><b>NEVER</b><span>Text funcțional dithered sau CRT maximalist cu bloom.</span></div></div>
+        <div class="sample"><img src="assets/user_seed_dither.webp" alt="Referință dithered din brief"></div>
+      </article>
+      <article class="direction">
+        <div class="num">03</div>
+        <div><h3>Living graph</h3><p class="thesis">Nodurile nu sunt cercuri. Sunt membrane deformabile cu identitate, masă, tensiune și o relație fizică vizibilă cu celelalte idei.</p></div>
+        <div class="rules"><div class="rule"><b>FORM</b><span>Metaball / contour noise / asymmetry per node.</span></div><div class="rule"><b>LINK</b><span>Tendrils care se tensionează, se ramifică și pulsează.</span></div><div class="rule"><b>DECAY</b><span>Ideile uitate pierd contrast, masă și legături — nu primesc un badge „stale”.</span></div></div>
+        <div class="sample"><img src="assets/codrops_metaballs_dither.webp" alt="Metaballs interactive procesate 1-bit"></div>
+      </article>
+      <article class="direction">
+        <div class="num">04</div>
+        <div><h3>Audio organism</h3><p class="thesis">Sunetul nu colorează vizualul. Îi schimbă tensiunea, ritmul, densitatea și forma. Nodul pare să audă, nu să danseze.</p></div>
+        <div class="rules"><div class="rule"><b>RMS</b><span>Volum → amplitudine și respirație.</span></div><div class="rule"><b>CENTROID</b><span>Brilliance → asperitate / număr de lobi.</span></div><div class="rule"><b>FLUX</b><span>Schimbare → impuls și propagare în tendrils.</span></div></div>
+        <div class="sample"><img src="assets/klsr_gnarl_dither.webp" alt="Câmp de particule KLSR procesat 1-bit"></div>
+      </article>
+      <article class="direction">
+        <div class="num">05</div>
+        <div><h3>Tool, not product</h3><p class="thesis">Suprafața trebuie să pară că poate fi învățată și stăpânită. Mai aproape de norns, VCV Rack și terminal decât de o aplicație de productivitate cu onboarding.</p></div>
+        <div class="rules"><div class="rule"><b>USE</b><span>Keyboard-first, shortcuts vizibile, command layer, output direct.</span></div><div class="rule"><b>SHOW</b><span>Starea sistemului, conexiunile și consecința acțiunii.</span></div><div class="rule"><b>NEVER</b><span>Confetti, streaks, badges motivaționale sau coach tone.</span></div></div>
+        <div class="sample"><div class="mono-sample">&gt; dump --brain --raw
+[14 fragments captured]
+
+&gt; goblin triage
+3 real tasks
+6 noise clusters
+2 things you are avoiding
+3 fragments worth linking
+
+&gt; _</div></div>
+      </article>
+      <article class="direction">
+        <div class="num">06</div>
+        <div><h3>Data brutalism</h3><p class="thesis">Informația poate deveni densă și severă, dar trebuie să rămână diagnostică. Ryoji Ikeda, FIELD și onformative oferă ritm, nu template.</p></div>
+        <div class="rules"><div class="rule"><b>USE</b><span>Scanlines, counters, sparse micro-accent, kinetic type.</span></div><div class="rule"><b>MUTATE</b><span>Taskurile și memory links devin semnale cu frecvențe distincte.</span></div><div class="rule"><b>NEVER</b><span>Data-viz falsă care nu corespunde niciunei stări reale.</span></div></div>
+        <div class="sample"><img src="assets/ryoji_datamatics_mono.webp" alt="Datamatics, referință alb-negru"></div>
+      </article>
+      <article class="direction">
+        <div class="num">07</div>
+        <div><h3>Typographic voice</h3><p class="thesis">Display-ul are personalitate și sarcasm. Body-ul mono rămâne exact, rece și ușor de scanat. Nici Inter, nici „startup friendliness”.</p></div>
+        <div class="rules"><div class="rule"><b>PAIR A</b><span>Basteleur × Departure Mono. Basteleur = display occult-machine (tarot, medieval × Cooper Black). Departure Mono = labels, timestamps, system text (pixelat, lo-fi tehnic).</span></div><div class="rule"><b>PAIR B</b><span>Avara × Fragment Mono. Avara = serif editorial ascuțit pentru titluri/pull-quotes. Fragment Mono = body/mono cu căldură pentru knowledge text.</span></div><div class="rule"><b>ACCENT</b><span>Pilowlava doar pentru wordmark/chapter art. Niciodată mai mult de două familii display.</span></div></div>
+        <div class="sample"><div class="sample-text">Nu ai uitat task-ul.<br><em>L-ai exilat.</em></div></div>
+      </article>
+      <article class="direction">
+        <div class="num">08</div>
+        <div><h3>Decay + game juice</h3><p class="thesis">Feedback-ul este satisfăcător, dar nu infantil. Acțiunea lovește, se propagă și se așază în maximum 600 ms. Decay-ul operează pe ore și zile.</p></div>
+        <div class="rules"><div class="rule"><b>IMPACT</b><span>0–90 ms: deformare, cut, recoil.</span></div><div class="rule"><b>CASCADE</b><span>90–260 ms: legături și vecini răspund.</span></div><div class="rule"><b>SETTLE</b><span>260–520 ms: câmpul își găsește noua tensiune.</span></div></div>
+        <div class="sample"><div class="motion-track"><span>IMPACT</span><span>CASCADE</span><span>SETTLE</span></div></div>
+      </article>
+    </div>
+    <div class="microcopy" aria-label="Exemple de voce">
+      <blockquote>„Ai 14 chestii deschise. Trei sunt reale.”<small>TRIAGE / BLUNT, NOT CRUEL</small></blockquote>
+      <blockquote>„Creierul tău nu e backlog. E o mlaștină cu index.”<small>BRAINDUMP / SYSTEM METAPHOR</small></blockquote>
+      <blockquote>„Task-ul ăsta putrezește de 11 zile. Îl faci, îl tai sau îl minți din nou?”<small>DECAY / CONSEQUENCE</small></blockquote>
+    </div>
+  </div>
+</section>
+
+<section id="atlas">
+  <div class="shell">
+    <div class="section-head">
+      <div class="section-no">03</div>
+      <h2>Source atlas</h2>
+      <p>Bibliotecă filtrabilă cu surse vizuale, implementări, documentație și GitHub. Click pe card deschide sursa principală; butoanele de jos duc direct la docs/demo/code.</p>
+    </div>
+    <div class="controls">
+      <label class="search"><input id="search" type="search" placeholder="caută: dither, audio, graph, shader, type…" autocomplete="off"></label>
+      <div class="filters" role="group" aria-label="Filtre surse">
+        <button data-filter="all" aria-pressed="true">All</button>
+        <button data-filter="visual" aria-pressed="false">Visual</button>
+        <button data-filter="build" aria-pressed="false">Build</button>
+        <button data-filter="audio" aria-pressed="false">Audio</button>
+        <button data-filter="motion" aria-pressed="false">Motion</button>
+        <button data-filter="tool" aria-pressed="false">Tools</button>
+        <button data-filter="type" aria-pressed="false">Type</button>
+      </div>
+    </div>
+    <div class="atlas-meta"><span id="result-count">— sources</span><span>External links open in a new tab</span></div>
+    <div class="source-grid" id="source-grid"></div>
+  </div>
+</section>
+
+<section id="stack">
+  <div class="shell">
+    <div class="section-head">
+      <div class="section-no">04</div>
+      <h2>Build paths</h2>
+      <p>Trei niveluri de implementare. Recomandarea pragmatică este să începi cu 2D organic și să escaladezi shader-ele doar unde produc valoare vizibilă.</p>
+    </div>
+    <div class="stack-grid">
+      <article class="stack-card"><span class="badge">PATH A / LOW RISK</span><h3>Organic 2D</h3><p>Cel mai bun punct de start pentru un graph dens, interactiv și performant.</p><ol><li>PixiJS — render 2D/WebGL</li><li>d3-force — physics only</li><li>simplex-noise — node contours</li><li>Motion — UI shell feedback</li><li>CSS/SVG grain + dither assets</li></ol></article>
+      <article class="stack-card"><span class="badge">PATH B / FULL ORGANISM</span><h3>Shader field</h3><p>Pentru selected clusters, hero states și forme care se contopesc real.</p><ol><li>React Three Fiber / Three.js</li><li>GLSL SDF + smooth-min metaballs</li><li>LYGIA noise functions</li><li>Meyda / Web Audio mappings</li><li>GSAP timeline for cascade</li></ol></article>
+      <article class="stack-card"><span class="badge">PATH C / R&D LAB</span><h3>Prototype first</h3><p>Explorare foarte rapidă înainte de a bloca arhitectura web.</p><ol><li>Sketch Design Club / references</li><li>Hydra — feedback & modulation</li><li>Shader Park — SDF forms</li><li>TouchDesigner / Max — mappings</li><li>Port only the winning grammar</li></ol></article>
+    </div>
+  </div>
+</section>
+
+<section id="kill">
+  <div class="shell">
+    <div class="section-head">
+      <div class="section-no">05</div>
+      <h2>Kill list</h2>
+      <p>Acestea sunt semnale de drift. Dacă apar în mockup, direcția a revenit la productivitate SaaS standard.</p>
+    </div>
+    <div class="kill-list">
+      <div><span class="x">×</span><s>Glassmorphism</s><p>Fără blur, translucent cards, glow borders sau pseudo-depth corporate.</p></div>
+      <div><span class="x">×</span><s>Uniform radius</s><p>Nu toate lucrurile au aceeași cutie, aceeași rază și aceeași umbră.</p></div>
+      <div><span class="x">×</span><s>Inter / Poppins</s><p>Nicio neutralitate startup. Display expresiv + mono tehnic.</p></div>
+      <div><span class="x">×</span><s>Circle graph</s><p>Nodurile sunt membrane, nu avatar circles; conexiunile sunt tendrils, nu straight lines.</p></div>
+      <div><span class="x">×</span><s>Streak economy</s><p>Fără confetti, daily flames, badges și guilt loops mascate în gamification.</p></div>
+      <div><span class="x">×</span><s>Calm AI helper</s><p>Goblin-ul nu „celebrează progresul”. Observă, taie, amintește și provoacă.</p></div>
+      <div><span class="x">×</span><s>Obsidian clone</s><p>Nu un force graph decorativ de cercuri. Relațiile trebuie să aibă greutate și viață.</p></div>
+      <div><span class="x">×</span><s>Dashboard wall</s><p>Nu 12 KPI cards. Un câmp cognitiv cu un lucru dominant și stări contextuale.</p></div>
+      <div><span class="x">×</span><s>Permanent motion</s><p>Mișcare doar când semnifică activitate, tensiune, decay sau feedback.</p></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="shell footer-grid">
+    <div class="mark">MAKE IT<br>FEEL ALIVE.</div>
+    <div class="note">Moodboard de explorare, nu UI spec. Următorul pas logic este un <strong>motion + material prototype</strong> cu 3 noduri, 2 tipuri de tendril, 3 stări de decay și un singur interaction loop — înainte de orice dashboard sau sistem complet.</div>
+  </div>
+</footer>
+</div>
+
+<script>
+const ASSETS = {"seed": "assets/user_seed_dither.webp", "hermes": "assets/hermes_hero_mono.webp", "klsr": "assets/klsr_gnarl_dither.webp", "endel": "assets/endel_hero_mono.webp", "metaballs": "assets/codrops_metaballs_dither.webp", "ryoji": "assets/ryoji_datamatics_mono.webp", "chladni": "assets/cymatics_chladni_dither.webp", "ferro": "assets/cymatics_ferrofluid_mono.webp", "onformative": "assets/onformative_variations_dither.webp", "haeckel": "assets/haeckel_actiniae_dither.webp"};
+const SOURCES = [{"id": "V01", "title": "Hermes Agent", "maker": "Nous Research", "kind": "visual", "direction": "occult-machine", "tags": ["engraving", "didone", "mono", "modular-grid", "agent"], "tldr": "Cea mai apropiată referință de ADN: gravuri arhaice tratate ca material tehnic, grid editorial și limbaj de engineering.", "steal": "Tensiunea dintre imagine veche și copy hiper-tehnic; titluri serif mari; etichete monospace; densitate fără carduri SaaS.", "avoid": "Nu copia albastrul electric ca accent general. Pentru ADHD_GOBLIN, culoarea rămâne blocată în noduri.", "source": "https://hermes-agent.nousresearch.com/", "thumb": "hermes", "links": [["SITE", "https://hermes-agent.nousresearch.com/"], ["DOCS", "https://hermes-agent.nousresearch.com/docs/"], ["GITHUB", "https://github.com/NousResearch/hermes-agent"], ["SKILLS", "https://github.com/nousresearch/hermes-agent/blob/main/website/docs/reference/optional-skills-catalog.md"]]}, {"id": "V02", "title": "In-browser ASCII Shader Tool", "maker": "Isaac Zara", "kind": "visual", "direction": "dither-material", "tags": ["ascii", "shader", "export", "distortion", "tool"], "tldr": "WIP de tool vizual care tratează ASCII-ul ca shader, nu ca decor retro. Bun pentru feeling-ul de instrument viu și exportabil.", "steal": "Controale brute, preview instant, transformarea imaginilor în semnal/structură; util pentru stări de braindump și decay.", "avoid": "Nu transforma toate suprafețele în ASCII. Folosește-l ca mod de stare, tranziție sau degradare.", "source": "https://x.com/isaaczara_/status/2033470249597903043", "visual": "ascii", "links": [["POST / VIDEO", "https://x.com/isaaczara_/status/2033470249597903043"]]}, {"id": "V03", "title": "ASCII Magic — Dither", "maker": "ASCII Magic", "kind": "visual", "direction": "dither-material", "tags": ["floyd-steinberg", "bayer", "atkinson", "1-bit", "video"], "tldr": "Laborator practic pentru testat algoritmi de dither, palete reduse, scanlines și exporturi animate direct în browser.", "steal": "Compară Floyd–Steinberg pentru organic, Bayer pentru stabilitate în mișcare și Atkinson pentru text/poster crisp.", "avoid": "Bloom, RGB split și CRT maximalist. Pentru brief: grain + dither + scanlines, fără glow.", "source": "https://www.ascii-magic.com/styles/dither", "visual": "dither-grid", "links": [["STYLE GUIDE", "https://www.ascii-magic.com/styles/dither"], ["EDITOR", "https://www.ascii-magic.com/app"]]}, {"id": "V04", "title": "Polygon", "maker": "Barth Kósi", "kind": "visual", "direction": "data-brutalism", "tags": ["polygon", "webgl", "editorial", "spatial", "experimental"], "tldr": "Viewer WebGL care randează obiecte 3D (Computer, Plant, Shiba, Crystal sau un .GLB urcat) ca câmpuri de densitate și ASCII. Moduri de randare Standard / Minimal / Matrix, toggle ASCII, invert, export PNG.", "steal": "Modul 'Matrix' e exact tehnica de randare a nodurilor: iei o formă organică 3D și o desenezi ca glyph-uri/densitate, nu ca mesh lucios. Export PNG = pipeline pentru stills (og-image, empty states, chapter art). Upload .GLB = forme de nod custom.", "avoid": "Nu folosi modul Standard (render 3D generic, lucios). Valoarea e în Matrix/Minimal + toggle-ul ASCII și în export.", "source": "https://polygon.barthkosi.com/", "visual": "polygon", "links": [["PROJECT", "https://polygon.barthkosi.com/"]]}, {"id": "V05", "title": "Content Architecture", "maker": "Content Architecture", "kind": "visual", "direction": "occult-machine", "tags": ["editorial", "technical-writing", "grid", "mono", "documentation"], "tldr": "NU e o referință editorială — e un starter kit Next.js + Sanity 'agent-ready'. Valoarea reală: structura de documentație (AGENTS.MD, docs/ hub, llms.txt) și UI-ul de terminal + file-explorer embedat direct în pagina de marketing.", "steal": "Pattern-ul 'servește markdown agentului' (Accept: text/markdown) — knowledge layer-ul poate avea o față pentru oameni și una pentru LLM. Terminalul și file-explorer-ul din pagină arată cum un tool își expune propria structură ca interfață, nu ca screenshot.", "avoid": "Nu-l trata ca model vizual editorial sau ca direcție de design. E un scaffold tehnic; ia doar ideea de documentație-vizibilă și de interfață-terminal.", "source": "https://www.contentarchitecture.dev/", "visual": "editorial", "links": [["SITE", "https://www.contentarchitecture.dev/"]]}, {"id": "V16", "title": "Motes — Pulse", "maker": "Lucas Markes", "kind": "visual", "direction": "living-graph", "tags": ["ascii", "pointer-reactive", "procedural", "pulse", "dark-ui"], "tldr": "Demo-ul complet motes: câmp ASCII pointer-reactiv cu controls reale. Effects: flow (noise domain-warped), waves (benzi sinusoidale), pulse (inele radiale care descresc), plus efecte custom în GLSL. Teza paginii: 'The cursor is an input.'", "steal": "Controls sunt mapașul direct pentru stările app-ului: pointer.radius/force = raza de influență a focusului; field.density = cât de încărcat e braindump-ul; field.persistence = cât de repede se uită (decay); field.speed = energia. Preseturile de look (Void/Terminal/Amber/Paper/Glass) = teme de stare. Orice mișcare a utilizatorului perturbă câmpul.", "avoid": "Nu-l lăsa wallpaper ambiental. Fiecare parametru trebuie legat de o stare cognitivă reală (focus, avoidance, decay, energie), nu doar de pointer.", "source": "https://motes.lucasmarkes.com/pulse", "visual": "ascii", "links": [["PULSE", "https://motes.lucasmarkes.com/pulse"], ["MOTES ROOT", "https://motes.lucasmarkes.com/"]]}, {"id": "V17", "title": "Motes", "maker": "Lucas Markes", "kind": "tool", "direction": "tool-not-product", "tags": ["ascii", "react", "vanilla-js", "background-system", "interactive"], "tldr": "Librăria npm (@lucasmarkes/motes) din spatele demo-ului. Fundaluri ASCII procedurale, pointer-reactive, cu efecte în GLSL și export de cod React/Core. defineEffect('rain') = efect custom în ~6 linii de GLSL.", "steal": "Implementare directă pentru layer-ul de câmp: npm i @lucasmarkes/motes, alegi efectul (flow/waves/pulse), legi pointerul, și ai un fundal viu în câteva linii. Gramatica de forme e extensibilă — scrii un efect propriu care răspunde la stările task-ului, nu doar la cursor.", "avoid": "Nu folosi efectele stock nemodificate ca produs final. Scrie un efect custom care reacționează la evenimentele reale ale app-ului (task creat, task evitat, decay).", "source": "https://motes.lucasmarkes.com/", "visual": "terminal", "links": [["SITE", "https://motes.lucasmarkes.com/"], ["PULSE EXAMPLE", "https://motes.lucasmarkes.com/pulse"]]}, {"id": "V18", "title": "Edoardo Lunardi", "maker": "Edoardo Lunardi", "kind": "build", "direction": "tool-not-product", "tags": ["workstation-ui", "infinite-canvas", "folder-tree", "inspector", "interaction"], "tldr": "Referință excelentă pentru carcasa aplicației: shell dens, pane-uri dure, folder tree, inspector și feeling de workstation, nu de SaaS dashboard.", "steal": "Ia de aici structura: shell utilitar, metadate vizibile, sidebar de navigație, counters și un canvas navigabil care se simte ca spațiu de lucru, nu ca pagină.", "avoid": "Nu copia literal un desktop retro. Preia gramatica structurală și sentimentul de unealtă, apoi lasă nodurile vii să dea caracterul distinct.", "source": "https://www.edoardolunardi.dev/", "visual": "wireframe", "links": [["SITE", "https://www.edoardolunardi.dev/"], ["LAB", "https://www.edoardolunardi.dev/lab"], ["DRAG IN REACT", "https://www.edoardolunardi.dev/blog/building-drag-in-react-without-a-library"], ["ENDLESS GRID", "https://www.edoardolunardi.dev/blog/building-an-endless-drag-grid-in-react-without-webgl"], ["CONTENT ARCHITECTURE", "https://www.contentarchitecture.dev/"]]}, {"id": "V06", "title": "Sketch Design Club", "maker": "@sketch.__________________", "kind": "visual", "direction": "audio-organism", "tags": ["audio-reactive", "particles", "organic", "automation", "live-tool"], "tldr": "Tool indie audio-reactiv (construit de o singură persoană): urci vizualuri, le combini, generezi lyrics, și orice parametru se poate lega de muzică, BPM sau automatizare. Upload, customize, share.", "steal": "Principiul 'orice se poate mișca cu muzica' — în ADHD_GOBLIN, orice proprietate vizuală a unui nod (masă, tensiune, număr de lobi, pulsație) poate fi un parametru audio-reactiv. Faptul că e un tool one-man = dovada că un sistem viu nu cere o echipă mare.", "avoid": "Estetica de music visualizer generic (VJ loops, neon). Aici sunetul conduce forma și tensiunea, nu decorul.", "source": "https://sketchdesign.club/", "visual": "particles", "links": [["TOOL", "https://sketchdesign.club/"], ["INSTAGRAM", "https://www.instagram.com/sketch.__________________/"], ["AUDIO REACTIVITY", "https://www.instagram.com/p/DY2blmVRGBi/"]]}, {"id": "V07", "title": "Endel", "maker": "Endel", "kind": "visual", "direction": "audio-organism", "tags": ["generative", "state", "soundscape", "minimal", "adaptive"], "tldr": "Bun ca referință pentru un sistem generativ care își schimbă starea continuu și rămâne discret, nu ca dashboard.", "steal": "Un singur centru vizual activ, schimbări de stare lente, relație clară între sunet, context și formă.", "avoid": "Wellness polish și calm generic. Goblin-ul trebuie să rămână cinic, dens și puțin ostil.", "source": "https://endel.io/", "thumb": "endel", "links": [["SITE", "https://endel.io/"], ["WEB PLAYER", "https://app.endel.io/"]]}, {"id": "V08", "title": "datamatics", "maker": "Ryoji Ikeda", "kind": "visual", "direction": "data-brutalism", "tags": ["data", "black-white", "signal", "scan", "precision"], "tldr": "Datele devin material vizual: bare, coduri, câmpuri, scanări și micro-accent rare. Diagnostic, nu decorativ.", "steal": "Alb/negru sever, densitate variabilă, linii de scan, microsemnale și mici excepții colorate doar când contează.", "avoid": "Copierea literală a barcode-urilor. Tradu task-uri, legături și memorie în semnal propriu.", "source": "https://www.ryojiikeda.com/project/datamatics/", "thumb": "ryoji", "links": [["PROJECT", "https://www.ryojiikeda.com/project/datamatics/"]]}, {"id": "V09", "title": "Cymatics", "maker": "Nigel Stanford", "kind": "visual", "direction": "cymatic-organics", "tags": ["frequency", "chladni", "ferrofluid", "sound", "natural-geometry"], "tldr": "Referința literală pentru „forma apare din frecvență”: plăci Chladni, ferrofluid și materie organizată de sunet.", "steal": "Forme emergente, simetrie imperfectă, densitate dependentă de energie; nodul ca rezultat al unui câmp, nu icon desenat.", "avoid": "Simetrie ornamentală statică. Forma trebuie să răspundă la stare, prioritate sau activitate.", "source": "https://nigelstanford.com/cymatics/", "thumb": "chladni", "links": [["PROJECT", "https://nigelstanford.com/cymatics/"]]}, {"id": "V10", "title": "GNARL / audiovisual systems", "maker": "KLSR", "kind": "visual", "direction": "audio-organism", "tags": ["particle-field", "sound-reactive", "tension", "black-white", "flow"], "tldr": "Câmpuri de particule care se întind, se rup și se reconectează sub tensiune. Interviu + portofoliu de sisteme audiovizuale.", "steal": "Tendrils = conexiuni cu fizică reală: se întind când nodurile se depărtează, se rup când distanța e prea mare, se reconectează când revin. Aglomerările locale = idei care se clusteruiesc. Fiecare mișcare trebuie mapată pe o relație semantică (legătură, conflict, uitare).", "avoid": "Să devină screensaver decorativ. Fiecare întindere/ruptură trebuie să indice o stare cognitivă sau o relație reală între idei.", "source": "https://visualatelier8.com/klsr-audiovisual-experiences-interview/", "thumb": "klsr", "links": [["INTERVIEW / WORK", "https://visualatelier8.com/klsr-audiovisual-experiences-interview/"]]}, {"id": "V11", "title": "Reaction–Diffusion", "maker": "Nervous System / Jason Webb", "kind": "visual", "direction": "cymatic-organics", "tags": ["reaction-diffusion", "growth", "pattern", "organic", "simulation"], "tldr": "Modele care cresc prin reguli locale. Util ca limbaj pentru memorie, decay, grupare și „idei care infectează alte idei”.", "steal": "Contururi care se bifurcă, zone de activare/inhibare, apariție lentă a pattern-ului din reguli simple.", "avoid": "Wallpaper procedural constant. Folosește-l în momente de reorganizare, arhivare sau insight.", "source": "https://n-e-r-v-o-u-s.com/projects/albums/growing-objects/content/poster-reaction-diffusion-1/lightbox/", "visual": "reaction", "links": [["ARTWORK", "https://n-e-r-v-o-u-s.com/projects/albums/growing-objects/content/poster-reaction-diffusion-1/lightbox/"], ["PLAYGROUND", "https://jasonwebb.github.io/reaction-diffusion-playground/"]]}, {"id": "V12", "title": "Kunstformen der Natur", "maker": "Ernst Haeckel", "kind": "visual", "direction": "occult-machine", "tags": ["archival", "biology", "engraving", "taxonomy", "organic"], "tldr": "Taxonomie biologică densă și forme naturale stranii. Materie excelentă pentru iconografie, empty states și chapter art.", "steal": "Simetrie organică, clasificare, numere de planșă, captions științifice și contrastul dintre frumos și neliniștitor.", "avoid": "Vintage cosplay. Procesează sever: crop, dither, 1-bit, annotations, erori de print.", "source": "https://commons.wikimedia.org/wiki/File:Haeckel_Actiniae.jpg", "thumb": "haeckel", "links": [["PLATE 49", "https://commons.wikimedia.org/wiki/File:Haeckel_Actiniae.jpg"], ["FULL COLLECTION", "https://commons.wikimedia.org/wiki/Kunstformen_der_Natur"]]}, {"id": "V13", "title": "Living Motion Systems", "maker": "Universal Everything", "kind": "visual", "direction": "audio-organism", "tags": ["living-form", "motion-system", "transform", "digital-organism"], "tldr": "Un cadru conceptual bun: nu animații separate, ci un sistem de forme care cresc, se mișcă și se transformă coerent.", "steal": "Definește o gramatică de mișcare unică pentru toate nodurile, nu 20 de efecte fără legătură.", "avoid": "Mascote moi și friendly. Goblin-ul poate fi viu fără să fie cute.", "source": "https://www.universaleverything.com/profile", "visual": "living-form", "links": [["PROFILE", "https://www.universaleverything.com/profile"], ["ART", "https://www.universaleverything.com/art"]]}, {"id": "V14", "title": "REAL / RAW / FAST", "maker": "FIELD.IO × adidas", "kind": "visual", "direction": "data-brutalism", "tags": ["generative-identity", "kinetic-type", "multi-screen", "system"], "tldr": "Identitate generativă bazată pe remixarea continuă a tipului și conținutului, cu o unealtă proprie în spate.", "steal": "Tip kinetic tăiat, compoziții care se recompun, sistem de reguli în loc de ecrane fixe.", "avoid": "Brand spectacle fără funcție. În app, recompoziția trebuie să urmărească atenția și contextul.", "source": "https://field.io/work/real-raw-fast-identity-system", "visual": "kinetic-type", "links": [["CASE STUDY", "https://field.io/work/real-raw-fast-identity-system"]]}, {"id": "V15", "title": "Generative Design", "maker": "onformative", "kind": "visual", "direction": "data-brutalism", "tags": ["generative-system", "parameters", "tooling", "variation"], "tldr": "Studio de generative design (Berlin). Lucrări cheie: 'unnamed soundsculpture' (sunet → formă 3D), logo-ul dinamic 'Oi' (reactiv la vocea utilizatorului), CX-Shanghai (date în timp real → vizual).", "steal": "Logo-ul 'Oi' = identitate care se schimbă în timp real cu input-ul (vocea). În ADHD_GOBLIN: goblin-ul/wordmark-ul poate reacționa la tastare, voce sau activitate — identitate vie, nu statică. CX-Shanghai = date reale conduc vizualul, nu animație decorativă.", "avoid": "Brand spectacle fără funcție. Fiecare schimbare a formei trebuie să aibă o cauză reală (stare, input, date), nu să fie doar 'frumoasă'.", "source": "https://onformative.com/expertise/generative-design/", "thumb": "onformative", "links": [["ESSAY / WORK", "https://onformative.com/expertise/generative-design/"]]}, {"id": "B01", "title": "Marching Cubes", "maker": "Three.js", "kind": "build", "direction": "living-graph", "tags": ["metaballs", "three.js", "isosurface", "webgl", "3d"], "tldr": "Construiește suprafețe organice dintr-un câmp scalar. Bun pentru un nod principal sau o „masă” de idei care se contopește.", "steal": "Folosește marching cubes pentru focus/hero/selected cluster, nu pentru sute de noduri simultan.", "avoid": "Cost GPU mare și look de demo 3D generic. Randare 1-bit sau contour-only.", "source": "https://threejs.org/examples/webgl_marchingcubes.html", "visual": "metaball-code", "links": [["DEMO", "https://threejs.org/examples/webgl_marchingcubes.html"], ["DOCS", "https://threejs.org/docs/pages/MarchingCubes.html"], ["THREE.JS", "https://github.com/mrdoob/three.js"]]}, {"id": "B02", "title": "Interactive Droplet Metaballs", "maker": "Yuki Kojima / Codrops", "kind": "build", "direction": "living-graph", "tags": ["glsl", "sdf", "ray-marching", "mouse-trail", "metaballs"], "tldr": "Implementare aproape directă pentru noduri elastice și tendrils: SDF + smooth-min + noise + trail de pointer.", "steal": "Mapează hover/drag/focus la întindere, fuziune și revenire; redă în alb/negru și fără specular glossy.", "avoid": "Aspect de picătură 3D lucioasă. Păstrează fizica, schimbă materialul în dither/contur.", "source": "https://tympanus.net/codrops/2025/06/09/how-to-create-interactive-droplet-like-metaballs-with-three-js-and-glsl/", "thumb": "metaballs", "links": [["ARTICLE", "https://tympanus.net/codrops/2025/06/09/how-to-create-interactive-droplet-like-metaballs-with-three-js-and-glsl/"], ["DEMO", "https://tympanus.net/Tutorials/InteractiveBubbleMetaballs/"], ["GITHUB", "https://github.com/koji014/interactive-droplets"]]}, {"id": "B03", "title": "WebGL Fluid Simulation", "maker": "Pavel Dobryakov", "kind": "build", "direction": "living-graph", "tags": ["fluid", "advection", "velocity", "webgl", "interaction"], "tldr": "Studiază cum gestul injectează viteză și densitate într-un câmp. Util pentru braindump, tranziții și legături care curg.", "steal": "Pointer-ul lasă impuls și câmpul îl propagă; folosește doar în zone controlate sau ca layer tranzitoriu.", "avoid": "Full-screen rainbow fluid. Fără palete multiple, fără blur, fără permanent background noise.", "source": "https://paveldogreat.github.io/WebGL-Fluid-Simulation/", "visual": "fluid", "links": [["DEMO", "https://paveldogreat.github.io/WebGL-Fluid-Simulation/"], ["GITHUB", "https://github.com/PavelDoGreat/WebGL-Fluid-Simulation"]]}, {"id": "B04", "title": "Shader Park", "maker": "Shader Park", "kind": "build", "direction": "living-graph", "tags": ["shader", "sdf", "prototyping", "3d", "creative-code"], "tldr": "Mediu rapid pentru prototiparea formelor SDF și a suprafețelor organice fără boilerplate WebGL masiv.", "steal": "Folosește-l pentru R&D vizual și pentru a găsi gramatici de formă înainte de implementarea finală.", "avoid": "Să devină runtime-ul obligatoriu al produsului fără audit de performanță și control.", "source": "https://shaderpark.com/", "visual": "sdf", "links": [["PLAYGROUND", "https://shaderpark.com/"], ["REFERENCE", "https://docs.shaderpark.com/references/"], ["GITHUB", "https://github.com/shader-park/shader-park-core"]]}, {"id": "B05", "title": "Hydra", "maker": "Olivia Jack", "kind": "build", "direction": "audio-organism", "tags": ["live-coding", "video-synth", "feedback", "webgl", "prototype"], "tldr": "Video-synth în browser pentru iterat rapid pe feedback, oscilații, modulații și audio-reactivitate.", "steal": "Prototipează stări, feedback loops și mappings audio; apoi portează numai limbajul vizual necesar.", "avoid": "Feedback psychedelic permanent și culori multiple. Brief-ul cere control și materie uscată.", "source": "https://hydra.ojack.xyz/", "visual": "hydra", "links": [["LIVE CODING", "https://hydra.ojack.xyz/"], ["GITHUB", "https://github.com/hydra-synth/hydra"], ["DOCS", "https://github.com/hydra-synth/hydra/blob/main/docs/README.md"]]}, {"id": "B06", "title": "OGL", "maker": "oframe", "kind": "build", "direction": "living-graph", "tags": ["webgl", "minimal", "shader-first", "zero-dependency"], "tldr": "Bibliotecă WebGL minimală pentru control aproape direct asupra shaderelor, fără suprafața mare a Three.js.", "steal": "Alege OGL când vizualul e shader-first și ai puține primitive, nu o scenă 3D complexă.", "avoid": "Să-l alegi doar pentru bundle mic dacă echipa nu vrea să scrie infrastructură grafică.", "source": "https://oframe.github.io/ogl/examples/", "visual": "wireframe", "links": [["EXAMPLES", "https://oframe.github.io/ogl/examples/"], ["GITHUB", "https://github.com/oframe/ogl"]]}, {"id": "B07", "title": "LYGIA Shader Library", "maker": "Patricio Gonzalez Vivo", "kind": "build", "direction": "living-graph", "tags": ["glsl", "wgsl", "noise", "sdf", "shader-functions"], "tldr": "Bibliotecă mare de funcții shader reutilizabile pentru noise, SDF, color, generative patterns și portare între limbaje.", "steal": "Nu rescrie noise/SDF de bază; compune funcții testate și păstrează shader-ele modulare.", "avoid": "Import masiv fără tree-shaking conceptual. Include doar funcțiile folosite.", "source": "https://github.com/patriciogonzalezvivo/lygia", "visual": "shader-code", "links": [["GITHUB", "https://github.com/patriciogonzalezvivo/lygia"], ["EXAMPLES", "https://github.com/patriciogonzalezvivo/lygia_examples"]]}, {"id": "B08", "title": "The Book of Shaders", "maker": "Patricio Gonzalez Vivo & Jen Lowe", "kind": "build", "direction": "living-graph", "tags": ["glsl", "noise", "patterns", "sdf", "learning"], "tldr": "Fundamentul pentru a înțelege noise, shapes, matrices și generative patterns înainte de a lipi fragmente GLSL.", "steal": "Capitolele Random, Noise și Shapes sunt baza pentru contururile organice și textura controlată.", "avoid": "Copiere de shader fără a lega parametrii de semnificația produsului.", "source": "https://thebookofshaders.com/", "visual": "book-shader", "links": [["BOOK", "https://thebookofshaders.com/"], ["GITHUB", "https://github.com/patriciogonzalezvivo/thebookofshaders"]]}, {"id": "B09", "title": "The Art of Dithering and Retro Shading", "maker": "Maxime Heckel", "kind": "build", "direction": "dither-material", "tags": ["dither", "shader", "bayer", "retro", "tutorial"], "tldr": "Explicație modernă și vizuală pentru integrarea dithering-ului în shader-e, nu doar procesare offline de imagini.", "steal": "Folosește dither ca material de randare și stare de degradare, cu matrice controlată la rezoluția device-ului.", "avoid": "Pixelation uniformă pe tot produsul. Dither-ul trebuie să aibă intensitate și scop.", "source": "https://blog.maximeheckel.com/posts/the-art-of-dithering-and-retro-shading-web/", "visual": "dither-code", "links": [["ARTICLE", "https://blog.maximeheckel.com/posts/the-art-of-dithering-and-retro-shading-web/"]]}, {"id": "B10", "title": "Real-time Dithering Shader", "maker": "Niccolò Fanton / Codrops", "kind": "build", "direction": "dither-material", "tags": ["real-time", "dither", "webgl", "shader", "postprocess"], "tldr": "Tutorial și cod pentru dithering în timp real, potrivit pentru preview-uri, state transitions și media procesată live.", "steal": "Aplică efectul la layer-ul de imagine sau selected node, nu ca postprocess global permanent.", "avoid": "Posterizare care reduce lizibilitatea textului și a task-urilor.", "source": "https://tympanus.net/codrops/2025/06/04/building-a-real-time-dithering-shader/", "visual": "dither-bars", "links": [["ARTICLE", "https://tympanus.net/codrops/2025/06/04/building-a-real-time-dithering-shader/"], ["GITHUB", "https://github.com/niccolofanton/dithering-shader"]]}, {"id": "B11", "title": "Bayer Dithering WebGL Demo", "maker": "zavalit", "kind": "build", "direction": "dither-material", "tags": ["bayer", "webgl", "ordered-dither", "stable-animation"], "tldr": "Implementare simplă de ordered dithering; utilă când animația trebuie să rămână stabilă între cadre.", "steal": "Bayer 4×4 sau 8×8 pentru decay, disabled states și imagini de knowledge base.", "avoid": "Matrice prea mare care devine pattern decorativ dominant.", "source": "https://github.com/zavalit/bayer-dithering-webgl-demo", "visual": "bayer", "links": [["GITHUB", "https://github.com/zavalit/bayer-dithering-webgl-demo"]]}, {"id": "B12", "title": "Paper Shaders — Dithering", "maker": "Paper", "kind": "build", "direction": "dither-material", "tags": ["shader", "dither", "copy-paste", "web"], "tldr": "Preset shader accesibil pentru explorare rapidă și validarea intensității/scalei de dither.", "steal": "Folosește-l ca benchmark vizual și prototip, apoi mută logica în pipeline-ul propriu.", "avoid": "Dependency nouă doar pentru un efect de 20 de linii.", "source": "https://shaders.paper.design/dithering", "visual": "paper-dither", "links": [["DEMO / CODE", "https://shaders.paper.design/dithering"]]}, {"id": "B13", "title": "Atkinson Dither", "maker": "gazs", "kind": "build", "direction": "dither-material", "tags": ["atkinson", "canvas", "1-bit", "crisp"], "tldr": "Canvas demo pentru Atkinson: dither mai aerisit și luminos, bun pentru gravuri și portrete 1-bit.", "steal": "Folosește-l la imagini arhaice și avatars/portraits, unde Floyd–Steinberg devine prea murdar.", "avoid": "Aplicare la text mic sau elemente funcționale.", "source": "https://gazs.github.io/canvas-atkinson-dither/", "visual": "atkinson", "links": [["DEMO", "https://gazs.github.io/canvas-atkinson-dither/"]]}, {"id": "B14", "title": "Dither Me This", "maker": "Doodad", "kind": "build", "direction": "dither-material", "tags": ["dither", "image-tool", "palette", "export"], "tldr": "Tool rapid pentru a genera probe de imagine și a decide algoritm, scară și contrast înainte de implementare.", "steal": "Construiește un mini test set cu 10 imagini reale din app și compară algoritmii în context.", "avoid": "Alegerea efectului pe baza unui singur hero image.", "source": "https://doodad.dev/dither-me-this/", "visual": "dither-poster", "links": [["TOOL", "https://doodad.dev/dither-me-this/"]]}, {"id": "B15", "title": "Dither It", "maker": "Dither It", "kind": "build", "direction": "dither-material", "tags": ["dither", "tool", "conversion", "texture"], "tldr": "Încă un comparator practic pentru conversie; util pentru surse fotografice și material archival.", "steal": "Testează pragul și contrastul pe fundalul real #0d0f14, nu pe canvas alb.", "avoid": "Prea multe stiluri amestecate. Alege 1 algoritm principal și 1 secundar.", "source": "https://ditherit.com/", "visual": "dither-lines", "links": [["TOOL", "https://ditherit.com/"]]}, {"id": "B16", "title": "d3-force", "maker": "D3 / Observable", "kind": "build", "direction": "living-graph", "tags": ["physics", "graph", "collision", "link-force", "canvas"], "tldr": "Motor de fizică pentru pozițiile nodurilor. Separă simularea de randare și poți desena în Canvas/Pixi/WebGL.", "steal": "Custom forces pentru gravitație semantică, repulsie, decay și „idei uitate” care ies lent din câmp.", "avoid": "SVG force graph clasic cu cercuri și linii drepte. Folosește doar fizica.", "source": "https://d3js.org/d3-force", "visual": "force-field", "links": [["DOCS", "https://d3js.org/d3-force"], ["GITHUB", "https://github.com/d3/d3-force"]]}, {"id": "B17", "title": "PixiJS", "maker": "PixiJS", "kind": "build", "direction": "living-graph", "tags": ["2d", "webgl", "webgpu", "particles", "filters", "ai-skill"], "tldr": "Cea mai pragmatică bază pentru un graph 2D viu: multe sprites/particles, Canvas-like API și shader filters.", "steal": "Pixi pentru randare, d3-force pentru poziții, simplex-noise pentru contur, custom shader pentru noduri.", "avoid": "Să tratezi nodurile ca sprites circulare. Generează meshes/contours organice.", "source": "https://pixijs.com/", "visual": "pixi", "links": [["SITE / DOCS", "https://pixijs.com/"], ["GITHUB", "https://github.com/pixijs/pixijs"], ["OFFICIAL AI SKILLS", "https://github.com/pixijs/pixijs-skills"]]}, {"id": "B18", "title": "React Three Fiber", "maker": "pmndrs", "kind": "build", "direction": "living-graph", "tags": ["react", "three.js", "webgl", "components", "3d"], "tldr": "Renderer React pentru Three.js. Potrivit dacă app-ul este deja React și ai scene 3D/shader-e complexe.", "steal": "Componente izolate pentru nod, field, tendril și selection state; folosește drei doar unde reduce cod real.", "avoid": "R3F pentru un graph 2D simplu. Pixi poate fi mai direct și mai ieftin.", "source": "https://r3f.docs.pmnd.rs/getting-started/introduction", "visual": "r3f", "links": [["DOCS", "https://r3f.docs.pmnd.rs/getting-started/introduction"], ["GITHUB", "https://github.com/pmndrs/react-three-fiber"], ["DREI", "https://drei.docs.pmnd.rs/"]]}, {"id": "B19", "title": "simplex-noise.js", "maker": "Jonas Wagner", "kind": "build", "direction": "living-graph", "tags": ["simplex-noise", "contour", "motion", "procedural", "tiny"], "tldr": "Noise mic și rapid pentru contururi organice, drift, puls și variație deterministă în Canvas/JS.", "steal": "Seed per node, amplitudine legată de activitate, frecvență legată de tip, decay legat de vechime.", "avoid": "Jitter random per frame. Folosește noise continuu în timp, nu random() brut.", "source": "https://github.com/jwagner/simplex-noise.js/", "visual": "noise-contour", "links": [["GITHUB / API", "https://github.com/jwagner/simplex-noise.js/"]]}, {"id": "A01", "title": "Tone.js", "maker": "Tone.js", "kind": "audio", "direction": "audio-organism", "tags": ["web-audio", "scheduling", "synthesis", "interactive-music"], "tldr": "Framework Web Audio pentru timing, transport, synths și efecte. Util dacă goblin-ul generează sau sincronizează sunet.", "steal": "Leagă stări și feedback de un transport coerent; ține sunetul opțional și non-intruziv.", "avoid": "Nu e obligatoriu dacă doar citești microfon/audio. Pentru analiză, Meyda + Web Audio pot fi suficiente.", "source": "https://tonejs.github.io/", "visual": "waveform", "links": [["SITE", "https://tonejs.github.io/"], ["DOCS", "https://tonejs.github.io/docs/"], ["GITHUB", "https://github.com/Tonejs/Tone.js"]]}, {"id": "A02", "title": "Meyda", "maker": "Meyda", "kind": "audio", "direction": "audio-organism", "tags": ["audio-features", "rms", "spectral-centroid", "realtime", "web-audio"], "tldr": "Extrage features audio în timp real. Exact puntea dintre frecvență și parametri vizuali.", "steal": "RMS → amplitudine/puls; spectral centroid → asperitate; flux → nervozitate; bands → lobes/tendrils.", "avoid": "Mapping 1:1 fără smoothing. Normalizează, filtrează și limitează reacția vizuală.", "source": "https://meyda.js.org/", "visual": "spectrum", "links": [["DOCS", "https://meyda.js.org/"], ["GITHUB", "https://github.com/meyda/meyda"]]}, {"id": "A03", "title": "p5.sound", "maker": "p5.js", "kind": "audio", "direction": "audio-organism", "tags": ["prototype", "fft", "amplitude", "creative-code", "education"], "tldr": "Cea mai rapidă cale pentru prototipuri audio-reactive și teste de FFT/amplitude fără infrastructură grea.", "steal": "Faceți 5 sketch-uri independente pentru mappings; nu încercați să construiți produsul direct în p5.", "avoid": "Canvas demo monolitic greu de integrat cu aplicația.", "source": "https://p5js.org/reference/p5.sound/", "visual": "radial-wave", "links": [["REFERENCE", "https://p5js.org/reference/p5.sound/"], ["EDITOR", "https://editor.p5js.org/"]]}, {"id": "A04", "title": "Web Audio API", "maker": "W3C / MDN", "kind": "audio", "direction": "audio-organism", "tags": ["browser-api", "analyser-node", "audio-worklet", "foundation"], "tldr": "Baza nativă pentru input, analiză și procesare audio. AnalyserNode poate alimenta vizualurile fără framework complet.", "steal": "Folosește AudioWorklet pentru procesare serioasă și AnalyserNode pentru MVP vizual.", "avoid": "Procesare grea pe main thread și permisiuni audio cerute fără context clar.", "source": "https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API", "visual": "audio-nodes", "links": [["MDN", "https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API"], ["SPEC", "https://webaudio.github.io/web-audio-api/"]]}, {"id": "M01", "title": "GSAP", "maker": "GreenSock", "kind": "motion", "direction": "motion-grammar", "tags": ["timeline", "cascade", "svg", "canvas", "webgl", "ai-skill"], "tldr": "Pentru coregrafie precisă: cascade, interruptions, morphing, timelines și feedback legat de canvas/WebGL.", "steal": "Un singur timeline pentru acțiune: 0–90 ms impact, 90–260 ms propagare, 260–520 ms settle.", "avoid": "Scroll spectacle și easing-uri diferite peste tot. Definește 3 curbe de mișcare canonice.", "source": "https://gsap.com/docs/v3/", "visual": "timeline", "links": [["DOCS", "https://gsap.com/docs/v3/"], ["GITHUB", "https://github.com/greensock/gsap"], ["OFFICIAL AI SKILLS", "https://github.com/greensock/gsap-skills"]]}, {"id": "M02", "title": "Motion", "maker": "Motion.dev", "kind": "motion", "direction": "motion-grammar", "tags": ["react", "microinteraction", "spring", "stagger", "svg"], "tldr": "Opțiunea mai simplă pentru micro-interacțiuni React/DOM/SVG. Bună pentru feedback sub 600 ms și layout transitions.", "steal": "Folosește Motion pentru UI shell și GSAP doar dacă scena procedurală cere timeline complex.", "avoid": "Două librării de animație fără delimitare clară.", "source": "https://motion.dev/docs", "visual": "spring", "links": [["DOCS", "https://motion.dev/docs"], ["EXAMPLES", "https://motion.dev/examples"], ["GITHUB", "https://github.com/motiondivision/motion"]]}, {"id": "T01", "title": "Monome norns", "maker": "monome", "kind": "tool", "direction": "tool-not-product", "tags": ["instrument", "minimal-ui", "scripts", "hardware", "community"], "tldr": "Referință puternică pentru „tool viu”: suprafață redusă, feedback direct, scriptabilitate și identitate fără chrome SaaS.", "steal": "Puține controale, fiecare dens semantic; stări vizibile ca instrument, nu ca onboarding explicativ.", "avoid": "Obscuritate totală. ADHD_GOBLIN trebuie să fie straniu, dar recuperabil și accesibil.", "source": "https://monome.org/docs/norns/", "visual": "norns", "links": [["DOCS", "https://monome.org/docs/norns/"], ["GITHUB", "https://github.com/monome/norns"]]}, {"id": "T02", "title": "VCV Rack", "maker": "VCV", "kind": "tool", "direction": "tool-not-product", "tags": ["modular", "patching", "signal-flow", "instrument", "open-source"], "tldr": "Referință pentru relații vizibile și manipulabile: patching, signal flow, module distincte și feedback permanent.", "steal": "Conexiunea trebuie să pară activă și să poată fi urmărită; nodurile au personalitate locală, nu carduri identice.", "avoid": "Cabluri literal skeuomorfe și aglomerație de knobs.", "source": "https://vcvrack.com/", "visual": "patch-cables", "links": [["SITE", "https://vcvrack.com/"], ["MANUAL", "https://vcvrack.com/manual/"], ["GITHUB", "https://github.com/VCVRack/Rack"]]}, {"id": "T03", "title": "Max / MSP / Jitter", "maker": "Cycling '74", "kind": "tool", "direction": "tool-not-product", "tags": ["visual-programming", "audio", "video", "patcher", "prototype"], "tldr": "Mediu de patching pentru a prototipa relația dintre semnal, logică și vizual în mod explicit.", "steal": "Gândește interacțiunea ca patch: eveniment → transformări → feedback → stare, nu ca „screen navigation”.", "avoid": "Estetica de patcher copiată literal în produs.", "source": "https://docs.cycling74.com/userguide/", "visual": "patcher", "links": [["USER GUIDE", "https://docs.cycling74.com/userguide/"], ["DOCS", "https://docs.cycling74.com/"], ["A/V TOOLBOX", "https://cycling74.com/packages/av-toolbox"]]}, {"id": "T04", "title": "TouchDesigner — Audio Reactive", "maker": "Derivative", "kind": "tool", "direction": "audio-organism", "tags": ["audio-reactive", "node-based", "visual-rd", "realtime"], "tldr": "Laborator excelent pentru a găsi mappings audio/visual și motion grammar înainte de portarea pe web.", "steal": "Prototipează 10 mappings rapid, înregistrează-le, apoi implementează doar 2–3 care comunică stări reale.", "avoid": "Export video ca substitut pentru interacțiune reală.", "source": "https://derivative.ca/tags/audio-reactive", "visual": "touchdesigner", "links": [["AUDIO-REACTIVE WORK", "https://derivative.ca/tags/audio-reactive"], ["DOCS", "https://docs.derivative.ca/"]]}, {"id": "T05", "title": "Warp", "maker": "Warp", "kind": "tool", "direction": "tool-not-product", "tags": ["terminal", "keyboard", "dark-ui", "command", "tool"], "tldr": "Referință pentru densitate, input-first și feedback rapid într-un shell modern.", "steal": "Comenzi, shortcuts și rezultate grupate; interacțiunea principală poate fi tastatura, nu click-ul.", "avoid": "Block UI prea curat și product-polish corporate.", "source": "https://www.warp.dev/", "visual": "terminal", "links": [["SITE", "https://www.warp.dev/"]]}, {"id": "T06", "title": "Raycast", "maker": "Raycast", "kind": "tool", "direction": "tool-not-product", "tags": ["command-palette", "keyboard", "fast-feedback", "dark-ui"], "tldr": "Model bun pentru un command layer foarte rapid și predictibil, fără a domina experiența vizuală.", "steal": "Global command palette pentru dump, capture, re-link, snooze, ask goblin.", "avoid": "Să arate ca un launcher cu liste identice și iconițe colorate.", "source": "https://www.raycast.com/", "visual": "command", "links": [["SITE", "https://www.raycast.com/"]]}, {"id": "T07", "title": "Arc Browser", "maker": "The Browser Company", "kind": "tool", "direction": "tool-not-product", "tags": ["browser", "spatial", "sidebar", "context", "dark-ui"], "tldr": "Referință pentru context, spaces și navigație care se simte ca mediu de lucru, nu website.", "steal": "Context persistent și suprafețe care se mută fără reload mental; spații distincte pentru tipuri de gândire.", "avoid": "Sidebar permanent lat și decor colorat pe fiecare space.", "source": "https://arc.net/", "visual": "arc", "links": [["SITE", "https://arc.net/"]]}, {"id": "F01", "title": "Instrument Serif", "maker": "Instrument / Google Fonts", "kind": "type", "direction": "typographic-voice", "tags": ["display-serif", "editorial", "condensed", "open-source"], "tldr": "Display serif cu suficientă personalitate pentru titluri și microcopy cinic, fără să cadă în horror/gothic.", "steal": "Titluri foarte mari, italic folosit rar pentru sarcasm și contraste dure cu mono.", "avoid": "Body copy lung în serif condensat.", "source": "https://fonts.google.com/specimen/Instrument+Serif", "visual": "font-serif", "links": [["SPECIMEN", "https://fonts.google.com/specimen/Instrument+Serif"]]}, {"id": "F02", "title": "Bodoni Moda", "maker": "Google Fonts", "kind": "type", "direction": "typographic-voice", "tags": ["didone", "display-serif", "high-contrast", "open-source"], "tldr": "Alternativă Didone mai apropiată de tensiunea Hermes: contrast mare și aer editorial/ritualic.", "steal": "Folosește pentru chapter titles, numbers și mesaje scurte de sistem.", "avoid": "Dimensiuni mici sau text dens; devine fragil pe ecrane slabe.", "source": "https://fonts.google.com/specimen/Bodoni+Moda", "visual": "font-didone", "links": [["SPECIMEN", "https://fonts.google.com/specimen/Bodoni+Moda"]]}, {"id": "F03", "title": "Fraunces", "maker": "Google Fonts", "kind": "type", "direction": "typographic-voice", "tags": ["variable-serif", "quirky", "soft-sharp", "open-source"], "tldr": "Alternativă mai „goblin”: variabilă, ciudată, cu axe care permit o personalitate mai instabilă.", "steal": "Folosește variabilitatea pentru stări — wonky/softness discret, nu animație continuă.", "avoid": "Look jucăuș sau friendly. Ține greutatea și culoarea severe.", "source": "https://fonts.google.com/specimen/Fraunces", "visual": "font-fraunces", "links": [["SPECIMEN", "https://fonts.google.com/specimen/Fraunces"]]}, {"id": "F04", "title": "Commit Mono", "maker": "Eigil Nikolajsen", "kind": "type", "direction": "typographic-voice", "tags": ["mono", "code", "neutral", "open-source"], "tldr": "Mono foarte controlat și discret; bun pentru body, metadata, logs și copy tehnic fără vibe de IDE mainstream.", "steal": "Body 13–15 px, tracking ușor deschis, uppercase pentru labels și timestamps.", "avoid": "Să fie prea neutru în titluri; contrastează-l cu serif-ul expresiv.", "source": "https://commitmono.com/", "visual": "font-mono", "links": [["SPECIMEN", "https://commitmono.com/"], ["GITHUB", "https://github.com/eigilnikolajsen/commit-mono"]]}, {"id": "F05", "title": "IBM Plex Mono", "maker": "IBM", "kind": "type", "direction": "typographic-voice", "tags": ["mono", "technical", "ui", "open-source", "romanian"], "tldr": "Fallback matur, robust și foarte lizibil pentru diacritice, knowledge text și interfață tehnică.", "steal": "Folosește-l unde Commit Mono pare prea anonim sau ai nevoie de o familie completă.", "avoid": "Pairing cu IBM Plex Sans peste tot; ar muta direcția spre enterprise.", "source": "https://www.ibm.com/plex/", "visual": "font-plex", "links": [["SPECIMEN", "https://www.ibm.com/plex/"], ["GITHUB", "https://github.com/IBM/plex"], ["GOOGLE FONTS", "https://fonts.google.com/specimen/IBM+Plex+Mono"]]}, {"id": "F06", "title": "Velvetyne Type Foundry", "maker": "VTF", "kind": "type", "direction": "typographic-voice", "tags": ["experimental-type", "libre", "display", "grunge"], "tldr": "Foundry libre (OFL) cu cele mai bune fonturi 'stranii' gratuite. Nu un singur font — o sursă. Priorități pentru goblin: Basteleur (F07), Avara (F08), Pilowlava (display organic/blob).", "steal": "Basteleur = display-ul occult-machine (tarot, medieval × Cooper Black). Avara = serif editorial ascuțit. Pilowlava = display organic pentru accente și wordmark experimental.", "avoid": "Mai mult de două familii display. Velvetyne e pentru wordmark/chapter art, nu pentru întregul UI.", "source": "https://velvetyne.fr/", "visual": "font-experimental", "links": [["FOUNDRY", "https://velvetyne.fr/"]]}, {"id": "F07", "title": "Basteleur", "maker": "Keussel / Velvetyne", "kind": "type", "direction": "typographic-voice", "tags": ["tarot", "medieval", "display-serif", "cooper-black", "ofl", "free"], "tldr": "Display serif conceput pentru Tarot de Marseille — un amestec de medieval și Cooper Black. Două greutăți: Bold (moale, lat) și Moonlight (mai ușor, mai ascuțit). Gratuit, OFL.", "steal": "Wordmark și chapter titles. Arcana Basteleur înseamnă 'începuturi noi, meșteșug, dar și lipsă de încredere și proiecte neterminate' — literalmente descrierea ADHD-ului. Bold pentru titluri mari, Moonlight pentru subtitluri.", "avoid": "Body text. E prea lat și prea plin de personalitate pentru paragrafe sau UI dens.", "source": "https://velvetyne.fr/fonts/basteleur/", "visual": "font-basteleur", "links": [["SPECIMEN", "https://velvetyne.fr/fonts/basteleur/"], ["DOWNLOAD", "https://velvetyne.fr/fonts/basteleur/"]]}, {"id": "F08", "title": "Avara", "maker": "Raphaël Bastide et al. / Velvetyne", "kind": "type", "direction": "typographic-voice", "tags": ["editorial-serif", "sharp", "variable", "ofl", "free"], "tldr": "Serif editorial ascuțit, cu axe variabile, folosit în publicații reale (The Table Review). Mai disciplinat decât Instrument Serif, mai mult caracter decât Bodoni Moda.", "steal": "Display principal alternativ pentru titluri și pull-quotes. Axele variabile permit ajustarea fineții — titlurile pot deveni mai 'tăioase' pe măsură ce un task devine mai urgent sau mai vechi.", "avoid": "Nu-l amesteca cu Basteleur în același ecran. Alege unul singur ca display principal.", "source": "https://velvetyne.fr/fonts/avara/", "visual": "font-avara", "links": [["SPECIMEN", "https://velvetyne.fr/fonts/avara/"], ["IN USE", "https://thetablereview.com/colophon"]]}, {"id": "F09", "title": "Departure Mono", "maker": "departuremono.com", "kind": "type", "direction": "typographic-voice", "tags": ["pixel-font", "mono", "lo-fi", "terminal", "free"], "tldr": "Mono pixelat, lo-fi tehnic. Arată ca un font bitmap din 1998 dar scalează curat (grid de 550 units, nu bitmap real). Gratuit. Fără italic — și nu are nevoie.", "steal": "Labels, timestamps, status, counters, metadata — tot ce e 'system text'. Aduce vibe-ul de terminal/instrument fără retro-kitsch. Folosește dimensiuni multiplu de 11px ca pixelii să rămână ascuțiți.", "avoid": "Body text lung sau text sub 11px. E pentru semnal și etichete, nu pentru paragrafe.", "source": "https://departuremono.com/", "visual": "font-departure", "links": [["SITE / DOWNLOAD", "https://departuremono.com/"]]}, {"id": "F10", "title": "Fragment Mono", "maker": "Weiwei Huang", "kind": "type", "direction": "typographic-voice", "tags": ["mono", "editorial", "warm", "free"], "tldr": "Mono cu o căldură subtilă, aproape handmade în terminalele literelor. Excelent pentru editorial și cod deopotrivă. Gratuit.", "steal": "Alternativă pentru body/mono UI unde Commit Mono pare prea anonim și Departure Mono prea pixelat. Bun pentru knowledge text, descrieri și copy-ul cinic al goblin-ului.", "avoid": "Nu-l folosi pentru labels tehnice dense — acolo Departure Mono sau Commit Mono sunt mai clare.", "source": "https://github.com/weiweihuanghuang/fragment-mono", "visual": "font-fragment", "links": [["GITHUB / DOWNLOAD", "https://github.com/weiweihuanghuang/fragment-mono"]]}];
+const TILES = [{"cls": "x2 y2", "id": "00", "title": "SEED / HERMES DNA", "caption": "Archaic image × engineering copy × modular tension", "url": "https://hermes-agent.nousresearch.com/", "img": "seed"}, {"cls": "x1 y2", "id": "01", "title": "HERMES AGENT", "caption": "Didone, mono, engraving, hard grid", "url": "https://hermes-agent.nousresearch.com/", "img": "hermes"}, {"cls": "x1 y1", "id": "02", "title": "ASCII SHADER", "caption": "Tool-first distortion, exportable state", "url": "https://x.com/isaaczara_/status/2033470249597903043", "visual": "ascii"}, {"cls": "x1 y1", "id": "03", "title": "DATAMATICS", "caption": "Signal density and diagnostic severity", "url": "https://www.ryojiikeda.com/project/datamatics/", "img": "ryoji"}, {"cls": "x2 y1", "id": "04", "title": "GNARL / KLSR", "caption": "Particle tension, filament edges, living field", "url": "https://visualatelier8.com/klsr-audiovisual-experiences-interview/", "img": "klsr"}, {"cls": "x1 y1", "id": "05", "title": "CYMATICS / CHLADNI", "caption": "Frequency produces matter", "url": "https://nigelstanford.com/cymatics/", "img": "chladni"}, {"cls": "x1 y2", "id": "06", "title": "HAECKEL", "caption": "Biological taxonomy processed into 1-bit evidence", "url": "https://commons.wikimedia.org/wiki/File:Haeckel_Actiniae.jpg", "img": "haeckel"}, {"cls": "x1 y1", "id": "07", "title": "FERROFLUID", "caption": "Instability, peaks, surface under force", "url": "https://nigelstanford.com/cymatics/", "img": "ferro"}, {"cls": "x1 y1", "id": "08", "title": "DROPLET METABALLS", "caption": "Smooth-min + noise + pointer trail", "url": "https://tympanus.net/codrops/2025/06/09/how-to-create-interactive-droplet-like-metaballs-with-three-js-and-glsl/", "img": "metaballs"}, {"cls": "x2 y1", "id": "09", "title": "ENDEL", "caption": "One active generative state; restrained shell", "url": "https://endel.io/", "img": "endel"}, {"cls": "x1 y1", "id": "10", "title": "SKETCH DESIGN CLUB", "caption": "Audio-reactive particles and automations", "url": "https://sketchdesign.club/", "visual": "particles"}, {"cls": "x1 y1", "id": "11", "title": "CONTENT ARCHITECTURE", "caption": "Editorial knowledge without dashboard chrome", "url": "https://www.contentarchitecture.dev/", "visual": "editorial"}, {"cls": "x1 y1", "id": "12", "title": "POLYGON", "caption": "Spatial composition, broken framing", "url": "https://polygon.barthkosi.com/", "visual": "polygon"}, {"cls": "x1 y1", "id": "13", "title": "PARAMETRIC VARIATION", "caption": "Systemic outputs, not finite assets", "url": "https://onformative.com/expertise/generative-design/", "img": "onformative"}];
+
+const escapeHTML = (value='') => String(value).replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+
+function tileMarkup(t) {
+  const media = t.img
+    ? `<img src="${ASSETS[t.img]}" alt="${escapeHTML(t.title)}" loading="lazy">`
+    : `<div class="visual ${escapeHTML(t.visual || 'ascii')}" aria-hidden="true"></div>`;
+  return `<a class="tile ${escapeHTML(t.cls)}" href="${escapeHTML(t.url)}" target="_blank" rel="noopener noreferrer">
+    ${media}
+    <span class="tile-label"><span class="n">${escapeHTML(t.id)}</span><span><strong>${escapeHTML(t.title)}</strong><small>${escapeHTML(t.caption)}</small></span></span>
+  </a>`;
+}
+document.querySelector('#mosaic').innerHTML = TILES.map(tileMarkup).join('');
+
+const visualClass = {
+  'ascii':'mv-ascii','dither-grid':'mv-dither-grid','polygon':'mv-polygon','editorial':'mv-editorial','particles':'mv-particles',
+  'reaction':'mv-reaction','living-form':'mv-living-form','kinetic-type':'mv-kinetic-type','metaball-code':'mv-metaball-code',
+  'fluid':'mv-fluid','sdf':'mv-sdf','hydra':'mv-hydra','wireframe':'mv-wireframe','shader-code':'mv-shader-code',
+  'book-shader':'mv-book-shader','dither-code':'mv-dither-code','dither-bars':'mv-dither-bars','bayer':'mv-bayer',
+  'paper-dither':'mv-paper-dither','atkinson':'mv-atkinson','dither-poster':'mv-dither-poster','dither-lines':'mv-dither-lines',
+  'force-field':'mv-force-field','pixi':'mv-pixi','r3f':'mv-r3f','noise-contour':'mv-noise-contour','waveform':'mv-waveform',
+  'spectrum':'mv-spectrum','radial-wave':'mv-radial-wave','audio-nodes':'mv-audio-nodes','timeline':'mv-timeline','spring':'mv-spring',
+  'norns':'mv-norns','patch-cables':'mv-patch-cables','patcher':'mv-patcher','touchdesigner':'mv-touchdesigner','terminal':'mv-terminal',
+  'command':'mv-command','arc':'mv-arc','font-serif':'mv-font-serif','font-didone':'mv-font-didone','font-fraunces':'mv-font-fraunces',
+  'font-mono':'mv-font-mono','font-plex':'mv-font-plex','font-experimental':'mv-font-experimental'
+};
+function sourceCard(s) {
+  const preview = s.thumb
+    ? `<img src="${ASSETS[s.thumb]}" alt="" loading="lazy">`
+    : `<div class="mini-visual ${visualClass[s.visual] || 'mv-noise-contour'}" aria-hidden="true"></div>`;
+  const links = (s.links || []).map(([label,url]) => `<a href="${escapeHTML(url)}" target="_blank" rel="noopener noreferrer" data-inner-link>${escapeHTML(label)}</a>`).join('');
+  const tags = (s.tags || []).slice(0,6).map(t => `<span class="tag">${escapeHTML(t)}</span>`).join('');
+  const search = [s.title,s.maker,s.kind,s.direction,...(s.tags||[]),s.tldr,s.steal].join(' ').toLowerCase();
+  return `<article class="source-card" tabindex="0" role="link" data-kind="${escapeHTML(s.kind)}" data-search="${escapeHTML(search)}" data-source="${escapeHTML(s.source)}">
+    <div class="source-preview">${preview}</div>
+    <div class="source-top"><div class="source-id">${escapeHTML(s.id)}</div><div class="source-title"><h3>${escapeHTML(s.title)}</h3><p>${escapeHTML(s.maker)} / ${escapeHTML(s.direction)}</p></div></div>
+    <div class="source-body"><p class="tldr">${escapeHTML(s.tldr)}</p><dl><div><dt>STEAL</dt><dd>${escapeHTML(s.steal)}</dd></div><div><dt>AVOID</dt><dd>${escapeHTML(s.avoid)}</dd></div></dl></div>
+    <div><div class="tag-row">${tags}</div><div class="source-links">${links}</div></div>
+  </article>`;
+}
+const grid = document.querySelector('#source-grid');
+grid.innerHTML = SOURCES.map(sourceCard).join('');
+
+// Whole-card source navigation; nested docs/demo links remain independent.
+grid.addEventListener('click', e => {
+  if (e.target.closest('[data-inner-link]')) return;
+  const card = e.target.closest('.source-card');
+  if (card) window.open(card.dataset.source, '_blank', 'noopener,noreferrer');
+});
+grid.addEventListener('keydown', e => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('source-card')) {
+    e.preventDefault();
+    window.open(e.target.dataset.source, '_blank', 'noopener,noreferrer');
+  }
+});
+
+let activeFilter = 'all';
+const searchInput = document.querySelector('#search');
+const filterButtons = [...document.querySelectorAll('[data-filter]')];
+function applyFilter() {
+  const q = searchInput.value.trim().toLowerCase();
+  let visible = 0;
+  document.querySelectorAll('.source-card').forEach(card => {
+    const kindOk = activeFilter === 'all' || card.dataset.kind === activeFilter;
+    const queryOk = !q || card.dataset.search.includes(q);
+    const show = kindOk && queryOk;
+    card.classList.toggle('hidden', !show);
+    if (show) visible++;
+  });
+  document.querySelector('#result-count').textContent = `${visible} / ${SOURCES.length} sources`;
+}
+filterButtons.forEach(btn => btn.addEventListener('click', () => {
+  activeFilter = btn.dataset.filter;
+  filterButtons.forEach(b => b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'));
+  applyFilter();
+}));
+searchInput.addEventListener('input', applyFilter);
+applyFilter();
+
+// Living node field: irregular contours, curved tendrils, pointer impulse and decay. No glow or blur.
+(() => {
+  const canvas = document.querySelector('#neural-field');
+  const ctx = canvas.getContext('2d');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let dpr = Math.min(window.devicePixelRatio || 1, 2);
+  let w = 0, h = 0, raf = 0, start = performance.now();
+  const pointer = {x:-9999,y:-9999,down:false};
+  const nodes = Array.from({length: 11}, (_,i) => ({
+    x: .12 + ((i*0.173)%0.76),
+    y: .12 + ((i*0.271)%0.68),
+    r: 8 + (i%4)*4,
+    phase: i*1.91,
+    age: 1 - i*.055,
+    vx: 0,
+    vy: 0,
+  }));
+  const pulses = [];
+  function resize() {
+    const rect = canvas.getBoundingClientRect();
+    w = rect.width; h = rect.height;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.max(1, Math.round(w*dpr));
+    canvas.height = Math.max(1, Math.round(h*dpr));
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  function blobPath(x,y,r,t,phase) {
+    const pts = 12;
+    ctx.beginPath();
+    for(let k=0;k<=pts;k++) {
+      const a = (k%pts)/pts*Math.PI*2;
+      const wobble = 1 + .18*Math.sin(a*3 + t*1.6 + phase) + .09*Math.sin(a*5 - t*.9 + phase*2);
+      const px = x + Math.cos(a)*r*wobble;
+      const py = y + Math.sin(a)*r*(.82 + .13*Math.sin(t+phase))*wobble;
+      if(k===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+    }
+    ctx.closePath();
+  }
+  function draw(now) {
+    const t = (now-start)/1000;
+    ctx.clearRect(0,0,w,h);
+    const points = nodes.map((n,i) => {
+      let x = n.x*w + Math.sin(t*.22+n.phase)*18;
+      let y = n.y*h + Math.cos(t*.17+n.phase)*14;
+      const dx = pointer.x-x, dy = pointer.y-y, d = Math.hypot(dx,dy);
+      if(d < 170) { const f=(170-d)/170; x -= dx*f*.035; y -= dy*f*.035; }
+      return {...n,x,y};
+    });
+    // Tendrils: curved, low-opacity, no straight-line graph aesthetic.
+    ctx.lineWidth = 1;
+    for(let i=0;i<points.length;i++) {
+      const a=points[i], b=points[(i+3)%points.length];
+      const mx=(a.x+b.x)/2 + Math.sin(t*.4+i)*28;
+      const my=(a.y+b.y)/2 + Math.cos(t*.35+i)*22;
+      ctx.strokeStyle=`rgba(184,255,56,${.035 + .035*a.age})`;
+      ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.quadraticCurveTo(mx,my,b.x,b.y);ctx.stroke();
+    }
+    points.forEach((p,i) => {
+      const proximity = Math.max(0,1-Math.hypot(pointer.x-p.x,pointer.y-p.y)/180);
+      const r=p.r*(1+proximity*.6)*(1+.08*Math.sin(t*1.4+p.phase));
+      blobPath(p.x,p.y,r,t,p.phase);
+      ctx.fillStyle=`rgba(184,255,56,${.42*p.age + proximity*.38})`;
+      ctx.fill();
+      if(i%3===0) { ctx.strokeStyle=`rgba(241,240,233,${.12*p.age})`;ctx.stroke(); }
+    });
+    for(let i=pulses.length-1;i>=0;i--) {
+      const p=pulses[i]; p.life -= .028;
+      const rr=(1-p.life)*92;
+      blobPath(p.x,p.y,rr,t,p.seed);
+      ctx.strokeStyle=`rgba(184,255,56,${Math.max(0,p.life)*.45})`;
+      ctx.stroke();
+      if(p.life<=0) pulses.splice(i,1);
+    }
+    if(!reduced) raf=requestAnimationFrame(draw);
+  }
+  canvas.addEventListener('pointermove',e=>{const r=canvas.getBoundingClientRect();pointer.x=e.clientX-r.left;pointer.y=e.clientY-r.top;});
+  canvas.addEventListener('pointerleave',()=>{pointer.x=-9999;pointer.y=-9999;});
+  canvas.addEventListener('pointerdown',e=>{const r=canvas.getBoundingClientRect();pulses.push({x:e.clientX-r.left,y:e.clientY-r.top,life:1,seed:Math.random()*8});});
+  window.addEventListener('resize',resize,{passive:true});
+  resize(); draw(performance.now());
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+/* Local font faces — generated, do not hand-edit.
+
+   Every face below was verified against its own binary for Romanian
+   comma-below (U+0218/0219/021A/021B) plus Ă Â Î, by reading the cmap out of
+   the shipped file. Marketing copy was not trusted. Two exceptions are marked
+   ASCII-ONLY and are used exclusively on the wordmark.
+
+   Rule: no CDN, no silent fallback. v2 listed ten fonts and loaded two, so
+   every specimen in its type atlas rendered in a substitute and lied. */
+
+@font-face{
+  font-family:"Newsreader";
+  src:url("../fonts/Newsreader_opsz-wght.woff2") format("woff2");
+  font-weight:200 800;
+  font-style:normal;
+  font-display:block;
+}
+
+@font-face{
+  font-family:"Newsreader";
+  src:url("../fonts/Newsreader-Italic_opsz-wght.woff2") format("woff2");
+  font-weight:200 800;
+  font-style:italic;
+  font-display:block;
+}
+
+@font-face{
+  font-family:"Martian Mono";
+  src:url("../fonts/MartianMono_wdth-wght.woff2") format("woff2");
+  font-weight:100 800;
+  font-style:normal;
+  font-display:block;
+}
+
+@font-face{
+  font-family:"Doto";
+  src:url("../fonts/Doto_ROND-wght.woff2") format("woff2");
+  font-weight:100 900;
+  font-style:normal;
+  font-display:block;
+}
+
+@font-face{
+  font-family:"Handjet";
+  src:url("../fonts/Handjet_ELGR-ELSH-wght.woff2") format("woff2");
+  font-weight:100 900;
+  font-style:normal;
+  font-display:block;
+}
+
+@font-face{
+  font-family:"Jacquard 12";
+  src:url("../fonts/Jacquard12-Regular.woff2") format("woff2");
+  font-weight:400;
+  font-style:normal;
+  font-display:block;
+}
+
+@font-face{
+  font-family:"Micro 5";
+  src:url("../fonts/Micro5-Regular.woff2") format("woff2");
+  font-weight:400;
+  font-style:normal;
+  font-display:block;
+}
+
+@font-face{
+  font-family:"Jacquarda Bastarda 9";
+  src:url("../fonts/JacquardaBastarda9-Regular.woff2") format("woff2");
+  font-weight:400;
+  font-style:normal;
+  font-display:block;
+}
+
+@font-face{
+  font-family:"Gloock";
+  src:url("../fonts/Gloock-Regular.woff2") format("woff2");
+  font-weight:400;
+  font-style:normal;
+  font-display:block;
+}
+
+@font-face{
+  font-family:"Grenze Gotisch";
+  src:url("../fonts/GrenzeGotisch_wght.woff2") format("woff2");
+  font-weight:100 900;
+  font-style:normal;
+  font-display:block;
+}
+
+@font-face{
+  font-family:"Pirata One";
+  src:url("../fonts/PirataOne-Regular.woff2") format("woff2");
+  font-weight:400;
+  font-style:normal;
+  font-display:block;
+}
+
+@font-face{
+  font-family:"Bricolage Grotesque";
+  src:url("../fonts/BricolageGrotesque_opsz-wdth-wght.woff2") format("woff2");
+  font-weight:200 800;
+  font-style:normal;
+  font-display:block;
+}
+
+@font-face{
+  font-family:"Syne";
+  src:url("../fonts/Syne_wght.woff2") format("woff2");
+  font-weight:400 800;
+  font-style:normal;
+  font-display:block;
+}
+
+@font-face{
+  font-family:"Eczar";
+  src:url("../fonts/Eczar_wght.woff2") format("woff2");
+  font-weight:400 800;
+  font-style:normal;
+  font-display:block;
+}
+
+@font-face{
+  font-family:"Workbench";
+  src:url("../fonts/Workbench_BLED-SCAN.woff2") format("woff2");
+  font-weight:400;
+  font-style:normal;
+  font-display:block;
+}
+
+@font-face{
+  font-family:"Departure Mono";
+  src:url("../fonts/DepartureMono-Regular.woff2") format("woff2");
+  font-weight:400;
+  font-style:normal;
+  font-display:block;
+}
+
+@font-face{
+  font-family:"Fragment Mono";
+  src:url("../fonts/FragmentMono-Regular.woff2") format("woff2");
+  font-weight:400;
+  font-style:normal;
+  font-display:block;
+}
+
+@font-face{
+  font-family:"Basteleur";
+  src:url("../fonts/basteleur-moonlight.woff2") format("woff2");
+  font-weight:400;
+  font-style:normal;
+  font-display:block;
+}
+
+@font-face{
+  font-family:"Basteleur";
+  src:url("../fonts/basteleur-bold.woff2") format("woff2");
+  font-weight:700;
+  font-style:normal;
+  font-display:block;
+}
+
+@font-face{
+  font-family:"Sligoil";
+  src:url("../fonts/sligoil-micro.woff2") format("woff2");
+  font-weight:400;
+  font-style:normal;
+  font-display:block;
+}
+
+@font-face{
+  font-family:"Fungal";
+  src:url("../fonts/fungal-grow0thickness500.woff2") format("woff2");
+  font-weight:400;
+  font-style:normal;
+  font-display:block;
+}
+
+@font-face{
+  font-family:"Fungal Grown";
+  src:url("../fonts/fungal-grow1000thickness500.woff2") format("woff2");
+  font-weight:400;
+  font-style:normal;
+  font-display:block;
+}
+
+
+/* 22 faces, 2110 KB total, all local */

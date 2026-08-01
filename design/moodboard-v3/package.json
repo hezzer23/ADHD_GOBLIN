@@ -1,0 +1,16 @@
+{
+  "name": "moodboard-v3",
+  "version": "1.0.0",
+  "description": "Moodboard explorativ cu demo-uri live. Nu e UI spec, e banc de test: fiecare direcție care se poate demonstra are un canvas cu parametri, iar dacă nu se poate demonstra, nu intră.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@lucasmarkes/motes": "^0.2.0"
+  }
+}

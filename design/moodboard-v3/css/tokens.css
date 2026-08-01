@@ -1,0 +1,97 @@
+/* ADHD_GOBLIN — moodboard v3
+   Tokens. Deliberately NOT a uniform scale.
+   Kill list rule: "uniform radius" is banned, so radii are semantic, not decorative. */
+
+:root {
+  /* --- surface ---------------------------------------------------------- */
+  --void:      #08090c;   /* below everything. nothing sits directly on it */
+  --base:      #0d0f14;   /* the app floor */
+  --raise:     #12151c;   /* a thing that exists */
+  --raise-2:   #171b24;   /* a thing under the cursor */
+  --sunken:    #05060a;   /* wells, inputs, terminal */
+
+  /* --- ink -------------------------------------------------------------- */
+  --ink:       #e8e4dc;   /* warm bone. never pure white — pure white is a screen, not a page */
+  --ink-2:     #a8a49c;   /* secondary read */
+  --muted:     #6d6a64;   /* label, timestamp, metadata */
+  --dim:       #3b3a37;   /* present but abandoned */
+  --ghost:     #22232a;   /* structural, barely there */
+
+  /* --- line ------------------------------------------------------------- */
+  --line:      #1b1e26;   /* internal division */
+  --line-2:    #2b2f3a;   /* real edge */
+  --line-hot:  #4a5060;   /* edge under attention */
+
+  /* --- signal ----------------------------------------------------------- *
+   * Colour is a RESOURCE, not a palette. It is spent, not decorated with.
+   * Three signals only. Everything else is achromatic. */
+  --live:      #c9f24d;   /* something is happening RIGHT NOW. acid, not friendly */
+  --rot:       #a8571f;   /* decay, age, neglect. rust, not orange */
+  --cut:       #d6402f;   /* destructive, refused, killed */
+
+  /* signal at low alpha, precomputed — used for fields and washes */
+  --live-wash: rgba(201, 242, 77, 0.10);
+  --rot-wash:  rgba(168, 87, 31, 0.12);
+  --cut-wash:  rgba(214, 64, 47, 0.12);
+
+  /* --- type ------------------------------------------------------------- *
+   * Set by fonts.css once the real families load. These are the fallbacks
+   * so the page never renders in a browser default and lies about itself. */
+  --display:   "Basteleur", "Instrument Serif", Georgia, serif;
+  --editorial: "Avara", "Instrument Serif", Georgia, serif;
+  --mono:      "Departure Mono", "IBM Plex Mono", ui-monospace, monospace;
+  --mono-body: "Fragment Mono", "IBM Plex Mono", ui-monospace, monospace;
+
+  --t-hero:   clamp(64px, 11vw, 190px);
+  --t-h1:     clamp(38px, 5.2vw, 78px);
+  --t-h2:     clamp(26px, 3vw, 42px);
+  --t-h3:     20px;
+  --t-body:   14px;
+  --t-small:  12px;
+  --t-micro:  10px;   /* labels. always uppercase, always tracked */
+  --t-nano:   9px;    /* system chrome, counters */
+
+  --track-label: 0.14em;
+  --track-tight: -0.03em;
+  --track-didone: -0.05em;  /* didones close up at display size or they fall apart */
+
+  /* --- rhythm ----------------------------------------------------------- */
+  --gut:   18px;
+  --pad:   22px;
+  --bay:   64px;   /* between sections */
+  --rail:  238px;  /* left navigation rail */
+  --hud:   34px;   /* top status bar */
+
+  /* --- radius (semantic — see kill list) --------------------------------- */
+  --r-none:   0;      /* structure, panels, grid. the default. */
+  --r-node:   50%;    /* only organic things */
+  --r-chip:   2px;    /* only interactive micro-controls */
+
+  /* --- motion grammar --------------------------------------------------- *
+   * Three phases. Nothing animates outside this budget.
+   * Overwritten by the motion-grammar demo so the page and the spec agree. */
+  --impact:  90ms;    /* deformation, cut, recoil */
+  --cascade: 170ms;   /* neighbours respond */
+  --settle:  260ms;   /* field finds new tension */
+  --ease-impact:  cubic-bezier(0.2, 0.9, 0.1, 1);
+  --ease-settle:  cubic-bezier(0.33, 1, 0.68, 1);
+  --ease-rot:     cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* --- material --------------------------------------------------------- */
+  --grain-opacity: 0.045;
+  --scan-opacity:  0.05;
+
+  --z-hud: 60;
+  --z-rail: 50;
+  --z-palette: 90;
+  --z-sheet: 80;
+}
+
+/* Motion is a claim about meaning. If the user opted out, the claim is void. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --impact: 0ms;
+    --cascade: 0ms;
+    --settle: 0ms;
+  }
+}

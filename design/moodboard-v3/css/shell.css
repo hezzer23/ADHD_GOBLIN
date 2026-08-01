@@ -1,0 +1,400 @@
+/* ADHD_GOBLIN — moodboard v3 / shell
+   The moodboard is built the way the app should be built.
+   If a rule is in the kill list, this stylesheet must not break it. */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  background: var(--void);
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: var(--base);
+  color: var(--ink);
+  font-family: var(--mono-body);
+  font-size: var(--t-body);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-variant-numeric: tabular-nums;   /* counters must not jitter */
+  overflow-x: hidden;
+}
+
+/* --- material: grain + scan ---------------------------------------------
+   Fixed to the viewport, not to the document. The page moves under the
+   material; the material does not move with the page. That is what makes it
+   read as a surface rather than a texture layer. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  background-image: var(--grain-uri);
+  background-size: 180px 180px;
+  mix-blend-mode: overlay;
+}
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: var(--scan-opacity);
+  background: repeating-linear-gradient(
+    180deg,
+    transparent 0 2px,
+    rgba(255,255,255,0.5) 2px 3px
+  );
+}
+
+/* --- typography ---------------------------------------------------------- */
+h1, h2, h3, h4 { font-weight: 400; margin: 0; }
+
+h1 {
+  font-family: var(--display);
+  font-size: var(--t-h1);
+  line-height: 0.92;
+  letter-spacing: var(--track-tight);
+}
+h2 {
+  font-family: var(--display);
+  font-size: var(--t-h2);
+  line-height: 1;
+  letter-spacing: var(--track-tight);
+}
+h3 {
+  font-family: var(--display);
+  font-size: var(--t-h3);
+  line-height: 1.15;
+}
+
+p { margin: 0 0 0.9em; max-width: 68ch; }
+p:last-child { margin-bottom: 0; }
+
+a { color: inherit; text-decoration: none; }
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 1px solid var(--live);
+  outline-offset: 2px;
+}
+
+.label {
+  font-family: var(--mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.num {
+  font-family: var(--mono);
+  font-size: var(--t-nano);
+  letter-spacing: 0.08em;
+  color: var(--dim);
+}
+.dim  { color: var(--muted); }
+.live { color: var(--live); }
+.rot  { color: var(--rot); }
+.cut  { color: var(--cut); }
+
+/* --- layout: HUD + rail + stage ------------------------------------------ */
+.hud {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--hud);
+  z-index: var(--z-hud);
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 0 14px;
+  background: var(--sunken);
+  border-bottom: 1px solid var(--line-2);
+  font-family: var(--mono);
+  font-size: var(--t-nano);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.hud .sep { color: var(--ghost); }
+.hud .spacer { margin-left: auto; }
+.hud b { color: var(--ink-2); font-weight: 400; }
+
+/* the live dot only pulses while something is actually computing.
+   permanent motion is in the kill list. */
+.pulse {
+  width: 6px; height: 6px;
+  border-radius: var(--r-node);
+  background: var(--dim);
+  display: inline-block;
+}
+.pulse[data-live="1"] {
+  background: var(--live);
+  animation: breathe 1.9s var(--ease-settle) infinite;
+}
+@keyframes breathe {
+  0%, 100% { opacity: 1;   transform: scale(1); }
+  50%      { opacity: 0.35; transform: scale(0.72); }
+}
+
+.rail {
+  position: fixed;
+  top: var(--hud); left: 0; bottom: 0;
+  width: var(--rail);
+  z-index: var(--z-rail);
+  padding: 18px 0 40px;
+  overflow-y: auto;
+  background: var(--void);
+  border-right: 1px solid var(--line-2);
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-2) transparent;
+}
+.rail-group { padding: 0 0 22px; }
+.rail-group > .label { padding: 0 14px 8px; display: block; }
+
+.rail a {
+  display: grid;
+  grid-template-columns: 26px 1fr auto;
+  gap: 8px;
+  align-items: baseline;
+  padding: 6px 14px;
+  border-left: 2px solid transparent;
+  color: var(--ink-2);
+  font-size: var(--t-small);
+  transition: background var(--impact) var(--ease-impact),
+              color var(--impact) var(--ease-impact);
+}
+.rail a .num { color: var(--dim); }
+.rail a:hover { background: var(--raise); color: var(--ink); }
+.rail a[aria-current="true"] {
+  background: var(--raise-2);
+  border-left-color: var(--live);
+  color: var(--ink);
+}
+.rail a[aria-current="true"] .num { color: var(--live); }
+.rail a .tail {
+  font-family: var(--mono);
+  font-size: var(--t-nano);
+  color: var(--dim);
+}
+
+.stage {
+  margin: var(--hud) 0 0 var(--rail);
+  padding: 0 0 140px;
+  position: relative;
+  z-index: 1;
+}
+
+.bay {
+  padding: var(--bay) clamp(20px, 4vw, 54px);
+  border-bottom: 1px solid var(--line);
+  scroll-margin-top: var(--hud);
+}
+.bay-head {
+  display: grid;
+  grid-template-columns: 54px 1fr;
+  gap: var(--gut);
+  align-items: start;
+  margin-bottom: 34px;
+}
+.bay-head .idx {
+  font-family: var(--mono);
+  font-size: var(--t-micro);
+  color: var(--dim);
+  letter-spacing: 0.1em;
+  padding-top: 8px;
+  border-top: 1px solid var(--line-2);
+}
+.bay-head .thesis {
+  color: var(--ink-2);
+  max-width: 74ch;
+  margin-top: 10px;
+}
+
+/* --- panel: the base container. square, hard, no shadow ------------------ */
+.panel {
+  background: var(--raise);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-none);
+  position: relative;
+}
+.panel-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line-2);
+  background: var(--sunken);
+}
+.panel-head .label { color: var(--ink-2); }
+.panel-head .spacer { margin-left: auto; }
+.panel-body { padding: var(--pad); }
+
+/* --- controls: instrument, not product ----------------------------------- */
+.ctl-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--line);
+  background: var(--sunken);
+  font-family: var(--mono);
+  font-size: var(--t-nano);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.ctl {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.ctl > span { white-space: nowrap; }
+.ctl output {
+  color: var(--live);
+  min-width: 4.5ch;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 96px;
+  height: 14px;
+  background: transparent;
+  cursor: ew-resize;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 1px;
+  background: var(--line-hot);
+}
+input[type="range"]::-moz-range-track {
+  height: 1px;
+  background: var(--line-hot);
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 3px;
+  height: 13px;
+  margin-top: -6px;
+  background: var(--live);
+  border: 0;
+  border-radius: var(--r-none);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 3px;
+  height: 13px;
+  background: var(--live);
+  border: 0;
+  border-radius: var(--r-none);
+}
+
+.btn {
+  font-family: var(--mono);
+  font-size: var(--t-nano);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  background: var(--raise-2);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-chip);
+  padding: 4px 9px;
+  cursor: pointer;
+  transition: color var(--impact) var(--ease-impact),
+              border-color var(--impact) var(--ease-impact),
+              background var(--impact) var(--ease-impact);
+}
+.btn:hover { color: var(--ink); border-color: var(--line-hot); }
+.btn[aria-pressed="true"] {
+  color: var(--base);
+  background: var(--live);
+  border-color: var(--live);
+}
+.btn[data-kind="cut"]:hover { color: var(--cut); border-color: var(--cut); }
+
+.seg { display: inline-flex; border: 1px solid var(--line-2); border-radius: var(--r-chip); }
+.seg .btn { border: 0; border-right: 1px solid var(--line-2); border-radius: 0; }
+.seg .btn:last-child { border-right: 0; }
+
+/* --- canvas stage for live demos ----------------------------------------- */
+.demo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  border: 1px solid var(--line-2);
+  background: var(--raise);
+  margin-bottom: 26px;
+}
+.demo-canvas {
+  position: relative;
+  height: 440px;
+  background: var(--sunken);
+  border-right: 1px solid var(--line-2);
+  overflow: hidden;
+}
+/* Absolutely positioned so the canvas never contributes to layout. With
+   height:100% inside an auto-height parent, the attribute height set from the
+   measured rect becomes the canvas's own intrinsic height, which feeds the
+   next measurement — the box grows a little every resize until it is
+   thousands of pixels tall. */
+.demo-canvas canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.demo-side { display: flex; flex-direction: column; }
+.demo-side .panel-body { flex: 1; }
+.demo-side .rules { margin-top: 16px; }
+
+.rules { display: grid; gap: 1px; background: var(--line); border-top: 1px solid var(--line); }
+.rule {
+  display: grid;
+  grid-template-columns: 62px 1fr;
+  gap: 10px;
+  padding: 9px 0;
+  background: var(--raise);
+  font-size: var(--t-small);
+}
+.rule b {
+  font-family: var(--mono);
+  font-size: var(--t-nano);
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  font-weight: 400;
+  padding-top: 2px;
+}
+.rule[data-verdict="use"]    b { color: var(--live); }
+.rule[data-verdict="mutate"] b { color: var(--ink-2); }
+.rule[data-verdict="never"]  b { color: var(--cut); }
+.rule span { color: var(--ink-2); }
+
+/* --- readout: numbers the demo is actually producing ---------------------- */
+.readout {
+  font-family: var(--mono);
+  font-size: var(--t-nano);
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 12px;
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+  margin-top: 14px;
+}
+.readout b { color: var(--ink-2); font-weight: 400; }
+
+@media (max-width: 1080px) {
+  .demo { grid-template-columns: 1fr; }
+  .demo-canvas { border-right: 0; border-bottom: 1px solid var(--line-2); }
+}
+@media (max-width: 860px) {
+  :root { --rail: 0px; }
+  .rail { transform: translateX(-100%); transition: transform var(--settle) var(--ease-settle); }
+  .rail[data-open="1"] { transform: none; width: 238px; }
+}
