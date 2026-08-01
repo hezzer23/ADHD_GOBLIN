@@ -296,15 +296,33 @@ export function createField(canvas){
     mcx.clearRect(0, 0, mw, mh);
 
     if (nodes.length){
+      /* RAZA BULEI: proporțională cu distanța până la cel mai apropiat
+         vecin (0.75×), ca bulele vecine să se suprapună GARANTAT și să
+         fuzioneze într-o singură masă neagră continuă. Un singur fundal
+         calm sub tot graful — zero insule, zero fragmentare. O(N²) pe
+         frame, trivial la zeci de noduri. */
+      const bubR = [];
+      for (let i=0;i<nodes.length;i++){
+        let minD = 1e9;
+        for (let j=0;j<nodes.length;j++){
+          if (i===j) continue;
+          const dx=nodes[i].wx-nodes[j].wx, dy=nodes[i].wy-nodes[j].wy;
+          minD=Math.min(minD, Math.hypot(dx,dy));
+        }
+        if (minD===1e9) minD=0;   // un singur nod
+        bubR.push(Math.max(nodes[i].r*4, minD*0.75));
+      }
+
       /* bule aditive: unde se suprapun, alpha crește → fuzionează */
       mcx.globalCompositeOperation = 'lighter';
-      for (const n of nodes){
+      for (let i=0;i<nodes.length;i++){
+        const n = nodes[i];
         const p = toS(n.wx, n.wy);
-        const r = n.r * 3.4 * cam.k * MS;    // raza generoasă a bulei
+        const r = bubR[i] * cam.k * MS;
         if (r < 1) continue;
         const g = mcx.createRadialGradient(p.x*MS, p.y*MS, 0, p.x*MS, p.y*MS, r);
         g.addColorStop(0,   'rgba(255,255,255,1)');
-        g.addColorStop(0.4, 'rgba(255,255,255,0.7)');
+        g.addColorStop(0.5, 'rgba(255,255,255,0.8)');
         g.addColorStop(1,   'rgba(255,255,255,0)');
         mcx.fillStyle = g;
         mcx.beginPath();
@@ -313,16 +331,14 @@ export function createField(canvas){
       }
       mcx.globalCompositeOperation = 'source-over';
 
-      /* ȚESUT CONECTIV: de-a lungul fiecărei muchii, o bandă groasă cu
-         capete rotunde. Se suprapune cu bulele nodurilor și fuzionează în
-         aceeași zonă neagră organică — nodurile legate devin o singură
-         masă, nu insule separate. Alpha mai mic decât bulele, ca banda
-         să fie mai subțire decât nodurile. */
+      /* ȚESUT CONECTIV: de-a lungul fiecărei muchii, o bandă GROASĂ și
+         aproape opacă, cu capete rotunde. Umple golul dintre bule și
+         garantează că nodurile legate sunt o singură masă continuă. */
       mcx.globalCompositeOperation = 'lighter';
       for (const e of edges){
         const a = P.get(e.a.id), b = P.get(e.b.id);
-        const w = Math.max(2, (e.a.r + e.b.r) * 0.5 * cam.k * MS);  // lățime medie
-        mcx.strokeStyle = 'rgba(255,255,255,0.55)';
+        const w = Math.max(3, (e.a.r + e.b.r) * 1.4 * cam.k * MS);  // lată
+        mcx.strokeStyle = 'rgba(255,255,255,0.95)';
         mcx.lineWidth = w;
         mcx.lineCap = 'round';
         mcx.beginPath();
@@ -332,14 +348,14 @@ export function createField(canvas){
       }
       mcx.globalCompositeOperation = 'source-over';
 
-      /* threshold cu rampă lină: alpha > 55 → negru, margine moale */
+      /* threshold coborât + rampă largă: margine foarte moale, organică */
       const img = mcx.getImageData(0, 0, mw, mh);
       const d = img.data;
       for (let i = 0; i < d.length; i += 4){
         const a = d[i+3];
-        if (a > 55){
+        if (a > 30){
           d[i] = d[i+1] = d[i+2] = 0;                    // negru
-          d[i+3] = Math.min(255, (a - 55) / 50 * 255);   // rampă 55→105 = 0→255
+          d[i+3] = Math.min(255, (a - 30) / 70 * 255);   // rampă 30→100 = 0→255
         } else {
           d[i+3] = 0;                                     // transparent
         }
