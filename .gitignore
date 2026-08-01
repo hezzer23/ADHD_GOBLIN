@@ -24,6 +24,7 @@ Thumbs.db
 
 # Build output
 v0/dist/
+v0/.wrangler/
 
 # Keys / secrets — NEVER commit
 *.key

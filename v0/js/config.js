@@ -61,8 +61,11 @@ export const PROMPTS = {
   linkUser: (oldLabels, newLabels) =>
     'Ai noduri existente: ' + JSON.stringify(oldLabels) + '. ' +
     'Noduri noi: ' + JSON.stringify(newLabels) + '. ' +
-    'Care nod nou se leagă de care nod existent (temă comună)? DOAR JSON:\n' +
-    '{"links":[{"from":"newId","to":"oldId"}]}',
+    'Care nod nou se leagă de care nod existent (temă comună)? ' +
+    'În "from" pui LABELUL EXACT al nodului nou (din lista de noduri noi), ' +
+    'în "to" LABELUL EXACT al nodului existent (din lista de noduri existente). ' +
+    'Folosește textul labelului ca atare, NU id-uri. DOAR JSON:\n' +
+    '{"links":[{"from":"<labelul exact al nodului nou>","to":"<labelul exact al nodului existent>"}]}',
 
   /* 3 — reacție la primul braindump (cu context: ultimele replici + noduri) */
   reactUser: (text, labels, ctx) =>

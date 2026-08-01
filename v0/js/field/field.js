@@ -400,7 +400,11 @@ export function createField(canvas){
          garantează că nodurile legate sunt o singură masă continuă. */
       mcx.globalCompositeOperation = 'lighter';
       for (const e of edges){
-        const a = P.get(e.a.id), b = P.get(e.b.id);
+        /* FIX: P (harta cu breath-offset) e construită MAI JOS, după blocul
+           metaball — P.get() aici arunca ReferenceError (temporal dead zone)
+           și omora rAF din prima muchie → canvas gol = „dispar nodurile".
+           Folosim toS() direct, ca blocul de bule de deasupra. */
+        const a = toS(e.a.wx, e.a.wy), b = toS(e.b.wx, e.b.wy);
         const w = Math.max(3, (e.a.r + e.b.r) * 1.4 * cam.k * MS);  // lată
         mcx.strokeStyle = 'rgba(255,255,255,0.95)';
         mcx.lineWidth = w;
