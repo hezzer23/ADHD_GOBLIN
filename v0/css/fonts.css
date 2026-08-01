@@ -1,2 +1,12 @@
-@font-face { font-family:'DepartureMono'; src:url('../fonts/DepartureMono-Regular.woff2') format('woff2'); font-display:block; }
-@font-face { font-family:'Basteleur'; src:url('../fonts/basteleur-moonlight.woff2') format('woff2'); font-display:block; }
+/* ── SISTEM DE FONTURI (DECISION-goblin-voice.md, lockat) ────────────
+   Trei registre, trei fonturi. Goblinul nu are font al lui — împrumută.
+
+     Doto            MATERIA.      cluster labels, lowercase.
+     Departure Mono  INSTRUMENTUL. status, reticul, etichete, metadata. UPPERCASE.
+     Martian Mono    INTRAREA + VOCEA. ce tastezi tu (os) + răspunsurile
+                     goblinului (rugină) + numere mari.
+
+   Scoase: Basteleur, GrenzeGotisch. */
+@font-face{font-family:'Doto';src:url('../fonts/Doto_ROND-wght.woff2') format('woff2');font-display:block}
+@font-face{font-family:'DepartureMono';src:url('../fonts/DepartureMono-Regular.woff2') format('woff2');font-display:block}
+@font-face{font-family:'MartianMono';src:url('../fonts/MartianMono_wdth-wght.woff2') format('woff2');font-display:block}

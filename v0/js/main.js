@@ -4,12 +4,17 @@
    Un singur rAF loop: field.draw(t) → overlay-uri DOM → status.
    Motes-ul e WebGL separat (propriul lui rAF în bibliotecă).
 
+   Vocea goblinului = modul ECOU: răspunde în cutia de braindump, sub
+   textul tău, în Martian Mono rugină. Fără bubble, fără panel.
+   Fiecare replică se salvează în goblin_says (context LLM, ziua 2).
+
    Ziua 2 înlocuiește onDump() cu pipeline-ul real:
-   Enter → extract (LLM) → field.addNode ×N → goblin.say (LLM).
+   Enter → extract (LLM) → field.addNode ×N → goblin.echo (LLM).
    ═══════════════════════════════════════════════════════════════════════ */
 import { createField } from './field/field.js';
 import { mountMotes } from './field/motes.js';
 import { createGoblin } from './goblin/goblin.js';
+import { addDump, sayGoblin } from './graph/store.js';
 
 const $ = id => document.getElementById(id);
 
@@ -63,11 +68,19 @@ requestAnimationFrame(frame);
 const input = $('d-input');
 let dumpCount = 0;
 
+/* spune o replică și-o salvează în goblin_says (context LLM) */
+function speak(msg){
+  goblin.echo(msg);
+  sayGoblin(msg, 'ecou').catch(()=>{});   // storage nu blochează vocea
+}
+
 function onDump(text){
   dumpCount++;
-  /* ZIUA 2: extract(text) → noduri → muchii → goblin din LLM.
+  addDump(text).catch(()=>{});
+  /* ZIUA 2: extract(text) → noduri → muchii → replică din LLM
+     (cu context: ultimele 5 replici + nodurile active).
      Azi: goblinul recunoaște că a auzit, dar nu promite nimic. */
-  goblin.say(
+  speak(
     dumpCount === 1
       ? 'te-am auzit. mâine leg și nodurile — azi doar ascult ce torni aici.'
       : 'încă o grămadă. le număr, nu le uit.'
@@ -90,9 +103,7 @@ input.addEventListener('input', () => {
   input.style.height = input.scrollHeight + 'px';
 });
 
-/* ── boot ──────────────────────────────────────────────── */
+/* ── boot: goblinul a intrat deja în cutie ─────────────── */
 setTimeout(() => {
-  goblin.say(
-    'gol. ca de obicei. scrie ceva în cutia aia și vedem ce se alege de grămadă.'
-  );
+  speak('gol. ca de obicei. scrie ceva în cutia aia și vedem ce se alege de grămadă.');
 }, 1200);

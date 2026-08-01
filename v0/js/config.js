@@ -64,15 +64,33 @@ export const PROMPTS = {
     'Care nod nou se leagă de care nod existent (temă comună)? DOAR JSON:\n' +
     '{"links":[{"from":"newId","to":"oldId"}]}',
 
-  /* 3 — reacție la primul braindump */
-  reactUser: (text, labels) =>
+  /* 3 — reacție la primul braindump (cu context: ultimele replici + noduri) */
+  reactUser: (text, labels, ctx) =>
+    contextBlock(ctx) +
     'Tocmai am scris: """' + text + '""". Noduri extrase: ' + JSON.stringify(labels) + '. ' +
     'Spune o singură propoziție cinică despre ce e aici. Nu lista noduri — ' +
     'spune ce e cu adevărat grămada.',
 
   /* 4 — reacție la cluster */
-  reactClusterUser: (theme, labels, countUnresolved) =>
+  reactClusterUser: (theme, labels, countUnresolved, ctx) =>
+    contextBlock(ctx) +
     'Cluster nou: tema „' + theme + '", ' + labels.length + ' noduri ' +
     '(numele lor: ' + JSON.stringify(labels) + '). ' + countUnresolved + ' sunt task-uri nerezolvate. ' +
     'Răspunde ca goblin: o singură propoziție cinică care semnalează tema + ce e nefăcut. Fără glazing.',
 };
+
+/* ── contextul vocii (DECISION-goblin-voice.md) ──────────────────────
+   Memoria e invizibilă: ultimele N replici (din goblin_says) + nodurile
+   active intră în prompt, ca vocea să aibă continuitate fără interfață. */
+function contextBlock(ctx){
+  if (!ctx) return '';
+  let s = '';
+  if (ctx.recentSays && ctx.recentSays.length){
+    s += 'Context — ce ai mai spus recent (nu te repeta):\n' +
+      ctx.recentSays.map(r => '- ' + r.text).join('\n') + '\n';
+  }
+  if (ctx.activeNodes && ctx.activeNodes.length){
+    s += 'Noduri active în graf: ' + JSON.stringify(ctx.activeNodes) + '\n';
+  }
+  return s;
+}

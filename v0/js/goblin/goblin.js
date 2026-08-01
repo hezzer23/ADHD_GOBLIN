@@ -1,27 +1,38 @@
 /* ═══════════════════════════════════════════════════════════════════════
-   GOBLIN — vocea. Al treilea registru: serif cald pe hârtie rotită.
+   GOBLIN — vocea. O posesie, nu un corespondent. Fără panel, fără casă.
 
-   Ziua 1: typewriter + replici statice (boot + primul submit).
-   Ziua 2: say() primește textul de la LLM (Prompt 3 / Prompt 4).
+   Modul principal (v0): ECOU — răspunde în cutia de braindump, sub textul
+   userului, în Martian Mono rugină. Rămâne până la următorul braindump.
+   (DECISION-goblin-voice.md, demo: design/goblin-voice/index.html, mod 01.)
+
+   Ziua 1: typewriter + replici statice. Ziua 2: echo() primește textul de
+   la LLM (Prompt 3 / 4); fiecare replică se salvează în goblin_says.
    ═══════════════════════════════════════════════════════════════════════ */
 
 export function createGoblin(){
-  const box = document.getElementById('goblin');
-  const el  = document.getElementById('gtext');
+  const box = document.getElementById('echo');
   let timer = null;
 
-  /* spune un text, caracter cu caracter. anulează orice e în curs. */
-  function say(msg, speed = 22){
+  /* spune o replică în cutie, caracter cu caracter. anulează ce e în curs. */
+  function echo(msg, speed = 18, done){
     if (timer) clearTimeout(timer);
     box.classList.add('on');
-    el.textContent = '';
+    box.innerHTML = '';
+    const who = document.createElement('span');
+    who.className = 'who';
+    who.textContent = '▲';
+    const span = document.createElement('span');
+    const cur = document.createElement('span');
+    cur.className = 'cur';
+    box.append(who, span, cur);
     let i = 0;
     (function type(){
       if (i <= msg.length){
-        el.textContent = msg.slice(0, i++);
+        span.textContent = msg.slice(0, i++);
         timer = setTimeout(type, speed);
       } else {
         timer = null;
+        if (done) done();
       }
     })();
   }
@@ -29,8 +40,9 @@ export function createGoblin(){
   function clear(){
     if (timer) clearTimeout(timer);
     timer = null;
-    el.textContent = '';
+    box.classList.remove('on');
+    box.innerHTML = '';
   }
 
-  return { say, clear, el, box };
+  return { echo, clear, box };
 }

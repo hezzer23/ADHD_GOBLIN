@@ -5,6 +5,7 @@
             ierarhia, nu nuanța.
      acid   ce e viu ACUM: atenția ta, pulsul, ce poartă o acțiune.
      rugina ce eviți. Singurul semnal negativ din sistem.
+            + vocea goblinului — împrumută fontul tău, dar în rugină.
 
    Ce NU primește culoare: tipul nodului, vechimea, clusterul, gradul,
    legătura inter-cluster. Alea se citesc prin greutate, mărime și marcaj. */
@@ -13,6 +14,8 @@
   --os:#e6e2d6; --os-dim:#8e8a7e; --os-faint:#4a4842;
   --acid:#c9f24d;
   --rugina:#c9702f;
-  --mono:'DepartureMono',ui-monospace,monospace;
-  --display:'Basteleur',Georgia,serif;
+  /* cele 3 registre */
+  --matter:'Doto',monospace;
+  --inst:'DepartureMono',ui-monospace,monospace;
+  --input:'MartianMono',ui-monospace,monospace;
 }

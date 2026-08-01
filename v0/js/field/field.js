@@ -423,13 +423,22 @@ export function createField(canvas){
         [[x0,y0,1,1],[x1,y0,-1,1],[x0,y1,1,-1],[x1,y1,-1,-1]].forEach(([x,y,sx,sy])=>{
           cx.beginPath(); cx.moveTo(x+sx*A,y); cx.lineTo(x,y); cx.lineTo(x,y+sy*A); cx.stroke();
         });
-        cx.font='11px DepartureMono, monospace';
+        /* label cluster: numele în Doto (MATERIA, lowercase), meta în
+           Departure Mono (INSTRUMENTUL). Eticheta e verdictul, nu un chip. */
+        const name = c.name.toLowerCase();
+        const meta = c.count+' noduri'+(c.open?' · '+c.open+' deschise':'');
+        cx.font='700 13px Doto, monospace';
+        const w1 = cx.measureText(name).width;
+        cx.font='10px DepartureMono, monospace';
+        const w2 = cx.measureText(meta).width;
+        const w = w1 + 12 + w2 + 14;
+        cx.fillStyle='rgba(0,0,0,.96)'; cx.fillRect(x0,y0-22,w,22);
+        cx.strokeStyle=rgba(col,a); cx.lineWidth=1; cx.strokeRect(x0+.5,y0-21.5,w-1,21);
         cx.textAlign='left'; cx.textBaseline='alphabetic';
-        const txt=c.name+' · '+c.count+' noduri'+(c.open?' · '+c.open+' deschise':'');
-        const w=cx.measureText(txt).width+14;
-        cx.fillStyle='rgba(0,0,0,.96)'; cx.fillRect(x0,y0-20,w,20);
-        cx.strokeStyle=rgba(col,a); cx.lineWidth=1; cx.strokeRect(x0+.5,y0-19.5,w-1,19);
-        cx.fillStyle=rgba(col, Math.max(a,.75)); cx.fillText(txt,x0+7,y0-6);
+        cx.font='700 13px Doto, monospace';
+        cx.fillStyle=rgba(col, Math.max(a,.75)); cx.fillText(name, x0+7, y0-6);
+        cx.font='10px DepartureMono, monospace';
+        cx.fillStyle=rgba(C.osDim, Math.max(a,.6)); cx.fillText(meta, x0+7+w1+12, y0-6);
       }
     }
 
