@@ -15,6 +15,7 @@
    firePulse) e gata pentru ziua 2 — pipeline-ul LLM doar îl cheamă.
    ═══════════════════════════════════════════════════════════════════════ */
 import { COLORS as C, rgba, WORLD, PHASES, BAYER, clamp, mulberry32 } from '../config.js';
+import * as particles from './particles.js';
 
 export function createField(canvas){
   const cx = canvas.getContext('2d');
@@ -135,6 +136,7 @@ export function createField(canvas){
       r: 17 + (spec.action?6:0) + (spec.conf ?? .8)*15,
       wx: spec.x ?? WORLD.w/2, wy: spec.y ?? WORLD.h/2,
       deg: 0, ph:0, spd:1, breath:.05, mspd:1, tex:[],
+      spawnT: spec.spawn === false ? 1 : 0,   // 0→1 = animație fly-in
     };
     n.tint = n.action ? C.acid : n.worry ? C.rug : C.os;
     const seed = Math.floor(rnd0()*99999);
@@ -247,9 +249,19 @@ export function createField(canvas){
   }
 
   /* ── randare ─────────────────────────────────────────── */
+  let lastT = 0;
   function draw(t){
+    const dt = lastT ? Math.min((t - lastT) / 1000, 0.05) : 0.016;
+    lastT = t;
+
     /* TRANSPARENT: nu umple cu negru. Motes-ul de sub e fundalul. */
     cx.clearRect(0,0,W,H);
+
+    /* avansează spawn animation (0→1, ~500ms, elastic.out) */
+    for (const n of nodes){
+      if (n.spawnT < 1) n.spawnT = Math.min(1, n.spawnT + dt / 0.5);
+    }
+    particles.update(dt);
 
     const P = new Map();
     for (const n of nodes){
@@ -366,7 +378,11 @@ export function createField(canvas){
       const pulsed = pulse && pulse.dist.has(n.id) && front>=pulse.dist.get(n.id);
       const kick = pulsed ? Math.max(0,1-(front-pulse.dist.get(n.id))*1.4) : 0;
       const breath = 1 + Math.sin(t*.0011*n.spd+n.ph)*n.breath*state.breath;
-      const scale = breath*(hovered?1.13:1)*(1+kick*.18);
+      /* elastic.out pe spawn: 0→1 cu overshoot */
+      const spawnScale = n.spawnT < 1
+        ? (1 - Math.pow(1 - n.spawnT, 3)) * (1 + 0.35 * Math.sin(n.spawnT * Math.PI * 2.5) * (1 - n.spawnT))
+        : 1;
+      const scale = breath*(hovered?1.13:1)*(1+kick*.18)*spawnScale;
       const R = n.r*3*scale*cam.k;
 
       /* DEFORMAREA: cursor continuu prin cele patru faze, cu cross-fade */
@@ -442,6 +458,9 @@ export function createField(canvas){
       }
     }
 
+    /* particulele (trail + burst de spawn) peste tot */
+    particles.draw(cx);
+
     return {
       hoverNode, hoverEdge, cam,
       hit, drawn, shownLabels,
@@ -454,5 +473,6 @@ export function createField(canvas){
     addNode, addLink, addCluster, recomputeClusters, firePulse,
     nodes, edges, clusters, byId,
     toS, toW,
+    particles,
   };
 }

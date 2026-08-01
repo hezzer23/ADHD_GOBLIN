@@ -1,20 +1,19 @@
 /* ═══════════════════════════════════════════════════════════════════════
-   MAIN — boot + wiring. Ziua 1.
+   MAIN — boot + wiring. Ziua 2.
+
+   Pipeline: Enter → extract (LLM) → spawn noduri animate → goblin.echo
+   (LLM sau fallback) → persist în IndexedDB.
 
    Un singur rAF loop: field.draw(t) → overlay-uri DOM → status.
    Motes-ul e WebGL separat (propriul lui rAF în bibliotecă).
-
-   Vocea goblinului = modul ECOU: răspunde în cutia de braindump, sub
-   textul tău, în Martian Mono rugină. Fără bubble, fără panel.
-   Fiecare replică se salvează în goblin_says (context LLM, ziua 2).
-
-   Ziua 2 înlocuiește onDump() cu pipeline-ul real:
-   Enter → extract (LLM) → field.addNode ×N → goblin.echo (LLM).
    ═══════════════════════════════════════════════════════════════════════ */
 import { createField } from './field/field.js';
 import { mountMotes } from './field/motes.js';
 import { createGoblin } from './goblin/goblin.js';
-import { addDump, sayGoblin } from './graph/store.js';
+import { extract } from './brain/extract.js';
+import { addDump, addNode, sayGoblin, recentSays, loadGraph } from './graph/store.js';
+import { PROMPTS, COLORS as C, WORLD } from './config.js';
+import { llmRequest } from './llm/provider.js';
 
 const $ = id => document.getElementById(id);
 
@@ -64,46 +63,162 @@ function frame(t){
 }
 requestAnimationFrame(frame);
 
-/* ── braindump: ziua 1 = wiring + placeholder de pipeline ─ */
+/* ── poziționare deterministă (stivă, nu fizică) ───────── */
+let nodeSeq = 0;
+function nextPos(){
+  /* spirală în jurul centrului, pas fix — memorie spațială */
+  const i = nodeSeq++;
+  const ring = Math.floor(i / 6);
+  const slot = i % 6;
+  const angle = (slot / 6) * Math.PI * 2 + ring * 0.5;
+  const dist = 120 + ring * 160;
+  return {
+    x: WORLD.w/2 + Math.cos(angle) * dist,
+    y: WORLD.h/2 + Math.sin(angle) * dist,
+  };
+}
+
+/* ── pipeline: braindump → noduri → goblin → persist ───── */
 const input = $('d-input');
-let dumpCount = 0;
+let busy = false;
+
+async function onDump(text){
+  if (busy) return;
+  busy = true;
+  input.disabled = true;
+
+  addDump(text).catch(()=>{});
+
+  /* 1. extract: LLM → 3-5 noduri */
+  const extracted = await extract(text);
+
+  /* 2. spawn pe canvas, cu trail de la cutie */
+  const dumpRect = $('dump').getBoundingClientRect();
+  const srcX = dumpRect.left + dumpRect.width / 2;
+  const srcY = dumpRect.top;
+
+  const newNodes = [];
+  for (const spec of extracted){
+    const pos = nextPos();
+    const id = 'n' + Date.now().toString(36) + '_' + nodeSeq;
+    const n = field.addNode({
+      id,
+      label: spec.label,
+      type: spec.type,
+      action: spec.type === 'task',
+      conf: 0.75 + Math.random() * 0.2,
+      x: pos.x, y: pos.y,
+    });
+    newNodes.push(n);
+
+    /* trail de la cutie la nod + burst la destinație */
+    const dest = field.toS(pos.x, pos.y);
+    const tint = n.action ? C.acid : n.worry ? C.rug : C.os;
+    field.particles.trail(srcX, srcY, dest.x, dest.y, tint, 10);
+    field.particles.burst(dest.x, dest.y, tint, 12);
+
+    /* persist */
+    addNode({ id, label: spec.label, type: spec.type, detail: spec.detail,
+              x: pos.x, y: pos.y, vx:0, vy:0, created: Date.now(), dumpId: null })
+      .catch(()=>{});
+  }
+
+  /* 3. goblin: replică cinică (LLM sau fallback) */
+  const labels = extracted.map(n => n.label);
+  const reply = await goblinReply(text, labels);
+  speak(reply);
+
+  busy = false;
+  input.disabled = false;
+  input.focus();
+}
+
+/* replică de la LLM (Prompt 3 + context), cu fallback on-brand */
+async function goblinReply(text, labels){
+  try {
+    const says = await recentSays(5);
+    const activeNodes = field.nodes.map(n => n.label);
+    const ctx = { recentSays: says, activeNodes };
+    const messages = [
+      { role: 'system', content: PROMPTS.persona },
+      { role: 'user',   content: PROMPTS.reactUser(text, labels, ctx) },
+    ];
+    const raw = await llmRequest(messages, { json: false });
+    const reply = raw.trim();
+    if (reply) return reply;
+  } catch (err) {
+    console.warn('[goblin] LLM fail, fallback:', err.message);
+  }
+  /* fallback: on-brand, fără LLM */
+  if (err_is_no_key()) {
+    return 'nu am cheie la creier. `localStorage.setItem("adhd_goblin_groq_key", "gsk_...")` în consolă și mai vorbim.';
+  }
+  return fallbackLine(labels);
+}
+
+function err_is_no_key(){
+  return !localStorage.getItem('adhd_goblin_groq_key');
+}
+
+const FALLBACKS = [
+  labels => `${labels.length} noduri noi. zero rezolvate. tiparul se menține.`,
+  labels => `ai pus „${labels[0]}" lângă alte ${labels.length-1}. grămada crește, tu nu.`,
+  () => 'încă o tură. nodurile se adună, curajul nu.',
+  labels => `„${labels[0]}" — a treia oară săptămâna asta. nu mai e ghinion.`,
+];
+let fbIdx = 0;
+function fallbackLine(labels){
+  const fn = FALLBACKS[fbIdx++ % FALLBACKS.length];
+  return fn(labels);
+}
 
 /* spune o replică și-o salvează în goblin_says (context LLM) */
 function speak(msg){
   goblin.echo(msg);
-  sayGoblin(msg, 'ecou').catch(()=>{});   // storage nu blochează vocea
+  sayGoblin(msg, 'ecou').catch(()=>{});
 }
 
-function onDump(text){
-  dumpCount++;
-  addDump(text).catch(()=>{});
-  /* ZIUA 2: extract(text) → noduri → muchii → replică din LLM
-     (cu context: ultimele 5 replici + nodurile active).
-     Azi: goblinul recunoaște că a auzit, dar nu promite nimic. */
-  speak(
-    dumpCount === 1
-      ? 'te-am auzit. mâine leg și nodurile — azi doar ascult ce torni aici.'
-      : 'încă o grămadă. le număr, nu le uit.'
-  );
-}
-
+/* ── input wiring ──────────────────────────────────────── */
 input.addEventListener('keydown', ev => {
   if (ev.key === 'Enter' && !ev.shiftKey){
     ev.preventDefault();
     const text = input.value.trim();
-    if (!text) return;
+    if (!text || busy) return;
     input.value = '';
     input.style.height = 'auto';
     onDump(text);
   }
 });
-/* textarea crește cu textul, până la max-height din css */
 input.addEventListener('input', () => {
   input.style.height = 'auto';
   input.style.height = input.scrollHeight + 'px';
 });
 
-/* ── boot: goblinul a intrat deja în cutie ─────────────── */
-setTimeout(() => {
-  speak('gol. ca de obicei. scrie ceva în cutia aia și vedem ce se alege de grămadă.');
-}, 1200);
+/* ── boot: reload persistent + goblin intră în cutie ───── */
+async function boot(){
+  try {
+    const { nodes } = await loadGraph();
+    for (const n of nodes){
+      field.addNode({
+        id: n.id, label: n.label, type: n.type,
+        action: n.type === 'task',
+        conf: 0.8,
+        x: n.x, y: n.y,
+        spawn: false,   // fără animație la reload
+      });
+      nodeSeq++;
+    }
+  } catch (err) {
+    console.warn('[boot] reload fail:', err);
+  }
+
+  setTimeout(() => {
+    const hasNodes = field.nodes.length > 0;
+    speak(
+      hasNodes
+        ? `${field.nodes.length} noduri de data trecută. tot aici. tot nerezolvate.`
+        : 'gol. ca de obicei. scrie ceva în cutia aia și vedem ce se alege de grămadă.'
+    );
+  }, 1200);
+}
+boot();
