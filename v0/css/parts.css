@@ -1,0 +1,61 @@
+/* ── PARTS: reticul, fișă de muchie, goblin, braindump ─────────────── */
+
+/* ── reticul de detecție (hover pe nod) ────────────────── */
+#reticle{position:fixed;z-index:8;pointer-events:none;opacity:0;transition:opacity .13s;
+  transform:translate(-50%,-100%)}
+#reticle.on{opacity:1}
+#reticle .rb{position:relative;padding:9px 13px 10px;background:rgba(0,0,0,.9)}
+#reticle .rb::before,#reticle .rb::after,#reticle .c3,#reticle .c4{
+  content:'';position:absolute;width:10px;height:10px;border-style:solid;border-width:0;
+  border-color:var(--rc,var(--os))}
+#reticle .rb::before{top:0;left:0;border-top-width:1.5px;border-left-width:1.5px}
+#reticle .rb::after{top:0;right:0;border-top-width:1.5px;border-right-width:1.5px}
+#reticle .c3{bottom:0;left:0;border-bottom-width:1.5px;border-left-width:1.5px}
+#reticle .c4{bottom:0;right:0;border-bottom-width:1.5px;border-right-width:1.5px}
+#reticle .rl{display:flex;gap:16px;align-items:baseline;font-size:13px;letter-spacing:.06em;
+  white-space:nowrap;color:var(--os)}
+#reticle .rm{margin-top:6px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--os-dim)}
+
+/* ── fișa de muchie (hover pe legătură) ────────────────── */
+#edgecard{position:fixed;z-index:9;pointer-events:none;opacity:0;transition:opacity .13s;
+  transform:translate(-50%,-100%);max-width:360px;
+  background:rgba(0,0,0,.94);border:1px solid rgba(230,226,214,.18);padding:10px 13px 12px}
+#edgecard.on{opacity:1}
+#edgecard .eh{display:flex;gap:12px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--os-dim);margin-bottom:7px}
+#edgecard .eh .k{color:var(--acid)}
+#edgecard .src{font-family:var(--display);font-size:17px;line-height:1.42;color:var(--os)}
+#edgecard .src em{color:var(--acid);font-style:normal}
+#edgecard .meta{margin-top:8px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--os-faint)}
+
+/* ── goblinul (vocea) ──────────────────────────────────── */
+#goblin{position:fixed;left:26px;bottom:128px;z-index:20;max-width:340px;
+  font-family:var(--display);font-size:18px;line-height:1.44;color:var(--os);
+  padding:16px 20px 18px;background:rgba(22,20,16,.94);
+  border:1px solid rgba(230,226,214,.15);border-radius:2px 14px 3px 12px;
+  transform:rotate(-.6deg);box-shadow:0 8px 34px rgba(0,0,0,.6);
+  opacity:0;transition:opacity .4s}
+#goblin.on{opacity:1}
+#goblin .who{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--os-dim);margin-bottom:9px}
+#goblin .who::before{content:'▲';color:var(--rugina);margin-right:7px;font-size:8px}
+#goblin .cur{display:inline-block;width:8px;height:15px;background:var(--rugina);
+  vertical-align:-2px;margin-left:3px;animation:blink 1s steps(1) infinite}
+
+/* ── braindump (intrarea) ──────────────────────────────── */
+#dump{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:20;
+  width:min(760px,92vw);background:rgba(0,0,0,.92);border:1px solid rgba(230,226,214,.11);
+  padding:13px 17px 12px;transition:border-color .2s}
+#dump:focus-within{border-color:rgba(201,242,77,.4)}
+#dump .dh{display:flex;justify-content:space-between;gap:12px;font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--os-dim);margin-bottom:10px}
+#dump .dh .hint{color:var(--os-faint);letter-spacing:.08em}
+#d-input{width:100%;background:transparent;border:0;outline:none;resize:none;
+  font-family:var(--mono);font-size:14px;line-height:1.75;color:var(--os);
+  caret-color:var(--acid);min-height:2.6em;max-height:8em}
+#d-input::placeholder{color:var(--os-faint)}
+
+@media (prefers-reduced-motion: reduce){
+  #goblin{transition:none}
+  #goblin .cur{animation:none}
+}

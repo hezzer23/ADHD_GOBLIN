@@ -1,0 +1,34 @@
+/* ── SHELL: layout-ul fundamental ─────────────────────────────────────
+   Trei straturi vizuale, unul peste altul:
+     z-0  motes      câmpul WebGL de pe fundal. organic, sub graf.
+     z-1  field      canvas 2D, graful. TRANSPARENT unde nu e materie,
+                     ca motes să se vadă printre noduri.
+     z-2  grain      zgârietură fină peste tot.
+   Peste ele: instrumentul (status, reticle) și vocea (goblin, dump). */
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--os);
+  font-family:var(--mono);-webkit-font-smoothing:antialiased}
+
+canvas#motes{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
+canvas#field{position:fixed;inset:0;z-index:1;cursor:crosshair;touch-action:none}
+canvas#field.grab{cursor:grabbing}
+
+.grain{position:fixed;inset:-50%;z-index:2;pointer-events:none;opacity:.04;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grain .9s steps(4) infinite}
+@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-2%,3%)}50%{transform:translate(3%,-2%)}75%{transform:translate(-3%,-3%)}100%{transform:translate(2%,2%)}}
+
+/* ── bara de stare ─────────────────────────────────────── */
+#status{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;gap:22px;
+  padding:11px 18px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--os-dim);border-bottom:1px solid rgba(230,226,214,.07);background:rgba(0,0,0,.78)}
+#status .sp{margin-left:auto}
+#status b{color:var(--os);font-weight:400}
+#status .live{color:var(--acid)}
+#status .live::before{content:'●';margin-right:6px;animation:blink 2s infinite}
+@keyframes blink{50%{opacity:.2}}
+
+@media (prefers-reduced-motion: reduce){
+  .grain{animation:none}
+  #status .live::before{animation:none}
+}

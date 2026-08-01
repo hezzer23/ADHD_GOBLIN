@@ -1,0 +1,18 @@
+/* ── SISTEM DE CULORI ────────────────────────────────────────────────
+   Trei valori, atât. Culoarea e resursă, nu paletă.
+
+     os     materia. TOT ce e cunoaștere e os. Densitatea și mărimea fac
+            ierarhia, nu nuanța.
+     acid   ce e viu ACUM: atenția ta, pulsul, ce poartă o acțiune.
+     rugina ce eviți. Singurul semnal negativ din sistem.
+
+   Ce NU primește culoare: tipul nodului, vechimea, clusterul, gradul,
+   legătura inter-cluster. Alea se citesc prin greutate, mărime și marcaj. */
+:root{
+  --bg:#000000;
+  --os:#e6e2d6; --os-dim:#8e8a7e; --os-faint:#4a4842;
+  --acid:#c9f24d;
+  --rugina:#c9702f;
+  --mono:'DepartureMono',ui-monospace,monospace;
+  --display:'Basteleur',Georgia,serif;
+}

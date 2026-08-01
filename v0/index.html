@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ADHD_GOBLIN — v0</title>
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/shell.css">
+<link rel="stylesheet" href="css/parts.css">
+</head>
+<body>
+
+<!-- strat 0: câmpul organic (WebGL) -->
+<canvas id="motes"></canvas>
+<!-- strat 1: graful (2D, transparent unde nu e materie) -->
+<canvas id="field"></canvas>
+<!-- strat 2: zgârietură -->
+<div class="grain"></div>
+
+<div id="status">
+  <span class="live">graf viu</span>
+  <span>noduri <b id="s-n">0</b></span>
+  <span>legături <b id="s-l">0</b></span>
+  <span>clustere <b id="s-c">0</b></span>
+  <span class="sp">zoom <b id="s-z">1.00</b></span>
+  <span>scroll = zoom · drag = pan · click nod = puls</span>
+</div>
+
+<div id="reticle"><div class="rb"><span class="c3"></span><span class="c4"></span>
+  <div class="rl"><span id="r-name">—</span></div>
+  <div class="rm"><span id="r-sub">—</span></div>
+</div></div>
+
+<div id="edgecard">
+  <div class="eh"><span class="k" id="e-kind">—</span></div>
+  <div class="src" id="e-src">—</div>
+  <div class="meta" id="e-meta">—</div>
+</div>
+
+<div id="goblin">
+  <div class="who">goblin</div>
+  <span id="gtext"></span><span class="cur"></span>
+</div>
+
+<div id="dump">
+  <div class="dh"><span>braindump</span><span class="hint">enter = trimite · shift+enter = rând nou</span></div>
+  <textarea id="d-input" rows="1" placeholder="scrie haotic. tot. fără filtru." spellcheck="false"></textarea>
+</div>
+
+<script src="vendor/dither.js"></script>
+<script src="vendor/noise.js"></script>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
