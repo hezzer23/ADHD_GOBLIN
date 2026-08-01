@@ -267,40 +267,71 @@ export function createField(canvas){
     /* TRANSPARENT: nu umple cu negru. Motes-ul de sub e fundalul. */
     cx.clearRect(0,0,W,H);
 
-    /* ZONA DE LINIȘTE GLOBALĂ / VIGNETTE ADAPTIV (DECISION-motes-reactive.md):
-       motes doar pe margini, centrul rezervat grafului. Zona e LOCKED de
-       bounding box-ul nodurilor (world-space), deci urmărește zoom/pan —
-       la zoom in centrul rămâne întunecat, la zoom out se contractă și
-       motes-ul respiră înapoi. Computing trivial: un bbox + un gradient.
-       Field e peste motes, deci negrul opac le ascunde; marginile
-       transparente le lasă. Desenat primul, graful stă peste el. */
-    let zx0, zy0, zx1, zy1;
+    /* ZONA DE LINIȘTE — METABALL (DECISION-motes-reactive.md):
+       Formă organică care se mulează pe noduri. Fiecare nod e o bulă;
+       unde bulele se ating, fuzionează într-o zonă neagră conectată.
+       Se updatează automat cu zoom/pan/spawn.
+       Randat pe canvas offscreen la 1/6 rezoluție, threshold pe alpha,
+       desenat peste motes. ~22k pixeli/frame — trivial. */
+    const MS = 0.16;   // metaball scale
+    if (!draw._mc){
+      draw._mc = document.createElement('canvas');
+      draw._mcx = draw._mc.getContext('2d', { willReadFrequently: true });
+    }
+    const mc = draw._mc, mcx = draw._mcx;
+    const mw = Math.max(1, Math.round(W * MS));
+    const mh = Math.max(1, Math.round(H * MS));
+    if (mc.width !== mw || mc.height !== mh){ mc.width = mw; mc.height = mh; }
+    mcx.clearRect(0, 0, mw, mh);
+
     if (nodes.length){
-      zx0=1e9; zy0=1e9; zx1=-1e9; zy1=-1e9;
+      /* bule aditive: unde se suprapun, alpha crește → fuzionează */
+      mcx.globalCompositeOperation = 'lighter';
       for (const n of nodes){
-        zx0=Math.min(zx0, n.wx - n.r); zy0=Math.min(zy0, n.wy - n.r);
-        zx1=Math.max(zx1, n.wx + n.r); zy1=Math.max(zy1, n.wy + n.r);
+        const p = toS(n.wx, n.wy);
+        const r = n.r * 3.4 * cam.k * MS;    // raza generoasă a bulei
+        if (r < 1) continue;
+        const g = mcx.createRadialGradient(p.x*MS, p.y*MS, 0, p.x*MS, p.y*MS, r);
+        g.addColorStop(0,   'rgba(255,255,255,1)');
+        g.addColorStop(0.4, 'rgba(255,255,255,0.7)');
+        g.addColorStop(1,   'rgba(255,255,255,0)');
+        mcx.fillStyle = g;
+        mcx.beginPath();
+        mcx.arc(p.x*MS, p.y*MS, r, 0, 6.28);
+        mcx.fill();
       }
-      const pad = 280;                       // world units, în jurul nodurilor
-      zx0-=pad; zy0-=pad; zx1+=pad; zy1+=pad;
+      mcx.globalCompositeOperation = 'source-over';
+
+      /* threshold cu rampă lină: alpha > 55 → negru, margine moale */
+      const img = mcx.getImageData(0, 0, mw, mh);
+      const d = img.data;
+      for (let i = 0; i < d.length; i += 4){
+        const a = d[i+3];
+        if (a > 55){
+          d[i] = d[i+1] = d[i+2] = 0;                    // negru
+          d[i+3] = Math.min(255, (a - 55) / 50 * 255);   // rampă 55→105 = 0→255
+        } else {
+          d[i+3] = 0;                                     // transparent
+        }
+      }
+      mcx.putImageData(img, 0, 0);
+
+      /* scalează sus peste motes */
+      cx.save();
+      cx.imageSmoothingEnabled = true;
+      cx.drawImage(mc, 0, 0, mw, mh, 0, 0, W, H);
+      cx.restore();
     } else {
       /* fără noduri: zonă mică în centrul lumii */
-      zx0=WORLD.w/2-320; zy0=WORLD.h/2-250; zx1=WORLD.w/2+320; zy1=WORLD.h/2+250;
+      const zc = toS(WORLD.w/2, WORLD.h/2);
+      const r = 200 * cam.k;
+      const g = cx.createRadialGradient(zc.x, zc.y, 0, zc.x, zc.y, r);
+      g.addColorStop(0,   'rgba(0,0,0,0.9)');
+      g.addColorStop(0.7, 'rgba(0,0,0,0.4)');
+      g.addColorStop(1,   'rgba(0,0,0,0)');
+      cx.fillStyle = g;
+      cx.beginPath(); cx.arc(zc.x, zc.y, r, 0, 6.28); cx.fill();
     }
-    const zc = toS((zx0+zx1)/2, (zy0+zy1)/2);
-    const halfW = Math.max((zx1-zx0)/2 * cam.k, 40);
-    const halfH = Math.max((zy1-zy0)/2 * cam.k, 40);
-    cx.save();
-    cx.translate(zc.x, zc.y);
-    cx.scale(halfW, halfH);                  // cerc unitate → elipsa zonei
-    const vg = cx.createRadialGradient(0,0,0, 0,0,1);
-    vg.addColorStop(0,    'rgba(0,0,0,1)');    // mijlocul grafului: negru complet
-    vg.addColorStop(0.62, 'rgba(0,0,0,0.97)'); // zona nodurilor: aproape opac
-    vg.addColorStop(0.85, 'rgba(0,0,0,0.5)');  // tranziție spre câmp
-    vg.addColorStop(1,    'rgba(0,0,0,0)');    // margine: motes vizibil
-    cx.fillStyle = vg;
-    cx.fillRect(-1,-1,2,2);
-    cx.restore();
 
     /* avansează spawn animation (0→1, ~500ms, elastic.out) */
     for (const n of nodes){
