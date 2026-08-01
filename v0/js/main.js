@@ -105,8 +105,18 @@ async function onDump(text){
   /* nodurile vechi, înainte de a adăuga altele noi (pentru link) */
   const oldNodes = field.nodes.map(n => ({ id: n.id, label: n.label }));
 
-  /* 1. extract: LLM → 3-5 noduri */
-  const extracted = await extract(text);
+  /* 1. extract: LLM → 1-5 noduri (sau eșec curat, fără noduri false) */
+  const { nodes: extracted, ok } = await extract(text);
+
+  if (!ok || !extracted.length){
+    /* LLM-ul n-a putut extrage nimic real — goblinul o spune, graful rămâne curat */
+    motes.setThinking(false);
+    speak('n-am înțeles bine grămada asta. mai zi o dată, mai rar.');
+    busy = false;
+    input.disabled = false;
+    input.focus();
+    return;
+  }
 
   /* 2. spawn pe canvas, cu trail de la cutie */
   const dumpRect = $('dump').getBoundingClientRect();
