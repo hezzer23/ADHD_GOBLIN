@@ -17,6 +17,27 @@
 import { COLORS as C, rgba, WORLD, PHASES, BAYER, clamp, mulberry32 } from '../config.js';
 import * as particles from './particles.js';
 
+/* anvelopă convexă (Andrew's monotone chain). Pentru zona de liniște:
+   umple tot interiorul dintre noduri cu negru, ca nimic să nu răzbată. */
+function convexHull(pts){
+  if (pts.length < 3) return pts.slice();
+  const p = pts.slice().sort((a,b) => a.x-b.x || a.y-b.y);
+  const cross = (o,a,b) => (a.x-o.x)*(b.y-o.y) - (a.y-o.y)*(b.x-o.x);
+  const lower = [];
+  for (const pt of p){
+    while (lower.length>=2 && cross(lower[lower.length-2], lower[lower.length-1], pt) <= 0) lower.pop();
+    lower.push(pt);
+  }
+  const upper = [];
+  for (let i=p.length-1;i>=0;i--){
+    const pt = p[i];
+    while (upper.length>=2 && cross(upper[upper.length-2], upper[upper.length-1], pt) <= 0) upper.pop();
+    upper.push(pt);
+  }
+  lower.pop(); upper.pop();
+  return lower.concat(upper);
+}
+
 export function createField(canvas){
   const cx = canvas.getContext('2d');
   let W, H, DPR;
@@ -347,6 +368,22 @@ export function createField(canvas){
         mcx.stroke();
       }
       mcx.globalCompositeOperation = 'source-over';
+
+      /* UMPLERE INTERIOARĂ: anvelopa convexă a nodurilor, desenată ca
+         poligon plin. Asta închide ORICE gaură dintre noduri (triunghiuri,
+         goluri centrale) — interiorul clusterului devine negru continuu.
+         Marginile organice rămân de la bulele care depășesc anvelopa. */
+      if (nodes.length >= 3){
+        const hull = convexHull(nodes.map(n => { const p = toS(n.wx, n.wy); return { x: p.x*MS, y: p.y*MS }; }));
+        mcx.globalCompositeOperation = 'lighter';
+        mcx.fillStyle = 'rgba(255,255,255,1)';
+        mcx.beginPath();
+        mcx.moveTo(hull[0].x, hull[0].y);
+        for (let i=1;i<hull.length;i++) mcx.lineTo(hull[i].x, hull[i].y);
+        mcx.closePath();
+        mcx.fill();
+        mcx.globalCompositeOperation = 'source-over';
+      }
 
       /* threshold coborât + rampă largă: margine foarte moale, organică */
       const img = mcx.getImageData(0, 0, mw, mh);
