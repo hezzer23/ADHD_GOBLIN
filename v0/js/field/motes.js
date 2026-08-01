@@ -4,6 +4,14 @@
    Nu plutește aiurea ca să fie frumos. Răspunde doar la lucruri reale.
    Fiecare schimbare are o cauză.
 
+   VIGNETTE (update): motes doar pe margini. Dens la periferie, se stinge
+   spre centru (vignette inversat). Centrul e rezervat grafului. Implementat
+   ca mask radial CSS pe canvas-ul motes (transparent-centru → opac-margine).
+
+   TRANZIȚII SMOOTH (update): zero salturi. Toate schimbările de
+   contrast/brightness se interpolează (lerp 0.03/frame) spre țintă.
+   Câmpul alunecă între stări, nu comută.
+
    Stări: repaus (contrast mic) · tastare (crește cu ritmul) ·
           LLM (sus, indicator de progres) · goblin (stins, face loc vocii) ·
           click (undă locală).
@@ -17,8 +25,31 @@ import { rgba, COLORS as C } from '../config.js';
 
 const clamp01 = v => Math.max(0, Math.min(1, v));
 
+/* ── VIGNETTE: mask radial, dens la margini → 0 spre centru ──────────
+   Desenat pe un canvas mic pătrat, întins peste viewport (devine eliptic).
+   Unde mask-ul e transparent, motes-ul nu se vede → centrul rămâne curat. */
+function vignetteMask(){
+  const S = 256;
+  const c = document.createElement('canvas'); c.width = c.height = S;
+  const g = c.getContext('2d');
+  const r = S / 2;
+  const grad = g.createRadialGradient(r, r, 0, r, r, r);
+  grad.addColorStop(0,    'rgba(0,0,0,0)');     // centru: ascuns
+  grad.addColorStop(0.42, 'rgba(0,0,0,0)');     // zona grafului: curată
+  grad.addColorStop(0.72, 'rgba(0,0,0,0.5)');   // tranziție
+  grad.addColorStop(1,    'rgba(0,0,0,1)');     // margine: dens
+  g.fillStyle = grad;
+  g.fillRect(0, 0, S, S);
+  return c.toDataURL();
+}
+
 export function mountMotes(canvas){
   let motes = null;
+
+  /* BASE mai stins: motes-ul e acum concentrat pe margini de vignette,
+     deci periferia poate fi prezentă fără să concureze cu graful. */
+  const BASE = { contrast: 0.95, brightness: 0.02 };
+
   try {
     motes = createMotes(canvas, {
       effect: 'flow',
@@ -31,8 +62,8 @@ export function mountMotes(canvas){
       accent: '#c9f24d',      // acid — doar scânteia
       ink: '#75705f',         // os stins: viu, dar sub graf
       background: 'transparent',
-      contrast: 1.15,
-      brightness: 0.04,
+      contrast: BASE.contrast,
+      brightness: BASE.brightness,
       trail: 0.35,
       respectMotionPreference: true,
     });
@@ -44,8 +75,14 @@ export function mountMotes(canvas){
   /* createMotes NU pornește singur — randarea începe la start() */
   motes.start();
 
-  /* ── stările reactive, combinate într-un singur contrast/brightness ── */
-  const BASE = { contrast: 1.15, brightness: 0.04 };
+  /* aplică vignette-ul: motes doar pe margini */
+  const maskUrl = vignetteMask();
+  canvas.style.webkitMaskImage = maskUrl;
+  canvas.style.maskImage = maskUrl;
+  canvas.style.webkitMaskSize = '100% 100%';
+  canvas.style.maskSize = '100% 100%';
+
+  /* ── stările reactive, combinate într-o țintă de contrast/brightness ── */
   const state = {
     energy: 0,        // 0 gol → 1 graf plin (masa clusterelor stinge câmpul)
     typing: 0,        // ritmul tastării, decay natural în tick
@@ -66,33 +103,40 @@ export function mountMotes(canvas){
     return { contrast: Math.max(0.1, contrast), brightness };
   }
 
-  /* aplică doar când se schimbă ceva semnificativ (nu spam-ui motes.set) */
-  const applied = { contrast: -1, brightness: -1 };
-  function apply(){
+  /* TRANZIȚII SMOOTH: applied alunecă spre target cu lerp 0.03/frame.
+     motes.set() e chemat doar când applied s-a mișcat semnificativ,
+     ca să nu spam-uim în idle. */
+  const applied = { contrast: BASE.contrast, brightness: BASE.brightness };
+  const lastSet = { contrast: NaN, brightness: NaN };
+  function step(){
     const t = target();
-    if (Math.abs(t.contrast - applied.contrast) < 0.005 &&
-        Math.abs(t.brightness - applied.brightness) < 0.005) return;
-    applied.contrast = t.contrast; applied.brightness = t.brightness;
-    motes.set({ contrast: t.contrast, brightness: t.brightness });
+    applied.contrast   += (t.contrast   - applied.contrast)   * 0.03;
+    applied.brightness += (t.brightness - applied.brightness) * 0.03;
+    if (Math.abs(applied.contrast - lastSet.contrast) > 0.001 ||
+        Math.abs(applied.brightness - lastSet.brightness) > 0.001){
+      lastSet.contrast = applied.contrast;
+      lastSet.brightness = applied.brightness;
+      motes.set({ contrast: applied.contrast, brightness: applied.brightness });
+    }
   }
 
-  /* decay natural pentru typing + aplicare stare, o dată pe cadru */
+  /* decay natural pentru typing + interpolare stare, o dată pe cadru */
   let raf = 0;
   function tick(){
     if (state.typing > 0.001) state.typing *= 0.94; else state.typing = 0;
-    apply();
+    step();
     raf = requestAnimationFrame(tick);
   }
   raf = requestAnimationFrame(tick);
 
   /* ── API public ────────────────────────────────────────── */
-  function setEnergy(e){ state.energy = clamp01(e); apply(); }
+  function setEnergy(e){ state.energy = clamp01(e); }
   function setTyping(active){
     if (active) state.typing = clamp01(state.typing + 0.18);
     /* decay-ul e natural, în tick */
   }
-  function setThinking(on){ state.thinking = !!on; apply(); }
-  function dimForVoice(on){ state.voice = !!on; apply(); }
+  function setThinking(on){ state.thinking = !!on; }
+  function dimForVoice(on){ state.voice = !!on; }
   function pulseAt(x, y){ pulses.push({ x, y, t: 0 }); }
 
   /* undele: le desenează field.js pe canvasul lui (peste motes) */

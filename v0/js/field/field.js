@@ -391,14 +391,14 @@ export function createField(canvas){
     /* ZONA DE LINIȘTE (DECISION-motes-reactive.md): cunoașterea compilată
        alungă zgomotul. Înainte de a desena nodurile, un gradient radial
        negru (opac centru → transparent margine) șterge motes-ul de sub
-       fiecare nod. Raza = nod.r * 1.7. Mai multe noduri = câmp mai curat. */
+       fiecare nod. Raza = nod.r * 2.5. Mai multe noduri = câmp mai curat. */
     for (const n of nodes){
       const p = P.get(n.id);
-      const zr = n.r * 1.7 * cam.k;
+      const zr = n.r * 2.5 * cam.k;
       if (zr < 1) continue;
       const g = cx.createRadialGradient(p.x, p.y, 0, p.x, p.y, zr);
       g.addColorStop(0, 'rgba(0,0,0,1)');
-      g.addColorStop(0.5, 'rgba(0,0,0,0.7)');
+      g.addColorStop(0.45, 'rgba(0,0,0,0.6)');
       g.addColorStop(1, 'rgba(0,0,0,0)');
       cx.fillStyle = g;
       cx.beginPath(); cx.arc(p.x, p.y, zr, 0, 6.28); cx.fill();
@@ -419,6 +419,19 @@ export function createField(canvas){
         : 1;
       const scale = breath*(hovered?1.13:1)*(1+kick*.18)*spawnScale;
       const R = n.r*3*scale*cam.k;
+
+      /* GLOW: halou moale în culoarea nodului, sub textura dithered.
+         Dă nodului prezență pe câmpul întunecat, fără să adauge o a patra
+         culoare — e doar tint-ul, difuz. */
+      const gr = n.r*2.2*scale*cam.k;
+      if (gr > 2){
+        const gg = cx.createRadialGradient(p.x, p.y, 0, p.x, p.y, gr);
+        gg.addColorStop(0, rgba(n.tint, dim?0.05:0.16));
+        gg.addColorStop(0.6, rgba(n.tint, dim?0.02:0.06));
+        gg.addColorStop(1, rgba(n.tint, 0));
+        cx.fillStyle = gg;
+        cx.beginPath(); cx.arc(p.x, p.y, gr, 0, 6.28); cx.fill();
+      }
 
       /* DEFORMAREA: cursor continuu prin cele patru faze, cu cross-fade */
       const cursor = (t*.001*n.mspd*state.morph + n.ph) % PHASES;
