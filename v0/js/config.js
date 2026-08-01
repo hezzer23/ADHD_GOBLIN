@@ -77,6 +77,11 @@ export const PROMPTS = {
     'Cluster nou: tema „' + theme + '", ' + labels.length + ' noduri ' +
     '(numele lor: ' + JSON.stringify(labels) + '). ' + countUnresolved + ' sunt task-uri nerezolvate. ' +
     'Răspunde ca goblin: o singură propoziție cinică care semnalează tema + ce e nefăcut. Fără glazing.',
+
+  /* 4b — tema clusterului (nume scurt, 2-4 cuvinte) */
+  themeUser: (labels) =>
+    'Aceste noduri formează un grup cu temă comună: ' + JSON.stringify(labels) + '. ' +
+    'Dă-i un nume scurt de temă (2-4 cuvinte, lowercase, română).',
 };
 
 /* ── contextul vocii (DECISION-goblin-voice.md) ──────────────────────

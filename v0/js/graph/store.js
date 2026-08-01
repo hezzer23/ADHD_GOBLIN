@@ -61,6 +61,24 @@ export const addClusterEvent = ev   => req('clusterEvents', s => s.add({ ...ev, 
 export const sayGoblin = (text, mode='ecou') =>
   req('goblin_says', s => s.add({ text, mode, ts: Date.now() }));
 
+/* persistă pozițiile înghețate după cluster pull */
+export async function updatePositions(list){
+  /* list: [{ id, x, y }] */
+  const db = await open();
+  return new Promise((res, rej) => {
+    const t = db.transaction('nodes', 'readwrite');
+    const st = t.objectStore('nodes');
+    for (const p of list){
+      const g = st.get(p.id);
+      g.onsuccess = () => {
+        if (g.result){ g.result.x = p.x; g.result.y = p.y; st.put(g.result); }
+      };
+    }
+    t.oncomplete = () => res();
+    t.onerror = () => rej(t.error);
+  });
+}
+
 /* ── citiri ────────────────────────────────────────────── */
 export const getAll = storeName => read(storeName, s => s.getAll());
 

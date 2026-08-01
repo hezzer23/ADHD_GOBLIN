@@ -13,7 +13,9 @@ import { mountMotes } from './field/motes.js';
 import { createGoblin } from './goblin/goblin.js';
 import { extract } from './brain/extract.js';
 import { link } from './brain/link.js';
-import { addDump, addNode, addLink, sayGoblin, recentSays, loadGraph } from './graph/store.js';
+import { detectCluster } from './brain/cluster.js';
+import { emergeCluster } from './field/clusteranim.js';
+import { addDump, addNode, addLink, addClusterEvent, updatePositions, sayGoblin, recentSays, loadGraph } from './graph/store.js';
 import { PROMPTS, COLORS as C, WORLD } from './config.js';
 import { llmRequest } from './llm/provider.js';
 
@@ -142,16 +144,63 @@ async function onDump(text){
     }
   }
 
-  /* 4. goblin: replică cinică (LLM sau fallback) */
-  const labels = extracted.map(n => n.label);
-  const reply = await goblinReply(text, labels);
+  /* 4. CLUSTER: la a 3-a ingestă, dacă se formează o componentă conexă
+     mare, nodurile se trag împreună + goblinul numește grămada. */
+  let clusterFormed = false;
+  if (field.clusters.length === 0 && field.nodes.length >= 4){
+    const detected = await detectCluster(
+      field.nodes.map(n => ({ id: n.id, label: n.label, type: n.type })),
+      field.edges.map(e => ({ a: e.a.id, b: e.b.id }))
+    );
+    if (detected){
+      const clusterNodes = detected.nodeIds.map(id => field.byId.get(id)).filter(Boolean);
+      emergeCluster(field, clusterNodes, detected.theme, 0);
+      addClusterEvent({ dumpId: null, theme: detected.theme, nodeIds: detected.nodeIds })
+        .catch(()=>{});
+      /* persistă pozițiile înghețate după ce pull-ul se termină */
+      setTimeout(() => {
+        updatePositions(clusterNodes.map(n => ({ id: n.id, x: n.wx, y: n.wy })))
+          .catch(()=>{});
+      }, 700);
+      clusterFormed = true;
+      /* goblinul reacționează la cluster (Prompt 4) */
+      const cLabels = clusterNodes.map(n => n.label);
+      const unresolved = clusterNodes.filter(n => n.action).length;
+      const reply = await goblinClusterReply(detected.theme, cLabels, unresolved);
+      motes.setThinking(false);
+      speak(reply);
+    }
+  }
 
-  motes.setThinking(false);         // LLM gata → câmpul coboară
-  speak(reply);                     // ecoul → câmpul se stinge puțin
+  /* 5. goblin: replică cinică (LLM sau fallback) — doar dacă nu s-a format cluster */
+  if (!clusterFormed){
+    const labels = extracted.map(n => n.label);
+    const reply = await goblinReply(text, labels);
+    motes.setThinking(false);         // LLM gata → câmpul coboară
+    speak(reply);                     // ecoul → câmpul se stinge puțin
+  }
 
   busy = false;
   input.disabled = false;
   input.focus();
+}
+
+/* replică la cluster (Prompt 4 + context), cu fallback on-brand */
+async function goblinClusterReply(theme, labels, countUnresolved){
+  try {
+    const says = await recentSays(5);
+    const ctx = { recentSays: says, activeNodes: labels };
+    const messages = [
+      { role: 'system', content: PROMPTS.persona },
+      { role: 'user',   content: PROMPTS.reactClusterUser(theme, labels, countUnresolved, ctx) },
+    ];
+    const raw = await llmRequest(messages, { json: false });
+    const reply = raw.trim();
+    if (reply) return reply;
+  } catch (err) {
+    console.warn('[goblin] cluster LLM fail, fallback:', err.message);
+  }
+  return `ai ${labels.length} noduri despre „${theme}" și ${countUnresolved} nerezolvate. grămada are acum și nume.`;
 }
 
 /* replică de la LLM (Prompt 3 + context), cu fallback on-brand */

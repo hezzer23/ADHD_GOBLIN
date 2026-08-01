@@ -169,6 +169,10 @@ export function createField(canvas){
       wx: spec.x ?? WORLD.w/2, wy: spec.y ?? WORLD.h/2,
       deg: 0, ph:0, spd:1, breath:.05, mspd:1, tex:[],
       spawnT: spec.spawn === false ? 1 : 0,   // 0→1 = animație fly-in
+      tx: spec.x ?? WORLD.w/2, ty: spec.y ?? WORLD.h/2,  // ținta (cluster pull)
+      sx: spec.x ?? WORLD.w/2, sy: spec.y ?? WORLD.h/2,  // start (pt. interpolare)
+      moveT: 1,                                // 0→1 = progres spre țintă
+      recede: 0,                               // 0→1 = se stinge (nu e în cluster)
     };
     n.tint = n.action ? C.acid : n.worry ? C.rug : C.os;
     const seed = Math.floor(rnd0()*99999);
@@ -290,14 +294,53 @@ export function createField(canvas){
     return Math.hypot(px-(ax+dx*t), py-(ay+dy*t));
   }
 
+  /* ── CLUSTER PULL: mută un nod spre o țintă, animat ───── */
+  function animateTo(n, x, y){
+    n.sx = n.wx; n.sy = n.wy;
+    n.tx = x; n.ty = y;
+    n.moveT = 0;
+  }
+  function setRecede(n, on){ n.recedeTarget = on ? 1 : 0; }
+
+  /* micro screen shake (doar la evenimente mari — cluster emerge) */
+  let shakeT = 1, shakeAmp = 0;
+  function triggerShake(amp){ shakeT = 0; shakeAmp = amp || 3; }
+
   /* ── randare ─────────────────────────────────────────── */
   let lastT = 0;
   function draw(t){
     const dt = lastT ? Math.min((t - lastT) / 1000, 0.05) : 0.016;
     lastT = t;
 
+    /* CLUSTER PULL: interpolare power3.inOut spre țintă (600ms) */
+    for (const n of nodes){
+      if (n.moveT < 1){
+        n.moveT = Math.min(1, n.moveT + dt / 0.6);
+        const e = n.moveT < 0.5
+          ? 4*n.moveT*n.moveT*n.moveT
+          : 1 - Math.pow(-2*n.moveT+2,3)/2;   // easeInOutCubic
+        n.wx = n.sx + (n.tx - n.sx)*e;
+        n.wy = n.sy + (n.ty - n.sy)*e;
+      }
+      /* recede: se stinge spre țintă (nu e în cluster) */
+      const rt = n.recedeTarget || 0;
+      if (n.recede < rt) n.recede = Math.min(rt, n.recede + dt/0.4);
+      else if (n.recede > rt) n.recede = Math.max(rt, n.recede - dt/0.4);
+    }
+
+    /* micro screen shake: decay rapid */
+    let shx=0, shy=0;
+    if (shakeT < 1){
+      shakeT = Math.min(1, shakeT + dt/0.2);
+      const a = shakeAmp * (1 - shakeT);
+      shx = (Math.random()-.5)*2*a;
+      shy = (Math.random()-.5)*2*a;
+    }
+
     /* TRANSPARENT: nu umple cu negru. Motes-ul de sub e fundalul. */
     cx.clearRect(0,0,W,H);
+    cx.save();
+    cx.translate(shx, shy);
 
     /* ZONA DE LINIȘTE — METABALL (DECISION-motes-reactive.md):
        Formă organică care se mulează pe noduri. Fiecare nod e o bulă;
@@ -568,16 +611,17 @@ export function createField(canvas){
         : 1;
       const scale = breath*(hovered?1.13:1)*(1+kick*.18)*spawnScale;
       const R = n.r*3*scale*cam.k;
+      const baseA = (dim ? .15 : 1) * (1 - n.recede*0.7);   // recede → 30% opac
 
       /* DEFORMAREA: cursor continuu prin cele patru faze, cu cross-fade */
       const cursor = (t*.001*n.mspd*state.morph + n.ph) % PHASES;
       const i0 = Math.floor(cursor), i1 = (i0+1)%PHASES;
       const mix = state.morph>0.01 ? (cursor-i0) : 0;
       cx.save();
-      cx.globalAlpha = dim?.15:1;
+      cx.globalAlpha = baseA;
       cx.drawImage(n.tex[i0], p.x-R/2, p.y-R/2, R, R);
       if (mix>0.01){
-        cx.globalAlpha = (dim?.15:1)*mix;
+        cx.globalAlpha = baseA*mix;
         cx.drawImage(n.tex[i1], p.x-R/2, p.y-R/2, R, R);
       }
       cx.restore();
@@ -645,6 +689,8 @@ export function createField(canvas){
     /* particulele (trail + burst de spawn) peste tot */
     particles.draw(cx);
 
+    cx.restore();   // închide translate-ul de shake
+
     return {
       hoverNode, hoverEdge, cam,
       hit, drawn, shownLabels,
@@ -658,6 +704,7 @@ export function createField(canvas){
     nodes, edges, clusters, byId,
     toS, toW,
     particles,
+    animateTo, setRecede, triggerShake,
     set onNodeClick(fn){ onNodeClick = fn; },
   };
 }
