@@ -65,6 +65,16 @@
 #demo:hover{color:var(--acid);border-color:rgba(201,242,77,.4)}
 #demo:disabled{opacity:.35;cursor:default;color:var(--os-faint);border-color:rgba(230,226,214,.16)}
 
+/* butonul „gata" (Stratul 2): mic, acid, geometric. Apare doar sub nodul
+   ales de triaj. Nu concurează cu braindump-ul — e închiderea, nu intrarea. */
+#gata{position:fixed;z-index:21;transform:translate(-50%,0);
+  background:rgba(0,0,0,.92);border:1px solid rgba(201,242,77,.55);color:var(--acid);
+  cursor:pointer;font-family:var(--inst);font-size:11px;letter-spacing:.22em;
+  text-transform:uppercase;padding:7px 18px;opacity:0;pointer-events:none;
+  transition:opacity .25s,border-color .15s,color .15s,background .15s}
+#gata.on{opacity:1;pointer-events:auto}
+#gata:hover{background:rgba(201,242,77,.12);border-color:var(--acid);color:#fff}
+
 @media (prefers-reduced-motion: reduce){
   .echo .cur{animation:none}
 }

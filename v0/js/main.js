@@ -13,8 +13,8 @@ import { mountMotes } from './field/motes.js';
 import { createGoblin } from './goblin/goblin.js';
 import { reason } from './brain/reason.js';
 import { emergeCluster } from './field/clusteranim.js';
-import { addDump, addNode, addLink, addClusterEvent, updatePositions, sayGoblin, recentSays, loadGraph } from './graph/store.js';
-import { PROMPTS, COLORS as C, WORLD } from './config.js';
+import { addDump, addNode, addLink, addClusterEvent, updatePositions, sayGoblin, recentSays, loadGraph, loadSession, saveSession } from './graph/store.js';
+import { PROMPTS, LINES, TIMING, COLORS as C, WORLD } from './config.js';
 import { llmRequest } from './llm/provider.js';
 
 const $ = id => document.getElementById(id);
@@ -22,6 +22,15 @@ const $ = id => document.getElementById(id);
 const field  = createField($('field'));
 const motes  = mountMotes($('motes'));
 const goblin = createGoblin();
+
+/* ── Stratul 1+2: stare de sesiune ─────────────────────── */
+let sessionMem = {};        // { last_done, last_session, session_intent, pattern_note }
+let gateOpen = false;       // poarta de anunț e activă (body doubling)
+let gateTimer = null;
+let focused = null;         // { id, label, verb } — nodul ales de triaj
+let followupTimer = null;
+let followupAsked = false;
+const gataBtn = $('gata');
 
 /* click pe nod → undă locală în câmp (coord. screen) */
 field.onNodeClick = (x, y) => motes.pulseAt(x, y);
@@ -71,6 +80,17 @@ function frame(t){
   /* câmpul se stinge pe măsură ce graful crește — cunoașterea compilată
      alungă zgomotul. 0 noduri = 0 energie (câmp plin), 12+ = stins. */
   motes.setEnergy(Math.min(1, st.counts.n / 12));
+
+  /* Stratul 2: butonul „gata" urmărește nodul ales (centrat de camera lerp) */
+  if (focused){
+    const fn = field.byId.get(focused.id);
+    if (fn){
+      const p = field.toS(fn.wx, fn.wy);
+      gataBtn.style.left = p.x + 'px';
+      gataBtn.style.top  = (p.y + fn.r * st.cam.k * 3.2 + 14) + 'px';
+    }
+  }
+
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
@@ -200,6 +220,9 @@ async function onDump(text){
     speak(reply);                     // ecoul → câmpul se stinge puțin
   }
 
+  /* 6. TRIAJ (Stratul 2): goblinul alege UN nod + verb concret */
+  await triage(newNodes);
+
   busy = false;
   input.disabled = false;
   input.focus();
@@ -264,6 +287,169 @@ function speak(msg){
   speak._t = setTimeout(() => motes.dimForVoice(false), 2600);
 }
 
+/* ── Stratul 2: POARTA DE ANUNȚ (body doubling) ──────────
+   La deschidere, după mesajul de boot, goblinul întreabă ce face userul
+   concret în următoarele 20 de minute. Dacă nu răspunde în 30s: tace. */
+function openGate(){
+  gateOpen = true;
+  speak(LINES.gate);
+  gateTimer = setTimeout(() => {
+    gateOpen = false;
+    gateTimer = null;
+    /* goblinul tace. nu insistă. */
+  }, TIMING.gateMs);
+}
+function closeGate(){
+  gateOpen = false;
+  if (gateTimer) clearTimeout(gateTimer);
+  gateTimer = null;
+}
+
+/* ── Stratul 2: TRIAJ — goblinul alege UN nod + verb concret ──
+   După reasoning pass: un singur nod, un singur verb, un singur buton.
+   Restul canvasului se estompează. Criteriile trăiesc în prompt. */
+async function triage(newNodes){
+  if (!newNodes.length) return;
+
+  /* pool: task-uri deschise din graf, exclusiv cele noi */
+  const newLabels = new Set(newNodes.map(n => n.label));
+  const pool = field.nodes
+    .filter(n => n.action && !newLabels.has(n.label))
+    .map(n => ({ label: n.label, source: n.source || '' }));
+
+  const intent = sessionMem.session_intent?.text || '';
+  const mem = {
+    last_done: sessionMem.last_done || null,
+    pattern_note: sessionMem.pattern_note || null,
+  };
+
+  let says = [];
+  try { says = await recentSays(5); } catch {}
+  const ctx = { recentSays: says, activeNodes: field.nodes.map(n => n.label) };
+
+  const messages = [
+    { role: 'system', content: PROMPTS.triageSystem },
+    { role: 'user',   content: PROMPTS.triageUser(
+      newNodes.map(n => ({ label: n.label, type: n.type, source: n.source || '' })),
+      pool, intent, mem, ctx
+    )},
+  ];
+
+  let choice = null;
+  try {
+    const raw = await llmRequest(messages, { json: true });
+    choice = JSON.parse(raw);
+  } catch (err) {
+    console.warn('[triage] LLM fail, fallback:', err.message);
+  }
+
+  /* fallback: primul nod nou cu action, sau primul nod nou */
+  if (!choice || !choice.label){
+    const fb = newNodes.find(n => n.action) || newNodes[0];
+    choice = { label: fb.label, verb: LINES.verb(fb.label), note: '' };
+  }
+
+  /* găsește nodul în field (poate fi din pool — label match) */
+  let targetNode = field.nodes.find(n => n.label === choice.label);
+  if (!targetNode){
+    const fb = newNodes.find(n => n.action) || newNodes[0];
+    choice = { label: fb.label, verb: LINES.verb(fb.label), note: '' };
+    targetNode = fb;
+  }
+
+  /* focus + verb + gata */
+  focused = { id: targetNode.id, label: choice.label, verb: choice.verb };
+  field.setFocus(targetNode.id);
+  speak(choice.verb);
+  showGata(true);
+  startFollowup();
+
+  /* salvează pattern_note dacă există */
+  if (choice.note){
+    sessionMem.pattern_note = { text: choice.note, ts: Date.now() };
+    saveSession({ pattern_note: sessionMem.pattern_note }).catch(()=>{});
+  }
+}
+
+/* ── Stratul 2: ÎNCHIDERE — butonul „gata" ───────────────
+   Click → replică cinică despre SITUAȚIE → nodul dispare → salvare. */
+async function closeNode(){
+  if (!focused) return;
+  const { id, label, verb } = focused;
+
+  showGata(false);
+  clearFollowup();
+
+  let says = [];
+  try { says = await recentSays(5); } catch {}
+  const ctx = { recentSays: says, activeNodes: field.nodes.map(n => n.label) };
+
+  let reply = '';
+  try {
+    const messages = [
+      { role: 'system', content: PROMPTS.persona },
+      { role: 'user',   content: PROMPTS.closeUser(label, verb, ctx) },
+    ];
+    reply = (await llmRequest(messages, { json: false })).trim();
+  } catch (err) {
+    console.warn('[close] LLM fail, fallback:', err.message);
+  }
+  if (!reply) reply = 'una s-a dus. grămada rămâne.';
+
+  speak(reply);
+
+  /* nodul dispare */
+  field.setFocus(null);
+  field.removeNode(id);
+  field.recomputeClusters();
+  focused = null;
+
+  /* salvare last_done + last_session */
+  sessionMem.last_done = { label, verb, ts: Date.now() };
+  sessionMem.last_session = { date: new Date().toISOString().slice(0,10), leftover: '' };
+  saveSession({ last_done: sessionMem.last_done, last_session: sessionMem.last_session }).catch(()=>{});
+}
+
+/* ── Stratul 2: FOLLOW-UP — o singură întrebare, apoi tace ── */
+function startFollowup(){
+  clearFollowup();
+  followupAsked = false;
+  followupTimer = setTimeout(askFollowup, TIMING.followupMs);
+}
+function clearFollowup(){
+  if (followupTimer) clearTimeout(followupTimer);
+  followupTimer = null;
+}
+async function askFollowup(){
+  if (!focused || followupAsked) return;
+  followupAsked = true;
+
+  const { label, verb } = focused;
+  let says = [];
+  try { says = await recentSays(5); } catch {}
+  const ctx = { recentSays: says, activeNodes: field.nodes.map(n => n.label) };
+
+  let reply = '';
+  try {
+    const messages = [
+      { role: 'system', content: PROMPTS.persona },
+      { role: 'user',   content: PROMPTS.followupUser(label, verb, ctx) },
+    ];
+    reply = (await llmRequest(messages, { json: false })).trim();
+  } catch (err) {
+    console.warn('[followup] LLM fail, fallback:', err.message);
+  }
+  if (!reply) reply = LINES.followup(label);
+
+  speak(reply);
+}
+
+/* ── butonul „gata" ────────────────────────────────────── */
+function showGata(on){
+  gataBtn.classList.toggle('on', on);
+}
+gataBtn.addEventListener('click', closeNode);
+
 /* ── input wiring + motes la tastare ───────────────────── */
 input.addEventListener('keydown', ev => {
   if (ev.key === 'Enter' && !ev.shiftKey){
@@ -272,6 +458,17 @@ input.addEventListener('keydown', ev => {
     if (!text || busy) return;
     input.value = '';
     input.style.height = 'auto';
+
+    /* poarta de anunț: primul răspuns devine session_intent (body doubling) */
+    if (gateOpen){
+      closeGate();
+      sessionMem.session_intent = { text, ts: Date.now() };
+      saveSession({ session_intent: sessionMem.session_intent }).catch(()=>{});
+      /* dacă e un braindump real (mai lung), merge și ca dump */
+      if (text.length > 40) onDump(text);
+      return;
+    }
+
     onDump(text);
   }
 });
@@ -344,13 +541,21 @@ async function boot(){
     console.warn('[boot] reload fail:', err);
   }
 
+  /* Stratul 1: încarcă memoria sesiunii */
+  try { sessionMem = await loadSession() || {}; } catch { sessionMem = {}; }
+
+  /* mesaj de boot: continuare sau gol */
   setTimeout(() => {
     const hasNodes = field.nodes.length > 0;
-    speak(
-      hasNodes
-        ? `${field.nodes.length} noduri de data trecută. tot aici. tot nerezolvate.`
-        : 'gol. ca de obicei. scrie ceva în cutia aia și vedem ce se alege de grămadă.'
-    );
+    if (sessionMem.last_done){
+      speak(LINES.bootDone(sessionMem.last_done.label));
+    } else if (hasNodes){
+      speak(LINES.bootNodes(field.nodes.length));
+    } else {
+      speak(LINES.bootEmpty);
+    }
+    /* poarta de anunț vine după mesajul de boot */
+    setTimeout(openGate, 2800);
   }, 1200);
 }
 boot();

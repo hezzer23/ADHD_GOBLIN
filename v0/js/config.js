@@ -92,6 +92,70 @@ export const PROMPTS = {
     'Cluster nou: tema „' + theme + '", ' + labels.length + ' noduri ' +
     '(numele lor: ' + JSON.stringify(labels) + '). ' + countUnresolved + ' sunt task-uri nerezolvate. ' +
     'Răspunde ca goblin: o singură propoziție cinică care semnalează tema + ce e nefăcut. Fără glazing.',
+
+  /* 5 — TRIAJ (Stratul 2): după reasoning pass, goblinul alege UN nod și
+     returnează un VERB concret, nu labelul. Criteriile trăiesc aici, în
+     prompt (recurență, vechime, legături, anunțul de la poartă) — nu în cod. */
+  triageSystem:
+    'Ești un goblin care triază haosul. Alegi UN SINGUR lucru de făcut acum ' +
+    'și-l formulezi ca verb concret, fizic, la persoana a II-a. ' +
+    'Răspunde DOAR JSON valid, fără alt text.',
+  triageUser: (newNodes, poolNodes, intent, mem, ctx) =>
+    contextBlock(ctx) +
+    'Noduri NOI din braindump-ul ăsta: ' + JSON.stringify(newNodes) + '\n' +
+    (poolNodes.length
+      ? 'Task-uri deschise mai vechi (pool existent): ' + JSON.stringify(poolNodes) + '\n'
+      : '') +
+    (intent
+      ? 'Ce a anunțat userul la poartă că face în următoarele 20 de minute: "' + intent + '"\n'
+      : '') +
+    (mem.last_done
+      ? 'Ultima dată a terminat: "' + mem.last_done.label + '" (' + mem.last_done.verb + ')\n'
+      : '') +
+    (mem.pattern_note
+      ? 'Ultimul tău insight structural despre grămadă: "' + mem.pattern_note.text + '"\n'
+      : '') +
+    'Alege UN nod — din cele noi SAU din pool. Criterii, în ordine: ' +
+    '(1) ce se potrivește cu anunțul de la poartă, (2) recurența în graf, ' +
+    '(3) vechimea, (4) câte legături are. ' +
+    'Apoi formulează un VERB concret și fizic: max 12 cuvinte, persoana a II-a, ' +
+    'NU labelul nodului. Exemplu: pentru „raport lunar" → „deschide documentul și scrie primul paragraf".\n' +
+    'Opțional, „note": o propoziție de insight structural despre grămadă ' +
+    '(max 15 cuvinte) — doar dacă e ceva cu adevărat nou de zis.\n' +
+    'DOAR JSON: {"label":"…","verb":"…","note":"…"}',
+
+  /* 6 — ÎNCHIDERE (Stratul 2): replică la „gata". Cinism spre SITUAȚIE,
+     nod sau grămadă — NICIODATĂ spre user (RSD). Zero felicitări. */
+  closeUser: (label, verb, ctx) =>
+    contextBlock(ctx) +
+    'Userul tocmai a apăsat „gata": „' + label + '" e terminat (verbul lui era: ' + verb + '). ' +
+    'Spune o singură propoziție cinică despre SITUAȚIE, NOD sau GRĂMADĂ — ' +
+    'NICIODATĂ despre user. Fără felicitări, fără glazing, fără „bravo". ' +
+    'Exemplu de ton: „grămada asta de gunoi nu se face singură, dar una s-a dus."',
+
+  /* 7 — FOLLOW-UP (Stratul 2): o singură întrebare, fără guilt, apoi tace. */
+  followupUser: (label, verb, ctx) =>
+    contextBlock(ctx) +
+    'A trecut un timp și butonul „gata" pentru „' + label + '" (' + verb + ') ' +
+    'nu a fost apăsat. Întreabă O SINGURĂ dată, scurt, FĂRĂ guilt și FĂRĂ judecată, ' +
+    'dacă s-a întâmplat. Apoi taci. O propoziție, fără semnul exclamării.',
+};
+
+/* ── Stratul 2: replici fixe (fără LLM — poarta nu negociază, boot-ul e instant) ── */
+export const LINES = {
+  gate:         'bine. ce faci concret în următoarele 20 de minute?',
+  bootLeftover: leftover => 'ai rămas la: ' + leftover + '. continuăm sau alegem altceva?',
+  bootDone:     label => 'data trecută ai terminat „' + label + '". restul e tot aici. continuăm sau alegem altceva?',
+  bootNodes:    n => n + ' noduri de data trecută. tot aici. tot nerezolvate.',
+  bootEmpty:    'gol. scrie ceva și vedem.',
+  followup:     label => 'trecu un pic. „' + label + '" — s-a întâmplat sau nu? întreb o dată și tac.',
+  verb:         label => 'ia „' + label + '" și fă primul pas fizic. acum.',
+};
+
+/* ── Stratul 2: timpi (tot ce e tunabil) ───────────────── */
+export const TIMING = {
+  gateMs:     30 * 1000,        // poarta de anunț: 30s, apoi tace
+  followupMs: 8 * 60 * 1000,    // follow-up „gata": o singură întrebare
 };
 
 /* ── contextul vocii (DECISION-goblin-voice.md) ──────────────────────

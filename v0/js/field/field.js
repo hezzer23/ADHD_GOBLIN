@@ -175,9 +175,11 @@ export function createField(canvas){
       sx: spec.x ?? WORLD.w/2, sy: spec.y ?? WORLD.h/2,  // start (pt. interpolare)
       moveT: 1,                                // 0→1 = progres spre țintă
       recede: 0,                               // 0→1 = se stinge (nu e în cluster)
+      focus: 0,                                // 0→1 = nodul ales (Stratul 2)
     };
     n.tint = n.action ? C.acid : n.worry ? C.rug : C.os;
     const seed = Math.floor(rnd0()*99999);
+    n._seed = seed;                            // pt. rebuild la focus (Stratul 2)
     for (let p=0;p<PHASES;p++) n.tex.push(makeNodeTexture(n.r, n.tint, n.action?.95:.82, seed, p));
     n.ph = rnd0()*6.28; n.spd = .55+rnd0()*.6;
     n.breath = .04+rnd0()*.035; n.mspd = .16+rnd0()*.16;
@@ -305,6 +307,44 @@ export function createField(canvas){
   }
   function setRecede(n, on){ n.recedeTarget = on ? 1 : 0; }
 
+  /* ── FOCUS / TRIAJ (Stratul 2) ─────────────────────────────────────
+     Un singur nod ales: restul canvasului se estompează (opacity lerp
+     spre 0.15), nodul ales crește și camera se centrează lin pe el.
+     focusId = null → totul revine la normal. */
+  let focusId = null;
+  function setFocus(id){
+    focusId = id;
+    const n = id ? byId.get(id) : null;
+    if (n){
+      /* rebuild ca nod acid, mare — alesul e semnalat vizual, indiferent
+         de tipul lui original (task/idee/îngrijorare/fapt) */
+      n.r = 34;
+      n.tint = C.acid;
+      for (let p = 0; p < PHASES; p++)
+        n.tex[p] = makeNodeTexture(n.r, C.acid, 0.95, n._seed, p);
+    }
+  }
+
+  /* șterge un nod + muchiile lui (la „gata"). Nu atinge clusterele ca
+     obiecte — main.js cheamă recomputeClusters după. */
+  function removeNode(id){
+    const n = byId.get(id);
+    if (!n) return;
+    const i = nodes.indexOf(n);
+    if (i >= 0) nodes.splice(i, 1);
+    byId.delete(id);
+    adj.delete(id);
+    for (let j = edges.length - 1; j >= 0; j--){
+      const e = edges[j];
+      if (e.a === n || e.b === n){
+        const o = e.a === n ? e.b : e.a;
+        o.deg = Math.max(0, o.deg - 1);
+        edges.splice(j, 1);
+      }
+    }
+    if (focusId === id) focusId = null;
+  }
+
   /* micro screen shake (doar la evenimente mari — cluster emerge) */
   let shakeT = 1, shakeAmp = 0;
   function triggerShake(amp){
@@ -332,6 +372,20 @@ export function createField(canvas){
       const rt = n.recedeTarget || 0;
       if (n.recede < rt) n.recede = Math.min(rt, n.recede + dt/0.4);
       else if (n.recede > rt) n.recede = Math.max(rt, n.recede - dt/0.4);
+      /* focus (Stratul 2): 0→1 spre nodul ales, restul se estompează */
+      const ft = (focusId && n.id === focusId) ? 1 : 0;
+      if (n.focus < ft) n.focus = Math.min(ft, n.focus + dt/0.45);
+      else if (n.focus > ft) n.focus = Math.max(ft, n.focus - dt/0.45);
+    }
+
+    /* camera se centrează lin pe nodul ales (doar cât e focus activ) */
+    if (focusId){
+      const fn = byId.get(focusId);
+      if (fn){
+        const lerp = 1 - Math.pow(0.001, dt);   // ~smooth, framerate-independent
+        cam.x += (fn.wx - cam.x) * lerp;
+        cam.y += (fn.wy - cam.y) * lerp;
+      }
     }
 
     /* micro screen shake: decay rapid */
@@ -504,8 +558,9 @@ export function createField(canvas){
         const puls = 1 + Math.sin(t*.00045 + c.id*2.1)*.05;
         const R = c.rw*2*cam.k*puls;
         const focusIn = hoverNode && hoverNode.cluster===c.id;
+        const a = focusId ? .12 : focusIn ? .95 : hoverNode ? .28 : .66;
         cx.save();
-        cx.globalAlpha = state.halo * (focusIn ? .95 : hoverNode ? .28 : .66);
+        cx.globalAlpha = state.halo * a;
         cx.drawImage(c.halo, p.x-R/2, p.y-R/2, R, R);
         cx.restore();
       }
@@ -516,15 +571,18 @@ export function createField(canvas){
     for (const e of edges){
       const a=P.get(e.a.id), b=P.get(e.b.id);
       const lit = hoverNode && (e.a===hoverNode || e.b===hoverNode);
-      if (e.weak && state.weak!=='always' && !(state.weak==='hover' && lit)) continue;
-      const dim = hoverNode && !lit;
+      /* Stratul 2: sub focus, muchiile alesului rămân acid, restul se sting */
+      const flit = focusId && (e.a.id===focusId || e.b.id===focusId);
+      const fdim = focusId && !flit;
+      if (e.weak && state.weak!=='always' && !(state.weak==='hover' && lit) && !flit) continue;
+      const dim = (hoverNode && !lit) || fdim;
       drawn++;
 
       if (!hoverNode && !hoverEdge && distToSeg(a.x,a.y,b.x,b.y,mouse.x,mouse.y) < 7) hoverEdge=e;
       const hot = hoverEdge===e;
 
-      const col = (hot||lit) ? C.acid : C.os;
-      const alpha = hot ? .95 : lit ? .8 : dim ? .07 : (e.weak ? .16 : e.cross ? .44 : .27);
+      const col = (hot||lit||flit) ? C.acid : C.os;
+      const alpha = hot ? .95 : (lit||flit) ? .8 : dim ? (fdim ? .05 : .07) : (e.weak ? .16 : e.cross ? .44 : .27);
       cx.strokeStyle = rgba(col, alpha);
       cx.lineWidth = hot?2:lit?1.6:e.cross?1.4:1;
       cx.lineCap='butt';
@@ -611,7 +669,8 @@ export function createField(canvas){
     for (const n of nodes){
       const p=P.get(n.id);
       const hovered = hoverNode===n;
-      const dim = near && !near.has(n.id);
+      const isFocused = focusId === n.id;
+      const dim = (near && !near.has(n.id)) || (focusId && !isFocused);
       const pulsed = pulse && pulse.dist.has(n.id) && front>=pulse.dist.get(n.id);
       const kick = pulsed ? Math.max(0,1-(front-pulse.dist.get(n.id))*1.4) : 0;
       const breath = 1 + Math.sin(t*.0011*n.spd+n.ph)*n.breath*state.breath;
@@ -619,7 +678,7 @@ export function createField(canvas){
       const spawnScale = n.spawnT < 1
         ? (1 - Math.pow(1 - n.spawnT, 3)) * (1 + 0.35 * Math.sin(n.spawnT * Math.PI * 2.5) * (1 - n.spawnT))
         : 1;
-      const scale = breath*(hovered?1.13:1)*(1+kick*.18)*spawnScale;
+      const scale = breath*(hovered?1.13:1)*(isFocused?1.22:1)*(1+kick*.18)*spawnScale;
       const R = n.r*3*scale*cam.k;
       const baseA = (dim ? .15 : 1) * (1 - n.recede*0.7);   // recede → 30% opac
 
@@ -636,8 +695,8 @@ export function createField(canvas){
       }
       cx.restore();
 
-      const wants = !dim && cam.k>0.34 && (state.labels===2 ||
-        (state.labels===1 && (hovered || n.deg>=3 || cam.k>1.2 || (near&&near.has(n.id)))));
+      const wants = isFocused || (!dim && cam.k>0.34 && (state.labels===2 ||
+        (state.labels===1 && (hovered || n.deg>=3 || cam.k>1.2 || (near&&near.has(n.id))))));
       if (wants){
         cx.font='12px DepartureMono, monospace';
         cx.textAlign='center'; cx.textBaseline='alphabetic';
@@ -669,7 +728,7 @@ export function createField(canvas){
         x0-=pad;y0-=pad;x1+=pad;y1+=pad;
         const focusIn = hoverNode && hoverNode.cluster===c.id;
         const col = c.tense ? C.rug : C.os;
-        const a = focusIn ? .95 : (hoverNode ? .16 : .5);
+        const a = focusId ? .12 : focusIn ? .95 : (hoverNode ? .16 : .5);
         cx.strokeStyle=rgba(C.os, a*.3); cx.lineWidth=1;
         cx.strokeRect(x0+.5,y0+.5,x1-x0,y1-y0);
         cx.strokeStyle=rgba(col,a); cx.lineWidth=1.5;
@@ -718,6 +777,7 @@ export function createField(canvas){
     toS, toW,
     particles,
     animateTo, setRecede, triggerShake,
+    setFocus, removeNode,
     set onNodeClick(fn){ onNodeClick = fn; },
     set postDraw(fn){ postDraw = fn; },
   };

@@ -8,7 +8,7 @@
    ═══════════════════════════════════════════════════════════════════════ */
 
 const DB_NAME = 'adhd_goblin_v0';
-const DB_VER  = 1;
+const DB_VER  = 2;
 
 let dbp = null;
 function open(){
@@ -27,6 +27,14 @@ function open(){
         db.createObjectStore('clusterEvents', { keyPath:'id', autoIncrement:true });
       if (!db.objectStoreNames.contains('goblin_says'))
         db.createObjectStore('goblin_says', { keyPath:'id', autoIncrement:true });
+      /* Stratul 1 — memoria minimă a sesiunii. Un singur record ('current'),
+         suprascris la fiecare închidere/boot. Conține:
+           last_done     { label, verb, ts }  — ultimul nod terminat
+           last_session  { date, leftover }   — ce a rămas neterminat
+           session_intent { text, ts }        — anunțul de la poartă (body doubling)
+           pattern_note  { text, ts }         — ultimul insight structural (opțional) */
+      if (!db.objectStoreNames.contains('sessions'))
+        db.createObjectStore('sessions', { keyPath:'id' });
     };
     r.onsuccess = () => res(r.result);
     r.onerror   = () => rej(r.error);
@@ -98,4 +106,28 @@ export async function loadGraph(){
     getAll('dumps'), getAll('nodes'), getAll('links'), getAll('clusterEvents'),
   ]);
   return { dumps, nodes, links, clusterEvents };
+}
+
+/* ── Stratul 1: memoria sesiunii (store `sessions`, cheia 'current') ──
+   Un singur record, suprascris la fiecare pas. Nimic nu ajunge în UI —
+   memoria e invizibilă, există doar ca să dea continuitate vocii. */
+
+/* citește tot recordul de sesiune (sau null la prima rulare) */
+export const loadSession = () => read('sessions', s => s.get('current'));
+
+/* salvează/actualizează câmpuri individuale (merge pe recordul existent) */
+export async function saveSession(patch){
+  const db = await open();
+  return new Promise((res, rej) => {
+    const t = db.transaction('sessions', 'readwrite');
+    const st = t.objectStore('sessions');
+    const g = st.get('current');
+    g.onsuccess = () => {
+      const rec = g.result || { id: 'current' };
+      Object.assign(rec, patch);
+      st.put(rec);
+    };
+    t.oncomplete = () => res();
+    t.onerror = () => rej(t.error);
+  });
 }
