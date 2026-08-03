@@ -390,12 +390,15 @@ async function triage(newNodes){
     targetNode = fb;
   }
 
-  /* focus + verb + gata + întrebarea de commitment (adjacency pair activ) */
-  focused = { id: targetNode.id, label: choice.label, verb: choice.verb };
+  /* focus + verb + gata + întrebarea de angajare (adjacency pair activ).
+     „ask" vine din LLM, potrivită pentru pas — nu mai e hardcodată
+     (o pastilă nu se „începe"; micro-acțiunile au ask gol). */
+  const ask = (choice.ask || '').trim();
+  focused = { id: targetNode.id, label: choice.label, verb: choice.verb, ask };
   field.setFocus(targetNode.id);
-  convoQuestion = 'când începi?';
+  convoQuestion = ask || 's-a întâmplat?';
   convoTurns = 0;
-  speak(choice.verb + '. când începi?');
+  speak(choice.verb + (ask ? ' ' + ask : ''));
   showGata(true);
   startFollowup();
   startSoftExit();
@@ -689,11 +692,11 @@ function devFocus(){
   if (focused){ dpState('focus: deja pe ' + focused.label); return; }
   const target = field.nodes.find(n => n.action) || field.nodes[0];
   if (!target){ dpState('focus: niciun nod în câmp'); return; }
-  focused = { id: target.id, label: target.label, verb: LINES.verb(target.label) };
+  focused = { id: target.id, label: target.label, verb: LINES.verb(target.label), ask: '' };
   field.setFocus(target.id);
-  convoQuestion = 'când începi?';
+  convoQuestion = 's-a întâmplat?';
   convoTurns = 0;
-  speak(focused.verb + '. când începi?');
+  speak(focused.verb);
   showGata(true);
   startFollowup();
   startSoftExit();
@@ -873,8 +876,8 @@ function afterBoot(){
 
   if (restored){
     /* nodul vechi încă e în discuție: goblinul reia exact de unde s-a oprit */
-    convoQuestion = 'când începi?';
-    speak(focused.verb + '. când începi?');
+    convoQuestion = focused.ask || 's-a întâmplat?';
+    speak(focused.verb + (focused.ask ? ' ' + focused.ask : ''));
     return;
   }
 

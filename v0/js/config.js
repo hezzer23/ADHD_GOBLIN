@@ -119,11 +119,17 @@ export const PROMPTS = {
     'Alege UN nod — din cele noi SAU din pool. Criterii, în ordine: ' +
     '(1) ce se potrivește cu anunțul de la poartă, (2) recurența în graf, ' +
     '(3) vechimea, (4) câte legături are. ' +
+    'NU alege micro-acțiuni de sub 2 minute (o pastilă, un pahar de apă, un mesaj scurt, un email) ' +
+    'dacă există orice alt nod-task cu durată — alea se fac instant, nu se planifică.\n' +
     'Apoi formulează un VERB concret și fizic: max 12 cuvinte, persoana a II-a, ' +
-    'NU labelul nodului. Exemplu: pentru „raport lunar" → „deschide documentul și scrie primul paragraf".\n' +
+    'NU labelul nodului. Verbul e primul PAS DE ÎNCEPERE al unei sarcini care durează, ' +
+    'nu acțiunea completă. Exemplu: pentru „raport lunar" → „deschide documentul și scrie primul paragraf".\n' +
+    '„ask": o întrebare scurtă de angajare pentru pasul ăsta (max 6 cuvinte, lowercase, ' +
+    'fără semnul exclamării). Exemple: „când începi?", „acum sau după masă?". ' +
+    'Dacă pasul e o micro-acțiune de sub un minut, „ask" rămâne gol ("").\n' +
     'Opțional, „note": o propoziție de insight structural despre grămadă ' +
     '(max 15 cuvinte) — doar dacă e ceva cu adevărat nou de zis.\n' +
-    'DOAR JSON: {"label":"…","verb":"…","note":"…"}',
+    'DOAR JSON: {"label":"…","verb":"…","ask":"…","note":"…"}',
 
   /* 6 — ÎNCHIDERE (Stratul 2): replică la „gata". Cinism spre SITUAȚIE,
      nod sau grămadă — NICIODATĂ spre user (RSD). Zero felicitări. */
