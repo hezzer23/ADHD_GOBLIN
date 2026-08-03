@@ -153,7 +153,7 @@ export function createField(canvas){
   /* parametri de randare (macheta avea un panel; v0 ține valorile fixe,
      validate. Ziua 5 poate readuce un subset.) breath/morph se sting sub
      prefers-reduced-motion — materia rămâne, doar nu mai pulsează/deformează. */
-  const state = { weak:'hover', labels:1, box:1, halo:1, hops:3,
+  const state = { weak:'hover', labels:1, box:1, halo:0, hops:3, metaball:true,
                   breath: REDUCED_MOTION ? 0 : 1, morph: REDUCED_MOTION ? 0 : 1 };
 
   /* ── API de date (ziua 2: pipeline-ul LLM cheamă astea) ─ */
@@ -231,8 +231,19 @@ export function createField(canvas){
   /* ── camera ──────────────────────────────────────────── */
   const cam = { x: WORLD.w/2, y: WORLD.h/2, k: 1 };
   function fit(){
-    cam.k = Math.min(W/(WORLD.w*1.02), H/(WORLD.h*1.16));
-    cam.x = WORLD.w/2; cam.y = WORLD.h/2;
+    /* fit pe CONȚINUT: încadrează nodurile, nu toată lumea de 1500×1000.
+       Cel mai ieftin câștig mare de lizibilitate — tot devine ~2x mai mare. */
+    if (nodes.length){
+      let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+      for (const n of nodes){ x0=Math.min(x0,n.wx); y0=Math.min(y0,n.wy);
+                              x1=Math.max(x1,n.wx); y1=Math.max(y1,n.wy); }
+      const pad=190;
+      cam.k = clamp(Math.min(W/((x1-x0)+pad*2), H/((y1-y0)+pad*2)), 0.22, 2.4);
+      cam.x = (x0+x1)/2; cam.y = (y0+y1)/2;
+    } else {
+      cam.k = Math.min(W/(WORLD.w*1.02), H/(WORLD.h*1.16));
+      cam.x = WORLD.w/2; cam.y = WORLD.h/2;
+    }
   }
   fit();
   window.addEventListener('resize', () => { resize(); fit(); });
@@ -306,6 +317,8 @@ export function createField(canvas){
     n.moveT = 0;
   }
   function setRecede(n, on){ n.recedeTarget = on ? 1 : 0; }
+  /* toggle metaball (dev toolkit, A/B lizibilitate) */
+  function setMetaball(on){ state.metaball = !!on; }
 
   /* ── FOCUS / TRIAJ (Stratul 2) ─────────────────────────────────────
      Un singur nod ales: restul canvasului se estompează (opacity lerp
@@ -419,7 +432,7 @@ export function createField(canvas){
     if (mc.width !== mw || mc.height !== mh){ mc.width = mw; mc.height = mh; }
     mcx.clearRect(0, 0, mw, mh);
 
-    if (nodes.length){
+    if (state.metaball && nodes.length){
       /* RAZA BULEI: proporțională cu distanța până la cel mai apropiat
          vecin (0.75×), ca bulele vecine să se suprapună GARANTAT și să
          fuzioneze într-o singură masă neagră continuă. Un singur fundal
@@ -521,7 +534,7 @@ export function createField(canvas){
       cx.imageSmoothingEnabled = true;
       cx.drawImage(mc, 0, 0, mw, mh, 0, 0, W, H);
       cx.restore();
-    } else {
+    } else if (state.metaball) {
       /* fără noduri: zonă mică în centrul lumii */
       const zc = toS(WORLD.w/2, WORLD.h/2);
       const r = 200 * cam.k;
@@ -592,9 +605,9 @@ export function createField(canvas){
       const hot = hoverEdge===e;
 
       const col = (hot||lit||flit) ? C.acid : C.os;
-      const alpha = hot ? .95 : (lit||flit) ? .8 : dim ? (fdim ? .05 : .07) : (e.weak ? .16 : e.cross ? .44 : .27);
+      const alpha = hot ? .95 : (lit||flit) ? .85 : dim ? (fdim ? .05 : .07) : (e.weak ? .3 : e.cross ? .55 : .5);
       cx.strokeStyle = rgba(col, alpha);
-      cx.lineWidth = hot?2:lit?1.6:e.cross?1.4:1;
+      cx.lineWidth = hot?2:lit?1.8:e.cross?1.6:1.5;
       cx.lineCap='butt';
       cx.setLineDash(e.weak ? [3,5] : []);
 
@@ -683,7 +696,7 @@ export function createField(canvas){
       const dim = (near && !near.has(n.id)) || (focusId && !isFocused);
       const pulsed = pulse && pulse.dist.has(n.id) && front>=pulse.dist.get(n.id);
       const kick = pulsed ? Math.max(0,1-(front-pulse.dist.get(n.id))*1.4) : 0;
-      const breath = 1 + Math.sin(t*.0011*n.spd+n.ph)*n.breath*state.breath;
+      const breath = 1 + Math.sin(t*.0011*n.spd+n.ph)*n.breath*state.breath*0.35;
       /* elastic.out pe spawn: 0→1 cu overshoot */
       const spawnScale = n.spawnT < 1
         ? (1 - Math.pow(1 - n.spawnT, 3)) * (1 + 0.35 * Math.sin(n.spawnT * Math.PI * 2.5) * (1 - n.spawnT))
@@ -693,7 +706,7 @@ export function createField(canvas){
       const baseA = (dim ? .15 : 1) * (1 - n.recede*0.5);   // recede → 50% opac
 
       /* DEFORMAREA: cursor continuu prin cele patru faze, cu cross-fade */
-      const cursor = (t*.001*n.mspd*state.morph + n.ph) % PHASES;
+      const cursor = (t*.001*n.mspd*state.morph*0.4 + n.ph) % PHASES;
       const i0 = Math.floor(cursor), i1 = (i0+1)%PHASES;
       const mix = state.morph>0.01 ? (cursor-i0) : 0;
       cx.save();
@@ -722,19 +735,19 @@ export function createField(canvas){
             ly=p.y+(dy/L)*(n.r*cam.k*scale+18)+5;
           }
         }
-        cx.font='12px DepartureMono, monospace';
+        cx.font='13px DepartureMono, monospace';
         cx.textAlign='center'; cx.textBaseline='alphabetic';
-        const w=cx.measureText(n.label).width+8;
-        const box=[lx-w/2, ly-11, w, 16];
+        const w=cx.measureText(n.label).width+12;
+        const box=[lx-w/2, ly-13, w, 19];
         const clash = labelBoxes.some(b=> box[0]<b[0]+b[2] && box[0]+box[2]>b[0] &&
                                           box[1]<b[1]+b[3] && box[1]+box[3]>b[1]);
         if (!clash || hovered){
           labelBoxes.push(box); shownLabels++;
-          cx.save();
-          cx.shadowColor='rgba(0,0,0,.95)'; cx.shadowBlur=6;
+          /* pastilă neagră sub etichetă — contrast constant, indiferent de textură */
+          cx.fillStyle='rgba(0,0,0,.92)';
+          cx.fillRect(lx-w/2, ly-13, w, 19);
           cx.fillStyle = hovered ? rgba(C.os,1) : rgba(C.os,.95);
           cx.fillText(n.label, lx, ly);
-          cx.restore();
         }
       }
     }
@@ -800,7 +813,7 @@ export function createField(canvas){
     nodes, edges, clusters, byId,
     toS, toW,
     particles,
-    animateTo, setRecede, triggerShake,
+    animateTo, setRecede, triggerShake, setMetaball, fit,
     setFocus, removeNode,
     set onNodeClick(fn){ onNodeClick = fn; },
     set postDraw(fn){ postDraw = fn; },

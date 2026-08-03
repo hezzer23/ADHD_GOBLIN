@@ -12,16 +12,33 @@
 export function createGoblin(){
   const box = document.getElementById('echo');
   let timer = null;
+  let fullText = '';
+  let textSpan = null;
+  let doneCb = null;
+
+  /* click pe ecou = arată tot textul instant (fără așteptare) */
+  box.addEventListener('click', () => {
+    if (timer && textSpan){
+      clearTimeout(timer);
+      timer = null;
+      textSpan.textContent = fullText;
+      const cb = doneCb; doneCb = null;
+      if (cb) cb();
+    }
+  });
 
   /* spune o replică în cutie, caracter cu caracter. anulează ce e în curs. */
-  function echo(msg, speed = 18, done){
+  function echo(msg, speed = 12, done){
     if (timer) clearTimeout(timer);
     box.classList.add('on');
     box.innerHTML = '';
+    fullText = msg;
+    doneCb = done || null;
     const who = document.createElement('span');
     who.className = 'who';
     who.textContent = '▲';
     const span = document.createElement('span');
+    textSpan = span;
     const cur = document.createElement('span');
     cur.className = 'cur';
     box.append(who, span, cur);
@@ -32,7 +49,8 @@ export function createGoblin(){
         timer = setTimeout(type, speed);
       } else {
         timer = null;
-        if (done) done();
+        const cb = doneCb; doneCb = null;
+        if (cb) cb();
       }
     })();
   }

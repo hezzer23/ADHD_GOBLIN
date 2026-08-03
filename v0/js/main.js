@@ -46,46 +46,25 @@ field.onNodeClick = (x, y) => motes.pulseAt(x, y);
 /* undele motes se desenează pe canvasul field, peste tot (după shake) */
 field.postDraw = (cx, dt) => motes.drawPulses(cx, dt);
 
-/* ── status + overlay-uri DOM ──────────────────────────── */
-const reticle = $('reticle'), edgecard = $('edgecard');
-const r_name = $('r-name'), r_sub = $('r-sub');
-const e_kind = $('e-kind'), e_src = $('e-src'), e_meta = $('e-meta');
-const s_n = $('s-n'), s_l = $('s-l'), s_c = $('s-c'), s_z = $('s-z');
+/* ── caption unic de hover (înlocuiește reticle + edgecard + status bar) ── */
+const caption = $('caption'), capTxt = $('cap-txt');
 
 function overlays(st){
-  const cssc = n => n.action ? '#c9f24d' : n.worry ? '#c9702f' : '#e6e2d6';
   if (st.hoverNode){
-    const p = field.toS(st.hoverNode.wx, st.hoverNode.wy);
-    reticle.classList.add('on');
-    reticle.style.left = p.x+'px';
-    reticle.style.top  = (p.y - st.hoverNode.r*st.cam.k*1.6 - 12)+'px';
-    reticle.style.setProperty('--rc', cssc(st.hoverNode));
-    r_name.textContent = st.hoverNode.label;
-    r_sub.textContent  = st.hoverNode.source
-      ? '„' + st.hoverNode.source + '"'
-      : st.hoverNode.deg + ' legături';
-  } else reticle.classList.remove('on');
-
-  if (st.hoverEdge && !st.hoverNode){
-    const a = field.toS(st.hoverEdge.a.wx, st.hoverEdge.a.wy);
-    const b = field.toS(st.hoverEdge.b.wx, st.hoverEdge.b.wy);
-    edgecard.classList.add('on');
-    edgecard.style.left = ((a.x+b.x)/2)+'px';
-    edgecard.style.top  = ((a.y+b.y)/2 - 16)+'px';
-    e_kind.textContent = st.hoverEdge.kind;
-    e_src.innerHTML    = st.hoverEdge.src || st.hoverEdge.a.label+' → '+st.hoverEdge.b.label;
-    e_meta.textContent = st.hoverEdge.a.label+' → '+st.hoverEdge.b.label+(st.hoverEdge.cross?' · între clustere':'');
-  } else edgecard.classList.remove('on');
+    capTxt.textContent = st.hoverNode.label +
+      (st.hoverNode.source ? ' — „' + st.hoverNode.source + '"' : ' — ' + st.hoverNode.deg + ' legături');
+    caption.classList.add('on');
+  } else if (st.hoverEdge){
+    capTxt.textContent = st.hoverEdge.a.label + ' → ' + st.hoverEdge.b.label +
+      (st.hoverEdge.kind ? ' — ' + st.hoverEdge.kind : '');
+    caption.classList.add('on');
+  } else caption.classList.remove('on');
 }
 
 /* ── loop-ul ───────────────────────────────────────────── */
 function frame(t){
   const st = field.draw(t);
   overlays(st);
-  s_n.textContent = st.counts.n;
-  s_l.textContent = st.counts.l;
-  s_c.textContent = st.counts.c;
-  s_z.textContent = st.cam.k.toFixed(2);
   /* câmpul se stinge pe măsură ce graful crește — cunoașterea compilată
      alungă zgomotul. 0 noduri = 0 energie (câmp plin), 12+ = stins. */
   motes.setEnergy(Math.min(1, st.counts.n / 12));
@@ -214,27 +193,46 @@ async function onDump(text){
     clusterFormed = true;
     /* goblinul reacționează la (primul) cluster nou */
     if (g === res.groups[0]){
-      const unresolved = clusterNodes.filter(n => n.action).length;
-      const reply = await goblinClusterReply(g.theme, g.labels, unresolved);
-      motes.setThinking(false);
-      speak(reply);
+      if (await tryOnboarding()){
+        motes.setThinking(false);
+      } else {
+        const unresolved = clusterNodes.filter(n => n.action).length;
+        const reply = await goblinClusterReply(g.theme, g.labels, unresolved);
+        motes.setThinking(false);
+        speak(reply);
+      }
     }
   }
 
   /* 5. goblin: replică (LLM sau fallback) — doar dacă nu s-a format cluster */
   if (!clusterFormed){
-    const labels = res.nodes.map(n => n.label);
-    const reply = await goblinReply(text, labels);
-    motes.setThinking(false);         // LLM gata → câmpul coboară
-    speak(reply);                     // ecoul → câmpul se stinge puțin
+    if (await tryOnboarding()){
+      motes.setThinking(false);
+    } else {
+      const labels = res.nodes.map(n => n.label);
+      const reply = await goblinReply(text, labels);
+      motes.setThinking(false);         // LLM gata → câmpul coboară
+      speak(reply);                     // ecoul → câmpul se stinge puțin
+    }
   }
 
   /* 6. TRIAJ (Stratul 2): goblinul alege UN nod + verb concret */
+  field.fit();   // reîncadrează camera să includă nodurile noi
   await triage(newNodes);
 
   busy = false;
   input.disabled = false;
   input.focus();
+}
+
+/* ── ONBOARDING (research 26 / roast): o singură dată, la primul dump,
+   goblinul explică ce vede userul. Înlocuiește replica de reacție. ── */
+async function tryOnboarding(){
+  if (sessionMem.onboarded) return false;
+  sessionMem.onboarded = true;
+  saveSession({ onboarded: true }).catch(()=>{});
+  speak(LINES.onboard);
+  return true;
 }
 
 /* replică la cluster (Prompt 4 + context), cu fallback on-brand */
@@ -290,7 +288,7 @@ function fallbackLine(labels){
    done = callback după typewriter (poarta/pre-seturile vin DUPĂ, nu peste). */
 function speak(msg, done){
   hidePresets();
-  goblin.echo(msg, 18, done);
+  goblin.echo(msg, 12, done);   // 12ms/char: simțit rapid, click = tot textul
   motes.dimForVoice(true);
   sayGoblin(msg, 'ecou').catch(()=>{});
   pruneSays(20).catch(()=>{});          // istoria vocii nu crește infinit
@@ -744,6 +742,7 @@ async function devDumpState(){
 }
 
 let llmOff = false;
+let metaballOn = true;
 
 async function devReset(){
   if (!confirm('reset complet: se șterg toate nodurile, dump-urile și memoria. sigur?')) return;
@@ -769,6 +768,14 @@ devPanel.addEventListener('click', ev => {
     case 'gate':     closeGate(); openGate(); dpState('gate deschis'); break;
     case 'commit':   devCommit(); break;
     case 'state':    devDumpState(); break;
+    case 'metaball': {
+      const on = !metaballOn;
+      metaballOn = on;
+      field.setMetaball(on);
+      b.textContent = on ? 'blob: on' : 'blob: off';
+      dpState(on ? 'metaball pornit' : 'metaball oprit — câmp simplu');
+      break;
+    }
     case 'nollm':
       llmOff = !llmOff;
       devSetLLM(llmOff);
@@ -811,6 +818,7 @@ async function boot(){
       clusterSeq = Math.max(clusterSeq, cid + 1);
     }
     field.recomputeClusters();
+    field.fit();   // camera pe conținut, nu pe toată lumea (fix lizibilitate)
   } catch (err) {
     console.warn('[boot] reload fail:', err);
   }

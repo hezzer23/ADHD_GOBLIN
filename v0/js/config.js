@@ -188,6 +188,9 @@ export const LINES = {
   bootDone:     label => 'data trecută ai terminat „' + label + '". restul e tot aici. continuăm sau alegem altceva?',
   bootNodes:    n => n + ' noduri de data trecută. tot aici. tot nerezolvate.',
   bootEmpty:    'gol. scrie ceva și vedem.',
+  /* onboarding: o singură dată, la primul dump. Explică ce vede userul —
+     confuzia „nu înțeleg ce văd" e jumătate din „greoi" (roast, research 26). */
+  onboard:      'astea sunt nodurile tale. alea legate = se repetă. alea verzi = ai ceva de făcut. restul = zgomot. apasă pe unul dacă vrei să vezi de ce e acolo.',
   followup:     label => 'trecu un pic. „' + label + '" — s-a întâmplat sau nu?',
   checkBack:    label => 'ultima dată ai zis că faci „' + label + '". s-a întâmplat?',
   checkNo:      'bine. nu-i pierdere, e doar grămadă. scrie ce te macină acum.',

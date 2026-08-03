@@ -18,17 +18,15 @@ canvas#field.grab{cursor:grabbing}
   animation:grain .9s steps(4) infinite}
 @keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-2%,3%)}50%{transform:translate(3%,-2%)}75%{transform:translate(-3%,-3%)}100%{transform:translate(2%,2%)}}
 
-/* ── bara de stare ─────────────────────────────────────── */
-#status{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;gap:22px;
-  padding:11px 18px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--os-dim);border-bottom:1px solid rgba(230,226,214,.07);background:rgba(0,0,0,.78)}
-#status .sp{margin-left:auto}
-#status b{color:var(--os);font-weight:400}
-#status .live{color:var(--acid)}
-#status .live::before{content:'●';margin-right:6px;animation:blink 2s infinite}
-@keyframes blink{50%{opacity:.2}}
+/* ── caption unic de hover (înlocuiește status bar + reticle + edgecard) ── */
+#caption{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:10;
+  pointer-events:none;opacity:0;transition:opacity .15s;max-width:88vw;
+  background:rgba(0,0,0,.9);border:1px solid rgba(230,226,214,.16);
+  padding:7px 14px;font-family:var(--input);font-size:12px;line-height:1.5;
+  color:var(--os);text-transform:lowercase;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+#caption.on{opacity:1}
 
 @media (prefers-reduced-motion: reduce){
   .grain{animation:none}
-  #status .live::before{animation:none}
 }

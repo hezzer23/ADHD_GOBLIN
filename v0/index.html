@@ -18,25 +18,9 @@
 <!-- strat 2: zgârietură -->
 <div class="grain"></div>
 
-<div id="status">
-  <span class="live">graf viu</span>
-  <span>noduri <b id="s-n">0</b></span>
-  <span>legături <b id="s-l">0</b></span>
-  <span>clustere <b id="s-c">0</b></span>
-  <span class="sp">zoom <b id="s-z">1.00</b></span>
-  <span>scroll = zoom · drag = pan · click nod = puls</span>
-</div>
-
-<div id="reticle"><div class="rb"><span class="c3"></span><span class="c4"></span>
-  <div class="rl"><span id="r-name">—</span></div>
-  <div class="rm"><span id="r-sub">—</span></div>
-</div></div>
-
-<div id="edgecard">
-  <div class="eh"><span class="k" id="e-kind">—</span></div>
-  <div class="src" id="e-src">—</div>
-  <div class="meta" id="e-meta">—</div>
-</div>
+<!-- un singur caption pentru hover (nod sau muchie). Fără status bar,
+     fără reticle, fără edgecard — o linie, sus, care explică ce atingi. -->
+<div id="caption"><span id="cap-txt"></span></div>
 
 <!-- braindump: teritoriul comun. textul tău rămâne, goblinul răspunde
      sub el, în fontul tău dar în rugină (modul ECOU). -->
@@ -61,6 +45,7 @@
     <button data-dev="gate" type="button">gate</button>
     <button data-dev="commit" type="button">commit 7h</button>
     <button data-dev="state" type="button">state</button>
+    <button data-dev="metaball" type="button">blob: on</button>
     <button data-dev="nollm" type="button">llm: on</button>
     <button data-dev="reset" type="button" class="danger">reset</button>
   </div>

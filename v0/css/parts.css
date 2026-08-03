@@ -51,7 +51,7 @@
 .echo{display:none;font-family:var(--input);font-weight:600;font-size:13px;line-height:1.7;
   color:var(--rugina);margin-top:9px;padding-top:10px;
   border-top:1px solid rgba(201,112,47,.25);text-transform:lowercase}
-.echo.on{display:block}
+.echo.on{display:block;cursor:pointer}
 .echo .who{color:var(--os-faint);font-weight:500;margin-right:6px}
 .echo .cur{display:inline-block;width:7px;height:13px;background:var(--rugina);
   vertical-align:-2px;margin-left:3px;animation:blink 1s steps(1) infinite}
