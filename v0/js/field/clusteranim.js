@@ -42,10 +42,11 @@ export function emergeCluster(field, clusterNodes, theme, clusterId){
     n.cluster = clusterId;
   });
 
-  /* 4. recede nodurile din afara clusterului */
-  const inCluster = new Set(clusterNodes.map(n => n.id));
+  /* 4. recede DOAR nodurile libere (din afara oricărui cluster).
+     Fix: varianta veche stingea la 30% și nodurile clusterelor deja
+     formate — după al doilea cluster, graful „dispărea" treptat. */
   for (const n of field.nodes){
-    field.setRecede(n, !inCluster.has(n.id));
+    field.setRecede(n, n.cluster === -1);
   }
 
   /* 5. creează clusterul (halou + box + etichetă) */

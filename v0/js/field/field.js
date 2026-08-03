@@ -476,20 +476,30 @@ export function createField(canvas){
       }
       mcx.globalCompositeOperation = 'source-over';
 
-      /* UMPLERE INTERIOARĂ: anvelopa convexă a nodurilor, desenată ca
-         poligon plin. Asta închide ORICE gaură dintre noduri (triunghiuri,
-         goluri centrale) — interiorul clusterului devine negru continuu.
-         Marginile organice rămân de la bulele care depășesc anvelopa. */
-      if (nodes.length >= 3){
-        const hull = convexHull(nodes.map(n => { const p = toS(n.wx, n.wy); return { x: p.x*MS, y: p.y*MS }; }));
-        mcx.globalCompositeOperation = 'lighter';
-        mcx.fillStyle = 'rgba(255,255,255,1)';
-        mcx.beginPath();
-        mcx.moveTo(hull[0].x, hull[0].y);
-        for (let i=1;i<hull.length;i++) mcx.lineTo(hull[i].x, hull[i].y);
-        mcx.closePath();
-        mcx.fill();
-        mcx.globalCompositeOperation = 'source-over';
+      /* UMPLERE INTERIOARĂ: anvelopa convexă PER CLUSTER (nu pe toate
+         nodurile — cu clustere împrăștiate prin lume, un hull global
+         acoperea tot câmpul cu negru). Interiorul fiecărui cluster devine
+         negru continuu; marginile organice rămân de la bule. */
+      {
+        const byCluster = new Map();
+        for (const n of nodes){
+          if (n.cluster < 0) continue;
+          if (!byCluster.has(n.cluster)) byCluster.set(n.cluster, []);
+          byCluster.get(n.cluster).push(n);
+        }
+        for (const list of byCluster.values()){
+          if (list.length < 3) continue;
+          const hull = convexHull(list.map(n => { const p = toS(n.wx, n.wy); return { x: p.x*MS, y: p.y*MS }; }));
+          if (hull.length < 3) continue;
+          mcx.globalCompositeOperation = 'lighter';
+          mcx.fillStyle = 'rgba(255,255,255,1)';
+          mcx.beginPath();
+          mcx.moveTo(hull[0].x, hull[0].y);
+          for (let i=1;i<hull.length;i++) mcx.lineTo(hull[i].x, hull[i].y);
+          mcx.closePath();
+          mcx.fill();
+          mcx.globalCompositeOperation = 'source-over';
+        }
       }
 
       /* threshold coborât + rampă largă: margine foarte moale, organică */
@@ -680,7 +690,7 @@ export function createField(canvas){
         : 1;
       const scale = breath*(hovered?1.13:1)*(isFocused?1.22:1)*(1+kick*.18)*spawnScale;
       const R = n.r*3*scale*cam.k;
-      const baseA = (dim ? .15 : 1) * (1 - n.recede*0.7);   // recede → 30% opac
+      const baseA = (dim ? .15 : 1) * (1 - n.recede*0.5);   // recede → 50% opac
 
       /* DEFORMAREA: cursor continuu prin cele patru faze, cu cross-fade */
       const cursor = (t*.001*n.mspd*state.morph + n.ph) % PHASES;
@@ -695,21 +705,35 @@ export function createField(canvas){
       }
       cx.restore();
 
-      const wants = isFocused || (!dim && cam.k>0.34 && (state.labels===2 ||
-        (state.labels===1 && (hovered || n.deg>=3 || cam.k>1.2 || (near&&near.has(n.id))))));
+      /* etichete: TOATE nodurile vizibile, la orice zoom (fix lizibilitate:
+         poarta veche cerea deg>=3 sau zoom>1.2 — nodurile de cluster cu
+         1-2 legături rămâneau fără nume). Coliziunile din clustere se
+         rezolvă prin offset radial în jurul centrului de cluster. */
+      const wants = isFocused || (!dim && cam.k>0.34);
       if (wants){
+        let lx=p.x, ly=p.y+n.r*cam.k*scale+16;
+        if (n.cluster>=0){
+          const cl=clusters.find(c=>c.id===n.cluster);
+          if (cl){
+            const cc=toS(cl.cxw,cl.cyw);
+            let dx=p.x-cc.x, dy=p.y-cc.y;
+            const L=Math.hypot(dx,dy)||1;
+            lx=p.x+(dx/L)*(n.r*cam.k*scale+18);
+            ly=p.y+(dy/L)*(n.r*cam.k*scale+18)+5;
+          }
+        }
         cx.font='12px DepartureMono, monospace';
         cx.textAlign='center'; cx.textBaseline='alphabetic';
-        const w=cx.measureText(n.label).width+8, ly=p.y+n.r*cam.k*scale+16;
-        const box=[p.x-w/2, ly-11, w, 16];
+        const w=cx.measureText(n.label).width+8;
+        const box=[lx-w/2, ly-11, w, 16];
         const clash = labelBoxes.some(b=> box[0]<b[0]+b[2] && box[0]+box[2]>b[0] &&
                                           box[1]<b[1]+b[3] && box[1]+box[3]>b[1]);
         if (!clash || hovered){
           labelBoxes.push(box); shownLabels++;
           cx.save();
-          cx.shadowColor='rgba(0,0,0,.9)'; cx.shadowBlur=4;
-          cx.fillStyle = hovered ? rgba(C.os,1) : rgba(C.os,.72);
-          cx.fillText(n.label, p.x, ly);
+          cx.shadowColor='rgba(0,0,0,.95)'; cx.shadowBlur=6;
+          cx.fillStyle = hovered ? rgba(C.os,1) : rgba(C.os,.95);
+          cx.fillText(n.label, lx, ly);
           cx.restore();
         }
       }
