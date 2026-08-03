@@ -147,6 +147,20 @@ export async function loadGraph(){
   return { dumps, nodes, links, clusterEvents };
 }
 
+/* reset complet (dev toolkit): închide conexiunea și șterge toată baza.
+   După apel, location.reload() — app-ul pornește de la zero. */
+export async function wipeAll(){
+  const db = await open();
+  db.close();
+  dbp = null;
+  await new Promise((res, rej) => {
+    const r = indexedDB.deleteDatabase(DB_NAME);
+    r.onsuccess = () => res();
+    r.onerror   = () => rej(r.error);
+    r.onblocked = () => res();   // conexiunea noastră e deja închisă
+  });
+}
+
 /* ── Stratul 1: memoria sesiunii (store `sessions`, cheia 'current') ──
    Un singur record, suprascris la fiecare pas. Nimic nu ajunge în UI —
    memoria e invizibilă, există doar ca să dea continuitate vocii. */

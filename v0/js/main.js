@@ -13,9 +13,9 @@ import { mountMotes } from './field/motes.js';
 import { createGoblin } from './goblin/goblin.js';
 import { reason } from './brain/reason.js';
 import { emergeCluster } from './field/clusteranim.js';
-import { addDump, addNode, addLink, addClusterEvent, updatePositions, sayGoblin, recentSays, loadGraph, loadSession, saveSession, deleteNode, deleteLinksForNode, pruneSays } from './graph/store.js';
+import { addDump, addNode, addLink, addClusterEvent, updatePositions, sayGoblin, recentSays, loadGraph, loadSession, saveSession, deleteNode, deleteLinksForNode, pruneSays, wipeAll } from './graph/store.js';
 import { PROMPTS, LINES, TIMING, COLORS as C, WORLD } from './config.js';
-import { llmRequest } from './llm/provider.js';
+import { llmRequest, devSetLLM } from './llm/provider.js';
 
 const $ = id => document.getElementById(id);
 
@@ -641,19 +641,35 @@ input.addEventListener('input', () => {
   input.style.height = input.scrollHeight + 'px';
 });
 
-/* ── DEMO: 3 braindump-uri scriptate care arată loop-ul complet ── */
+/* ── DEV TOOLKIT — testing (înlocuiește butonul demo) ─────
+   demo: 3 braindump-uri scriptate · focus: triaj forțat fără LLM ·
+   follow-up / exit / gate: declanșatoare pentru timpi · commit 7h:
+   angajament vechi → boot accountability · state: dump în consolă ·
+   llm: kill switch pentru fallback-uri · reset: wipe IndexedDB. */
 const DEMO_DUMPS = [
   'am de plătit factura la curent și chiria, nu știu de unde scot banii luna asta, iar amânat dentistul',
   'trebuie să termin raportul pentru luni, colegul meu iar a pasat totul pe mine, nu mai am energie seara',
   'vreau să încep să alerg dimineața dar nu mă trezesc, somnul e varză, stau pe telefon până la 2 noaptea',
 ];
-const demoBtn = $('demo');
 let demoRunning = false;
 
-demoBtn.addEventListener('click', async () => {
+const devBtn = $('dev');
+const devPanel = $('devpanel');
+const dpStateEl = $('dp-state');
+
+function dpState(msg){
+  dpStateEl.textContent = msg || (
+    field.nodes.length + ' noduri' +
+    (focused ? ' · focus: ' + focused.label : '') +
+    (sessionMem.commitment ? ' · commit' : '')
+  );
+}
+
+async function runDemo(){
   if (demoRunning || busy) return;
   demoRunning = true;
-  demoBtn.disabled = true;
+  dpState('demo rulează...');
+  closeGate();
   for (const text of DEMO_DUMPS){
     input.value = text;
     input.style.height = 'auto';
@@ -665,7 +681,99 @@ demoBtn.addEventListener('click', async () => {
     await new Promise(r => setTimeout(r, 900));   // lasă clusterul să se așeze
   }
   demoRunning = false;
-  demoBtn.disabled = false;
+  dpState();
+}
+
+/* triaj forțat fără LLM — testează focus/estompare/gata pe orice nod */
+function devFocus(){
+  if (focused){ dpState('focus: deja pe ' + focused.label); return; }
+  const target = field.nodes.find(n => n.action) || field.nodes[0];
+  if (!target){ dpState('focus: niciun nod în câmp'); return; }
+  focused = { id: target.id, label: target.label, verb: LINES.verb(target.label) };
+  field.setFocus(target.id);
+  convoQuestion = 'când începi?';
+  convoTurns = 0;
+  speak(focused.verb + '. când începi?');
+  showGata(true);
+  startFollowup();
+  startSoftExit();
+  saveSession({ focused }).catch(()=>{});
+  dpState('focus: ' + focused.label);
+}
+
+function devFollowup(){
+  if (!focused){ dpState('follow-up: fără nod focus'); return; }
+  followupAsked = false;
+  clearFollowup();
+  askFollowup();
+  dpState('follow-up declanșat');
+}
+
+function devExit(){
+  if (!focused){ dpState('exit: fără nod focus'); return; }
+  clearSoftExit();
+  softExitSaid = true;
+  speak('stai cu nodul ăsta de 8 minute. ori îl faci, ori îl lași în câmp. alege.');
+  dpState('exit declanșat');
+}
+
+/* angajament „vechi de 7h" → la reload, boot-ul face accountability */
+function devCommit(){
+  const label = focused?.label || field.nodes.find(n => n.action)?.label || 'nod-test';
+  sessionMem.commitment = { label, text: 'dev: test commitment', ts: Date.now() - 7*3600*1000 };
+  saveSession({ commitment: sessionMem.commitment }).catch(()=>{});
+  dpState('commit -7h setat. reload...');
+  setTimeout(() => location.reload(), 800);
+}
+
+async function devDumpState(){
+  let session = null;
+  try { session = await loadSession(); } catch {}
+  console.group('[dev] stare');
+  console.log('nodes:', field.nodes.map(n => ({ id: n.id, label: n.label, action: n.action, cluster: n.cluster })));
+  console.log('edges:', field.edges.map(e => e.a.label + ' → ' + e.b.label));
+  console.log('clusters:', field.clusters.map(c => c.name));
+  console.log('focused:', focused);
+  console.log('convoQuestion:', convoQuestion);
+  console.log('session:', session);
+  console.groupEnd();
+  dpState('state în consolă (f12)');
+}
+
+let llmOff = false;
+
+async function devReset(){
+  if (!confirm('reset complet: se șterg toate nodurile, dump-urile și memoria. sigur?')) return;
+  dpState('reset...');
+  try { await wipeAll(); } catch (err) { console.warn('[dev] wipe fail:', err); }
+  location.reload();
+}
+
+devBtn.addEventListener('click', () => {
+  const on = devPanel.classList.toggle('on');
+  devBtn.classList.toggle('active', on);
+  if (on) dpState();
+});
+
+devPanel.addEventListener('click', ev => {
+  const b = ev.target.closest('button[data-dev]');
+  if (!b) return;
+  switch (b.dataset.dev){
+    case 'demo':     runDemo(); break;
+    case 'focus':    devFocus(); break;
+    case 'followup': devFollowup(); break;
+    case 'exit':     devExit(); break;
+    case 'gate':     closeGate(); openGate(); dpState('gate deschis'); break;
+    case 'commit':   devCommit(); break;
+    case 'state':    devDumpState(); break;
+    case 'nollm':
+      llmOff = !llmOff;
+      devSetLLM(llmOff);
+      b.textContent = llmOff ? 'llm: off' : 'llm: on';
+      dpState(llmOff ? 'LLM oprit — fallback-uri' : 'LLM pornit');
+      break;
+    case 'reset':    devReset(); break;
+  }
 });
 
 /* ── boot: reload persistent + reconstrucție clustere + goblin ───── */

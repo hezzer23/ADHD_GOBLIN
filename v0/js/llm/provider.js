@@ -10,7 +10,13 @@
 import { byokRequest, byokConfigured } from './byok.js';
 import { groqRequest } from './groq.js';
 
+/* kill switch pentru dev toolkit: oprește LLM-ul ca să testezi
+   fallback-urile on-brand fără să aștepți după Groq să pice. */
+let llmDisabled = false;
+export function devSetLLM(off){ llmDisabled = !!off; }
+
 export async function llmRequest(messages, opts = {}){
+  if (llmDisabled) throw new Error('dev: LLM oprit (kill switch)');
   /* 1. BYOK, dacă e configurat */
   if (byokConfigured()){
     try {

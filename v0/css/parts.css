@@ -56,14 +56,32 @@
 .echo .cur{display:inline-block;width:7px;height:13px;background:var(--rugina);
   vertical-align:-2px;margin-left:3px;animation:blink 1s steps(1) infinite}
 
-/* butonul demo: instrument geometric, discret, colț dreapta-jos al cutiei.
-   Nu concurează cu braindump-ul — e o portiță de intrare pentru testeri. */
-#demo{position:absolute;right:10px;bottom:8px;background:transparent;
+/* dev toolkit (înlocuiește butonul demo): toggle în colțul cutiei,
+   panel fix în dreapta-jos. Instrument geometric, discret, ca restul. */
+#dev{position:absolute;right:10px;bottom:8px;background:transparent;
   border:1px solid rgba(230,226,214,.16);color:var(--os-faint);cursor:pointer;
   font-family:var(--inst);font-size:9px;letter-spacing:.16em;text-transform:uppercase;
   padding:4px 9px;transition:color .15s,border-color .15s}
-#demo:hover{color:var(--acid);border-color:rgba(201,242,77,.4)}
-#demo:disabled{opacity:.35;cursor:default;color:var(--os-faint);border-color:rgba(230,226,214,.16)}
+#dev:hover,#dev.active{color:var(--acid);border-color:rgba(201,242,77,.4)}
+
+#devpanel{position:fixed;right:14px;bottom:110px;z-index:40;display:none;
+  width:236px;background:rgba(0,0,0,.94);border:1px solid rgba(230,226,214,.18);
+  padding:10px 12px 12px}
+#devpanel.on{display:block}
+#devpanel .dp-h{display:flex;justify-content:space-between;gap:8px;align-items:baseline;
+  font-family:var(--inst);font-size:9px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--os-dim);margin-bottom:9px;padding-bottom:7px;
+  border-bottom:1px solid rgba(230,226,214,.12)}
+#devpanel .dp-h #dp-state{color:var(--os-faint);letter-spacing:.04em;text-transform:lowercase;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#devpanel .dp-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+#devpanel button{background:transparent;border:1px solid rgba(230,226,214,.22);
+  color:var(--os-dim);cursor:pointer;font-family:var(--inst);font-size:9px;
+  letter-spacing:.08em;text-transform:uppercase;padding:6px 4px;
+  transition:color .15s,border-color .15s}
+#devpanel button:hover{color:var(--acid);border-color:rgba(201,242,77,.5)}
+#devpanel button.danger{border-color:rgba(201,112,47,.45);color:var(--rugina)}
+#devpanel button.danger:hover{border-color:var(--rugina)}
 
 /* preset-uri (research 26): recunoaștere bate amintire. Apar sub ecou
    doar după o întrebare închisă. Max 3-4, geometrice, discrete — nu

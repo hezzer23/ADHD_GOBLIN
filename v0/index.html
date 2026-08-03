@@ -47,7 +47,23 @@
   <!-- preset-uri: recunoaștere în loc de amintire. Apar doar după o
        întrebare închisă a goblinului. Textul liber rămâne mereu. -->
   <div class="presets" id="presets"></div>
-  <button id="demo" type="button" title="rulează loop-ul cu 3 braindump-uri pregătite">demo</button>
+  <button id="dev" type="button" title="dev toolkit pentru testing">dev</button>
+</div>
+
+<!-- dev toolkit: instrumente de test, ascunse implicit. Toggle din „dev". -->
+<div id="devpanel">
+  <div class="dp-h"><span>dev toolkit</span><span id="dp-state">—</span></div>
+  <div class="dp-grid">
+    <button data-dev="demo" type="button">demo</button>
+    <button data-dev="focus" type="button">focus</button>
+    <button data-dev="followup" type="button">follow-up</button>
+    <button data-dev="exit" type="button">exit</button>
+    <button data-dev="gate" type="button">gate</button>
+    <button data-dev="commit" type="button">commit 7h</button>
+    <button data-dev="state" type="button">state</button>
+    <button data-dev="nollm" type="button">llm: on</button>
+    <button data-dev="reset" type="button" class="danger">reset</button>
+  </div>
 </div>
 
 <!-- Stratul 2: butonul „gata" — mic, acid, sub nodul ales. Apare doar
