@@ -65,6 +65,17 @@
 #demo:hover{color:var(--acid);border-color:rgba(201,242,77,.4)}
 #demo:disabled{opacity:.35;cursor:default;color:var(--os-faint);border-color:rgba(230,226,214,.16)}
 
+/* preset-uri (research 26): recunoaștere bate amintire. Apar sub ecou
+   doar după o întrebare închisă. Max 3-4, geometrice, discrete — nu
+   concurează cu textul liber, doar îl scutesc. */
+.presets{display:none;gap:8px;flex-wrap:wrap;margin-top:9px}
+.presets.on{display:flex}
+.presets button{background:transparent;border:1px solid rgba(230,226,214,.22);
+  color:var(--os-dim);cursor:pointer;font-family:var(--inst);font-size:10px;
+  letter-spacing:.12em;text-transform:lowercase;padding:5px 12px;
+  transition:color .15s,border-color .15s}
+.presets button:hover{color:var(--acid);border-color:rgba(201,242,77,.5)}
+
 /* butonul „gata" (Stratul 2): mic, acid, geometric. Apare doar sub nodul
    ales de triaj. Nu concurează cu braindump-ul — e închiderea, nu intrarea. */
 #gata{position:fixed;z-index:21;transform:translate(-50%,0);

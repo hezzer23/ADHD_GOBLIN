@@ -67,7 +67,8 @@ export const PROMPTS = {
     '- nodes: 2-5 noduri noi din braindump. label scurt (2-6 cuvinte). ' +
     'type doar din: task | idee | îngrijorare | fapt. ' +
     'source = fragmentul EXACT (max 120 caractere) din braindump care a generat nodul.\n' +
-    '- links: leagă fiecare nod nou de nodurile existente relevante (temă comună). ' +
+    '- links: leagă nodurile între ele și de nodurile existente relevante (temă comună). ' +
+    'Ai voie și legături între două noduri NOI din același braindump. ' +
     'from = labelul EXACT al nodului nou. to = labelul EXACT al nodului existent. ' +
     'reason = o scurtă explicație în română (max 80 caractere): DE CE se leagă.\n' +
     '- groups: propune grupuri tematice de minim 3 noduri LIBERE (neclusterizate) ' +
@@ -139,6 +140,39 @@ export const PROMPTS = {
     'A trecut un timp și butonul „gata" pentru „' + label + '" (' + verb + ') ' +
     'nu a fost apăsat. Întreabă O SINGURĂ dată, scurt, FĂRĂ guilt și FĂRĂ judecată, ' +
     'dacă s-a întâmplat. Apoi taci. O propoziție, fără semnul exclamării.',
+
+  /* 8 — CONVERSAȚIE (research 26): goblinul devine interlocutor în aceeași
+     cutie. UN apel decide ce e inputul și ce zice. Fără chat log: starea
+     trăiește în canvas, nu în istoric. Intenturi: closure (nodul s-a făcut,
+     spus din vorbe), commitment (când/cum începe — plan if-then), reply
+     (răspuns la întrebarea deschisă), dump (orice altceva → pipeline). */
+  convoSystem:
+    'Ești un goblin care vorbește cu un user ADHD într-o singură cutie de text. ' +
+    'Decizi ce e inputul și răspunzi cu o singură propoziție scurtă. ' +
+    'Răspunde DOAR JSON valid, fără alt text.',
+  convoUser: (text, convo, ctx) =>
+    contextBlock(ctx) +
+    (convo.open_question
+      ? 'ÎNTREBARE DESCHISĂ (aștepți răspuns la ea): "' + convo.open_question + '"\n'
+      : '') +
+    (convo.node
+      ? 'Nod în discuție: "' + convo.node.label + '" (verb de acțiune: ' + convo.node.verb + ')\n'
+      : '') +
+    'Userul a scris: """' + text + '"""\n\n' +
+    'Clasifică inputul:\n' +
+    '- "closure": userul spune clar că nodul în discuție s-a terminat ' +
+    '(„am terminat raportul", „am plătit factura"). Doar dacă e explicit și legat de nod.\n' +
+    '- "commitment": userul spune concret când/cum începe nodul ' +
+    '(„după cafea deschid fișierul", „încep la 9").\n' +
+    '- "reply": răspuns scurt la întrebarea deschisă.\n' +
+    '- "dump": orice altceva — haos nou, descărcare, alt subiect.\n\n' +
+    'Apoi răspunde ca goblin: O SINGURĂ propoziție scurtă, lowercase, fără semnul exclamării, ' +
+    'fără laudă. Cinism spre situație/nod/grămadă, NICIODATĂ spre user. ' +
+    'La "closure": o propoziție despre grămadă care a pierdut o bucată. ' +
+    'La "commitment": oglindește angajamentul pe scurt, fără „bravo". ' +
+    'La "reply": răspunde fără să repeți întrebarea. ' +
+    'La "dump": numește forma haosului într-o propoziție.\n' +
+    'DOAR JSON: {"intent":"reply|closure|commitment|dump","say":"…"}',
 };
 
 /* ── Stratul 2: replici fixe (fără LLM — poarta nu negociază, boot-ul e instant) ── */
@@ -148,14 +182,27 @@ export const LINES = {
   bootDone:     label => 'data trecută ai terminat „' + label + '". restul e tot aici. continuăm sau alegem altceva?',
   bootNodes:    n => n + ' noduri de data trecută. tot aici. tot nerezolvate.',
   bootEmpty:    'gol. scrie ceva și vedem.',
-  followup:     label => 'trecu un pic. „' + label + '" — s-a întâmplat sau nu? întreb o dată și tac.',
-  verb:         label => 'ia „' + label + '" și fă primul pas fizic. acum.',
+  followup:     label => 'trecu un pic. „' + label + '" — s-a întâmplat sau nu?',
+  checkBack:    label => 'ultima dată ai zis că faci „' + label + '". s-a întâmplat?',
+  checkNo:      'bine. nu-i pierdere, e doar grămadă. scrie ce te macină acum.',
+  checkPartial: 'pe jumătate. rămâne în câmp. revii când se termină de tot.',
+  commitEcho:   text => 'notat: ' + text + '. să fie așa.',
+  verb:         label => 'ia "' + label + '" și fă primul pas fizic. acum.',
+  /* preset-uri (research 26 + Woebot/Wysa): max 3-4, recognition bate recall.
+     Apar sub ecou doar când goblinul a întrebat ceva cu răspuns închis. */
+  presetYes:     'da. s-a întâmplat.',
+  presetNo:      'nu. alegem altceva.',
+  presetPartial: 'pe jumătate.',
+  presetSkip:    'pas. scriu direct.',
 };
 
 /* ── Stratul 2: timpi (tot ce e tunabil) ───────────────── */
 export const TIMING = {
   gateMs:     30 * 1000,        // poarta de anunț: 30s, apoi tace
   followupMs: 8 * 60 * 1000,    // follow-up „gata": o singură întrebare
+  /* research 26-E: doză scurtă cu exit. Conversația nu e camera, e ușa. */
+  softExitMs: 8 * 60 * 1000,    // după 8 min cu nod deschis: goblinul grăbește
+  checkMinMs: 6 * 3600 * 1000,  // boot accountability doar dacă-s >6h de la commitment
 };
 
 /* ── contextul vocii (DECISION-goblin-voice.md) ──────────────────────

@@ -42,7 +42,7 @@ export async function reason(graph, text){
   let parsed = null;
   for (let attempt = 0; attempt < 2; attempt++){
     let raw;
-    try { raw = await llmRequest(messages, { json: true }); }
+    try { raw = await llmRequest(messages, { json: true, maxTokens: 2048 }); }
     catch (err) { console.warn('[reason] LLM fail (' + (attempt+1) + '):', err.message); continue; }
     try { parsed = JSON.parse(raw); break; }
     catch { console.warn('[reason] JSON parse fail (' + (attempt+1) + ')'); continue; }
@@ -64,14 +64,17 @@ export async function reason(graph, text){
 
   const newLabels = new Set(nodes.map(n => n.label));
   const oldLabels = new Set(graph.nodes.map(n => n.label));
+  const allLabels = new Set([...newLabels, ...oldLabels]);
 
-  /* sanitize legături — from trebuie să fie nod NOU, to nod EXISTENT */
+  /* sanitize legături — from/to pot fi orice noduri reale (noi SAU existente).
+     Versiunea veche cerea from NOU + to EXISTENT: primul braindump (graf gol)
+     producea noduri izolate, clusterele (≥3 conectate) erau imposibile. */
   const links = [];
   const seen = new Set();
   for (const l of (Array.isArray(parsed.links) ? parsed.links : [])){
     const from = String(l.from || '').trim();
     const to = String(l.to || '').trim();
-    if (!newLabels.has(from) || !oldLabels.has(to)) continue;
+    if (!allLabels.has(from) || !allLabels.has(to) || from === to) continue;
     const key = from + '→' + to;
     if (seen.has(key)) continue;
     seen.add(key);

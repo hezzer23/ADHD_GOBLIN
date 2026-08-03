@@ -13,7 +13,7 @@ import { mountMotes } from './field/motes.js';
 import { createGoblin } from './goblin/goblin.js';
 import { reason } from './brain/reason.js';
 import { emergeCluster } from './field/clusteranim.js';
-import { addDump, addNode, addLink, addClusterEvent, updatePositions, sayGoblin, recentSays, loadGraph, loadSession, saveSession } from './graph/store.js';
+import { addDump, addNode, addLink, addClusterEvent, updatePositions, sayGoblin, recentSays, loadGraph, loadSession, saveSession, deleteNode, deleteLinksForNode, pruneSays } from './graph/store.js';
 import { PROMPTS, LINES, TIMING, COLORS as C, WORLD } from './config.js';
 import { llmRequest } from './llm/provider.js';
 
@@ -30,7 +30,16 @@ let gateTimer = null;
 let focused = null;         // { id, label, verb } — nodul ales de triaj
 let followupTimer = null;
 let followupAsked = false;
+/* ── Stratul 3 (research 26): conversația în aceeași cutie ──
+   convoQuestion = ultima întrebare deschisă a goblinului (adjacency pair:
+   dacă goblinul a întrebat, următorul input e implicit răspuns).
+   checkbackOpen = boot-ul a întrebat de angajamentul vechi. */
+let convoQuestion = null;
+let checkbackOpen = false;
+let softExitTimer = null;
+let softExitSaid = false;
 const gataBtn = $('gata');
+const presetsBox = $('presets');
 
 /* click pe nod → undă locală în câmp (coord. screen) */
 field.onNodeClick = (x, y) => motes.pulseAt(x, y);
@@ -277,22 +286,44 @@ function fallbackLine(labels){
   return fn(labels);
 }
 
-/* spune o replică + o salvează + stinge câmpul cât e vizibilă */
-function speak(msg){
-  goblin.echo(msg);
+/* spune o replică + o salvează + stinge câmpul cât e vizibilă.
+   done = callback după typewriter (poarta/pre-seturile vin DUPĂ, nu peste). */
+function speak(msg, done){
+  hidePresets();
+  goblin.echo(msg, 18, done);
   motes.dimForVoice(true);
   sayGoblin(msg, 'ecou').catch(()=>{});
+  pruneSays(20).catch(()=>{});          // istoria vocii nu crește infinit
   /* câmpul își revine după ce ecoul „se așază" */
   clearTimeout(speak._t);
   speak._t = setTimeout(() => motes.dimForVoice(false), 2600);
+}
+
+/* ── preset-uri (research 26): recunoaștere în loc de amintire. Apar
+   doar după o întrebare închisă. Max 3-4. Textul liber rămâne mereu. */
+function showPresets(items, onPick){
+  presetsBox.innerHTML = '';
+  for (const text of items){
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = text;
+    b.addEventListener('click', () => { hidePresets(); onPick(text); });
+    presetsBox.appendChild(b);
+  }
+  presetsBox.classList.add('on');
+}
+function hidePresets(){
+  presetsBox.innerHTML = '';
+  presetsBox.classList.remove('on');
 }
 
 /* ── Stratul 2: POARTA DE ANUNȚ (body doubling) ──────────
    La deschidere, după mesajul de boot, goblinul întreabă ce face userul
    concret în următoarele 20 de minute. Dacă nu răspunde în 30s: tace. */
 function openGate(){
+  if (gateOpen) return;                 // nu deschide poarta peste altă întrebare
   gateOpen = true;
-  speak(LINES.gate);
+  speak(LINES.gate, () => showPresets([LINES.presetSkip], () => closeGate()));
   gateTimer = setTimeout(() => {
     gateOpen = false;
     gateTimer = null;
@@ -307,7 +338,9 @@ function closeGate(){
 
 /* ── Stratul 2: TRIAJ — goblinul alege UN nod + verb concret ──
    După reasoning pass: un singur nod, un singur verb, un singur buton.
-   Restul canvasului se estompează. Criteriile trăiesc în prompt. */
+   Restul canvasului se estompează. Criteriile trăiesc în prompt.
+   Research 26: verbul se termină cu întrebarea de commitment —
+   micro-funnel-ul începe aici (o întrebare, un schimb, un plan). */
 async function triage(newNodes){
   if (!newNodes.length) return;
 
@@ -357,12 +390,18 @@ async function triage(newNodes){
     targetNode = fb;
   }
 
-  /* focus + verb + gata */
+  /* focus + verb + gata + întrebarea de commitment (adjacency pair activ) */
   focused = { id: targetNode.id, label: choice.label, verb: choice.verb };
   field.setFocus(targetNode.id);
-  speak(choice.verb);
+  convoQuestion = 'când începi?';
+  convoTurns = 0;
+  speak(choice.verb + '. când începi?');
   showGata(true);
   startFollowup();
+  startSoftExit();
+
+  /* triajul supraviețuiește reload-ului (nodul ales + verbul lui) */
+  saveSession({ focused }).catch(()=>{});
 
   /* salvează pattern_note dacă există */
   if (choice.note){
@@ -371,46 +410,67 @@ async function triage(newNodes){
   }
 }
 
-/* ── Stratul 2: ÎNCHIDERE — butonul „gata" ───────────────
-   Click → replică cinică despre SITUAȚIE → nodul dispare → salvare. */
-async function closeNode(){
+/* ── Stratul 2: ÎNCHIDERE — butonul „gata" SAU closure prin vorbire ──
+   Click → replică cinică despre SITUAȚIE → nodul dispare → salvare.
+   sayOverride = replică deja generată (closure conversațională: „am
+   terminat raportul"). Persistă REAL: nodul + legăturile ies din
+   IndexedDB, nu doar din canvas (fix: „gata" era o minciună vizuală). */
+async function closeNode(sayOverride){
   if (!focused) return;
   const { id, label, verb } = focused;
 
   showGata(false);
   clearFollowup();
+  clearSoftExit();
+  hidePresets();
+  convoQuestion = null;
 
-  let says = [];
-  try { says = await recentSays(5); } catch {}
-  const ctx = { recentSays: says, activeNodes: field.nodes.map(n => n.label) };
-
-  let reply = '';
-  try {
-    const messages = [
-      { role: 'system', content: PROMPTS.persona },
-      { role: 'user',   content: PROMPTS.closeUser(label, verb, ctx) },
-    ];
-    reply = (await llmRequest(messages, { json: false })).trim();
-  } catch (err) {
-    console.warn('[close] LLM fail, fallback:', err.message);
+  let reply = (sayOverride || '').trim();
+  if (!reply){
+    let says = [];
+    try { says = await recentSays(5); } catch {}
+    const ctx = { recentSays: says, activeNodes: field.nodes.map(n => n.label) };
+    try {
+      const messages = [
+        { role: 'system', content: PROMPTS.persona },
+        { role: 'user',   content: PROMPTS.closeUser(label, verb, ctx) },
+      ];
+      reply = (await llmRequest(messages, { json: false })).trim();
+    } catch (err) {
+      console.warn('[close] LLM fail, fallback:', err.message);
+    }
   }
   if (!reply) reply = 'una s-a dus. grămada rămâne.';
 
   speak(reply);
 
-  /* nodul dispare */
+  /* nodul dispare — canvas + IndexedDB deodată */
   field.setFocus(null);
   field.removeNode(id);
   field.recomputeClusters();
   focused = null;
+  deleteNode(id).catch(()=>{});
+  deleteLinksForNode(id).catch(()=>{});
 
-  /* salvare last_done + last_session */
+  /* angajamentul legat de nodul ăsta și-a trăit viața */
+  if (sessionMem.commitment && sessionMem.commitment.label === label){
+    delete sessionMem.commitment;
+    saveSession({ commitment: null }).catch(()=>{});
+  }
+
+  /* salvare last_done + last_session + focused curățat */
   sessionMem.last_done = { label, verb, ts: Date.now() };
   sessionMem.last_session = { date: new Date().toISOString().slice(0,10), leftover: '' };
-  saveSession({ last_done: sessionMem.last_done, last_session: sessionMem.last_session }).catch(()=>{});
+  saveSession({
+    last_done: sessionMem.last_done,
+    last_session: sessionMem.last_session,
+    focused: null,
+  }).catch(()=>{});
 }
 
-/* ── Stratul 2: FOLLOW-UP — o singură întrebare, apoi tace ── */
+/* ── Stratul 2: FOLLOW-UP — o singură întrebare, apoi tace ──
+   Research 26: întrebarea vine cu preset-uri (da/nu) — recognition,
+   nu recall. Un singur schimb: răspunsul închide sau lasă nodul. */
 function startFollowup(){
   clearFollowup();
   followupAsked = false;
@@ -441,7 +501,121 @@ async function askFollowup(){
   }
   if (!reply) reply = LINES.followup(label);
 
-  speak(reply);
+  convoQuestion = label + ' — s-a întâmplat?';
+  speak(reply, () => showPresets(
+    [LINES.presetYes, LINES.presetNo],
+    pick => {
+      convoQuestion = null;
+      if (/^da/.test(pick)) closeNode();
+      else speak('rămâne. grămada nu uită și nici nu grăbește.');
+    }
+  ));
+}
+
+/* ── Stratul 3 (research 26-E): EXIT forțat. Conversația e ușa, nu
+   camera. După 8 min cu nod deschis, goblinul grăbește — o dată. ── */
+function startSoftExit(){
+  clearSoftExit();
+  softExitSaid = false;
+  softExitTimer = setTimeout(() => {
+    if (!focused || softExitSaid) return;
+    softExitSaid = true;
+    speak('stai cu nodul ăsta de 8 minute. ori îl faci, ori îl lași în câmp. alege.');
+  }, TIMING.softExitMs);
+}
+function clearSoftExit(){
+  if (softExitTimer) clearTimeout(softExitTimer);
+  softExitTimer = null;
+}
+
+/* ── Stratul 3: ROUTER — aceeași cutie, patru destinații ──
+   adjacency pair (research 26-F): dacă goblinul a întrebat, inputul
+   următor e implicit răspuns. Dacă n-a întrebat, e braindump.
+   LLM-ul clasifică (closure | commitment | reply | dump); la eroare
+   cade pe euristica simplă, apoi pe dump — niciodată blocaj. */
+let convoTurns = 0;
+
+async function routeInput(text){
+  /* poarta de anunț: primul răspuns devine session_intent (body doubling) */
+  if (gateOpen){
+    closeGate();
+    sessionMem.session_intent = { text, ts: Date.now() };
+    saveSession({ session_intent: sessionMem.session_intent }).catch(()=>{});
+    if (text.length > 40) return onDump(text);   // dump lung = și descărcare
+    return;                                       // scurt = doar anunțul
+  }
+
+  /* boot accountability: întrebarea despre angajamentul vechi */
+  if (checkbackOpen){
+    checkbackOpen = false;
+    hidePresets();
+    delete sessionMem.commitment;
+    saveSession({ commitment: null }).catch(()=>{});
+    if (/^da/.test(text)){
+      if (focused) closeNode();
+      else speak(LINES.checkNo);
+    } else if (/jumătate/.test(text)){
+      speak(LINES.checkPartial);
+    } else {
+      speak(LINES.checkNo);
+    }
+    return;
+  }
+
+  /* nod în discuție → conversație cu goblinul */
+  if (focused){
+    const parsed = await convoRoute(text);
+    switch (parsed.intent){
+      case 'closure':
+        return closeNode(parsed.say);
+      case 'commitment':
+        sessionMem.commitment = { label: focused.label, text, ts: Date.now() };
+        saveSession({ commitment: sessionMem.commitment }).catch(()=>{});
+        convoQuestion = null;
+        return speak(parsed.say || LINES.commitEcho(text));
+      case 'reply':
+        convoTurns++;
+        convoQuestion = null;
+        /* micro-funnel (research 26-D): max 3 ture de dialog. După a 3-a,
+           goblinul reîmpinge spre acțiune în loc să mai întrebe. */
+        if (convoTurns >= 3){
+          return speak((parsed.say ? parsed.say + ' ' : '') + 'acum: ' + focused.verb);
+        }
+        return speak(parsed.say || 'hm.');
+      case 'dump':
+      default:
+        return onDump(text);   // haos nou → pipeline → triaj nou
+    }
+  }
+
+  /* nimic deschis → braindump clasic */
+  return onDump(text);
+}
+
+async function convoRoute(text){
+  let says = [];
+  try { says = await recentSays(5); } catch {}
+  const convo = {
+    open_question: convoQuestion || '',
+    node: focused ? { label: focused.label, verb: focused.verb } : null,
+  };
+  const ctx = { recentSays: says, activeNodes: field.nodes.map(n => n.label) };
+  try {
+    const messages = [
+      { role: 'system', content: PROMPTS.convoSystem },
+      { role: 'user',   content: PROMPTS.convoUser(text, convo, ctx) },
+    ];
+    const raw = await llmRequest(messages, { json: true });
+    const parsed = JSON.parse(raw);
+    if (parsed && parsed.intent) return { intent: parsed.intent, say: (parsed.say || '').trim() };
+  } catch (err) {
+    console.warn('[convo] route fail, fallback:', err.message);
+  }
+  /* fallback fără LLM: închidere explicită → closure, altfel dump */
+  if (/\b(am terminat|am făcut|am facut|am plătit|am platit|am trimis|am rezolvat|s-a făcut|gata)\b/i.test(text)){
+    return { intent: 'closure', say: '' };
+  }
+  return { intent: convoQuestion ? 'reply' : 'dump', say: '' };
 }
 
 /* ── butonul „gata" ────────────────────────────────────── */
@@ -458,18 +632,7 @@ input.addEventListener('keydown', ev => {
     if (!text || busy) return;
     input.value = '';
     input.style.height = 'auto';
-
-    /* poarta de anunț: primul răspuns devine session_intent (body doubling) */
-    if (gateOpen){
-      closeGate();
-      sessionMem.session_intent = { text, ts: Date.now() };
-      saveSession({ session_intent: sessionMem.session_intent }).catch(()=>{});
-      /* dacă e un braindump real (mai lung), merge și ca dump */
-      if (text.length > 40) onDump(text);
-      return;
-    }
-
-    onDump(text);
+    routeInput(text);   // aceeași cutie: poartă | checkback | conversație | dump
   }
 });
 input.addEventListener('input', () => {
@@ -544,18 +707,70 @@ async function boot(){
   /* Stratul 1: încarcă memoria sesiunii */
   try { sessionMem = await loadSession() || {}; } catch { sessionMem = {}; }
 
-  /* mesaj de boot: continuare sau gol */
+  /* mesaj de boot → apoi afterBoot (poarta vine DUPĂ typewriter, nu peste el) */
   setTimeout(() => {
     const hasNodes = field.nodes.length > 0;
+    let bootMsg;
     if (sessionMem.last_done){
-      speak(LINES.bootDone(sessionMem.last_done.label));
+      bootMsg = LINES.bootDone(sessionMem.last_done.label);
     } else if (hasNodes){
-      speak(LINES.bootNodes(field.nodes.length));
+      bootMsg = LINES.bootNodes(field.nodes.length);
     } else {
-      speak(LINES.bootEmpty);
+      bootMsg = LINES.bootEmpty;
     }
-    /* poarta de anunț vine după mesajul de boot */
-    setTimeout(openGate, 2800);
+    speak(bootMsg, () => setTimeout(afterBoot, 700));
   }, 1200);
+}
+
+/* după mesajul de boot: restore triaj → accountability → poartă.
+   O singură întrebare deschisă la un moment dat (adjacency pair). */
+function afterBoot(){
+  /* triajul restaurat din sesiunea trecută (nod + verb, fără LLM) */
+  let restored = false;
+  if (sessionMem.focused){
+    const fn = field.byId.get(sessionMem.focused.id);
+    if (fn){
+      focused = { id: fn.id, label: fn.label, verb: sessionMem.focused.verb };
+      field.setFocus(fn.id);
+      showGata(true);
+      startFollowup();
+      startSoftExit();
+      restored = true;
+    }
+  }
+
+  /* accountability (research 26-E): anunț + verificare = commitment device.
+     Doar dacă angajamentul e mai vechi de 6h și nu s-a închis între timp. */
+  const c = sessionMem.commitment;
+  if (c && Date.now() - (c.ts || 0) > TIMING.checkMinMs &&
+      !(sessionMem.last_done && sessionMem.last_done.label === c.label &&
+        (sessionMem.last_done.ts || 0) > (c.ts || 0))){
+    checkbackOpen = true;
+    speak(LINES.checkBack(c.label), () => showPresets(
+      [LINES.presetYes, LINES.presetNo, LINES.presetPartial],
+      pick => routeInput(pick)
+    ));
+    /* ca poarta: dacă tace 45s, întrebarea expiră și merge mai departe */
+    setTimeout(() => {
+      if (!checkbackOpen) return;
+      checkbackOpen = false;
+      hidePresets();
+      delete sessionMem.commitment;
+      saveSession({ commitment: null }).catch(()=>{});
+      if (restored){ convoQuestion = 'când începi?'; speak(focused.verb + ' când începi?'); }
+      else setTimeout(openGate, 300);
+    }, 45 * 1000);
+    return;   // poarta așteaptă — o întrebare la un moment dat
+  }
+
+  if (restored){
+    /* nodul vechi încă e în discuție: goblinul reia exact de unde s-a oprit */
+    convoQuestion = 'când începi?';
+    speak(focused.verb + '. când începi?');
+    return;
+  }
+
+  /* poarta de anunț — după typewriter, nu pe timer fix */
+  setTimeout(openGate, 300);
 }
 boot();

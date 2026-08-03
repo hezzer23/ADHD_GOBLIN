@@ -24,7 +24,7 @@ export async function byokRequest(messages, { json = true } = {}){
   const base  = (localStorage.getItem(K.url) || 'https://api.openai.com/v1').replace(/\/$/, '');
   const model = localStorage.getItem(K.model) || 'gpt-4o-mini';
 
-  const body = { model, messages, temperature: 0.7, max_tokens: 1024 };
+  const body = { model, messages, temperature: 0.7, max_tokens: 2048 };
   if (json) body.response_format = { type: 'json_object' };
 
   const res = await fetch(base + '/chat/completions', {

@@ -3,11 +3,11 @@
    nu în client. Zero config pentru testeri: doar trimite messages.
    ═══════════════════════════════════════════════════════════════════════ */
 
-export async function groqRequest(messages, { json = true } = {}){
+export async function groqRequest(messages, { json = true, maxTokens } = {}){
   const res = await fetch('/api/groq', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ messages, json }),
+    body: JSON.stringify({ messages, json, max_tokens: maxTokens }),
   });
 
   if (!res.ok){

@@ -46,7 +46,7 @@ export async function onRequest({ request, env }) {
     model: MODEL,
     messages,
     temperature: 0.7,
-    max_tokens: 1024,
+    max_tokens: body.max_tokens ? Math.min(Number(body.max_tokens), 2048) : 1024,
   };
   if (body.json) payload.response_format = { type: 'json_object' };
 

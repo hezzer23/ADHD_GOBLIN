@@ -65,6 +65,28 @@ export const addNode         = node => req('nodes', s => s.put(node));
 export const addLink         = link => req('links', s => s.put(link));
 export const addClusterEvent = ev   => req('clusterEvents', s => s.add({ ...ev, ts: Date.now() }));
 
+/* șterge un nod (la „gata"/closure conversațională). Fără asta, nodul
+   „terminat" revenea la reload — închiderea era o minciună vizuală. */
+export const deleteNode = id => req('nodes', s => s.delete(id));
+
+/* șterge legăturile care ating un nod dispărut */
+export async function deleteLinksForNode(nodeId){
+  const db = await open();
+  return new Promise((res, rej) => {
+    const t = db.transaction('links', 'readwrite');
+    const st = t.objectStore('links');
+    const cur = st.openCursor();
+    cur.onsuccess = e => {
+      const c = e.target.result;
+      if (!c){ return; }
+      if (c.value.from === nodeId || c.value.to === nodeId) c.delete();
+      c.continue();
+    };
+    t.oncomplete = () => res();
+    t.onerror = () => rej(t.error);
+  });
+}
+
 /* vocea: salvează fiecare replică. mode ∈ ecou | eticheta | soaptă | mormăit */
 export const sayGoblin = (text, mode='ecou') =>
   req('goblin_says', s => s.add({ text, mode, ts: Date.now() }));
@@ -98,6 +120,23 @@ export const getAll = storeName => read(storeName, s => s.getAll());
 export async function recentSays(n = 5){
   const all = await getAll('goblin_says');
   return all.sort((a,b) => a.ts - b.ts).slice(-n);
+}
+
+/* pruning: goblin_says creștea infinit (O(n) la fiecare apel). Păstrăm
+   doar ultimele 20 de replici — restul sunt istorie moartă. */
+export async function pruneSays(keep = 20){
+  const db = await open();
+  return new Promise((res, rej) => {
+    const t = db.transaction('goblin_says', 'readwrite');
+    const st = t.objectStore('goblin_says');
+    const g = st.getAll();
+    g.onsuccess = () => {
+      const all = (g.result || []).sort((a,b) => a.ts - b.ts);
+      for (const old of all.slice(0, Math.max(0, all.length - keep))) st.delete(old.id);
+    };
+    t.oncomplete = () => res();
+    t.onerror = () => rej(t.error);
+  });
 }
 
 /* tot graful, pentru reload persistent (ziua 2) */
